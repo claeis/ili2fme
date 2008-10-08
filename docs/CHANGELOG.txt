@@ -1,0 +1,225 @@
+ili2fme 4.8.3 (2008-06-xx) 
+---------------------------
+
+ili2fme 4.8.2 (2008-06-13) 
+---------------------------
+- ili2c-3.6.7
+- bug itf-reader: lost ili1 ref attrs
+- bug: lost format attributes in wb (fixed datatype of WORKBENCH_EXPOSABLE_ATTRIBUTES in metafile)
+
+ili2fme 4.8.1 (2008-06-12) 
+---------------------------
+- note: there are incompatibilities between different fme-2007/2008 builds in @Transform and DonutFactory that influence the polygon building when reading from itf files
+- ili2c-3.6.6
+- bug: correct mapping to fme_type lost again (format name to @Transform() seems now to be case sensitive)
+- bug: NullPointerException if structattr of struct defined in an abstract topic
+- bug: read enum itf-code for default value if ILI1_ADDDEFVAL && ILI1_ENUMASITFCODE
+
+ili2fme 4.8.0 (2008-05-06) 
+---------------------------
+- added parameter ILI1_ENUMASITFCODE to mapping file
+- added optional branch to version
+
+iliili2fme 4.7.4 (2008-04-11) 
+---------------------------
+- Bug in arc_to_straight conversion if arc at the end of the line (jko)
+
+ili2fme 4.7.3 (2008-03-21) 
+---------------------------
+- Change straight arcs to straights (jko)
+- Ignore Arcs with midpoint laying on start or end point (jko)
+
+ili2fme 4.7.2 (2008-02-25) 
+---------------------------
+- bug itf-reader: NullPointerException if SURFACE without OVERLAPS
+- bug itf-writer: used attributes of maintable as lineattribs if useLineTables=no
+- use @Transform() instead of @SupplyAttributes() to map between fme_type and xtf_geomtype
+
+ili2fme 4.7.1 (2008-02-08) 
+---------------------------
+- itf-writer: TopologyFactory replaced with IntersectionFactory to support RichGeometry with ili-AREAs
+
+ili2fme 4.7.0 (2008-02-06) 
+---------------------------
+- bug xtf-writer 2.2: wrong HEADERSECTION/DATASECTION xml-element nesting  
+- reader: use classic geometry model as default (to enable user to work around FME 2007/2008 bugs)
+- xtf-reader: don't threw exception if lineattrib
+- xtf-writer: auto create XTF_BASKETS
+
+ili2fme 4.6.0 (2008-01-30) BETA
+---------------------------
+- added "INTERLIS File (*.xml;*.xtf;*.itf)" to source file selector as first entry
+- renamed to "Swiss INTERLIS (ili2fme)" as asked by safe
+- writer: eliminate requirement to set format attribute xtf_geomattr
+- bug: itf-reader: AREA attrs appeared after polygon building in FME as fme_point
+- bug: itf-writer writes TRANSFER name after MTID tag
+- bug: itf-writer failed with worbench generated ili2ili script if AREA typed attribute 
+- bug: writer fails if model name should be extracted from the data but no data pass to the writer
+ 
+ili2fme 4.5.0 (2008-01-23) BETA
+---------------------------
+- added parameter ILI1_CONVERTAREA to mapping file
+- added parameter ILI1_CONVERTSURFACE to mapping file
+- added sample SURFACE and AREA converter
+- MODELS parameter: placeholder XTF renamed to %DATA
+- writer: get model name out of features
+- writer: write line table out of donuts/polygons to itf if useLineTables=no
+- use first COORD, POLYLINE, SURFACE, oder AREA attribute as FME-geometry (same as in pre ili2fme-4.4.0)
+- bug: writer handles IFMENull
+- bug: writer adds start point if arc first segment
+- modified metafile to pass settings to schema scan
+
+ili2fme 4.4.1 (2008-01-09) BETA
+---------------------------
+- bug: exception with SURFACE/AREA without lineattrib
+- bug: writer uses useLineTables=yes as default as long as useLineTables=no is not supported
+- bug: writer handles IFMEPolygon if it appears in a POLYLINE attribute 
+- create always AREA/SURFACE line table helper featuretypes during schema scan (beacuse FME doesn't pass settings from settings dialog)
+ 
+ili2fme 4.4.0 (2008-01-08) BETA
+---------------------------
+- support incremental transfer
+- support subclass inheritance mapping strategy
+- support ARCs with FMEs Rich Geometry
+- support ITF lineattrs (read and write) 
+- added xtf_operation format attribute
+- added xtf_startstate format attribute
+- added xtf_endstate format attribute
+- added XTF_DELETEOBJECT format feature
+- added xtf_consistency format attribute
+- added INHERITANCE_MAPPING to mapping file
+- added TRACEMSGS to mapping file
+- added USE_LINETABLES to mapping file
+- use first POLYLINE, SURFACE, oder AREA attribute as FME-geometry (use COORD only if no other)
+
+ili2fme 4.3.3 (2007-12-31) 
+---------------------------
+- metafile: Allow selection of INTERLIS 1 files (ITF)
+- bug: reader memory leak (features feed to surface builder pipeline leaked) 
+
+ili2fme 4.3.2 (2007-12-12) 
+---------------------------
+- Bug: XTF parser failed with correct ili2.2 DelEntry
+- ili2c-3.5.6
+
+ili2fme 4.3.1 (2007-11-02) 
+---------------------------
+- bug: didn't evaluate settings to true if value was "YES"
+- bug: XTF parser of HEADERSECTION failed if no ALIAS after MODELS
+- bug: XTF parser didn't read value of attributes with OID type 
+- bug: hard ref in fme session to features prevents automatic feature dispose. added explicit dispose. 
+
+ili2fme 4.3.0 (2007-06-15) 
+---------------------------
+- bug: geometry attributes of structs didn't appear in wb
+- write multiple geometry attributes (as HEXWKB; use GeometryExtractor in WB)
+
+ili2fme 4.2.0 (2007-06-13) 
+---------------------------
+- bug: format attributes not exposed (commented out in fmf-file)
+- bug: XTF_CLASS still required
+- read multiple geometry attributes (as HEXWKB; use GeometryReplacer in WB)
+
+ili2fme 4.1.0 (2007-05-16) 
+---------------------------
+- bug itf-reader: no fme:donut building if ili:SURFACE  
+- settings dialog (only FME2007)
+
+ili2fme 4.0.0 (2007-03-29) BETA
+-------------------------------
+- reader/writer renamed to "INTERLIS (ili2fme)"
+- removed native ili2 reader
+- bug xtf-writer: failed to find class metadata if extended class
+- itf-reader: add default values (if ILI1_ADDDEFVAL=TRUE)
+- add ${FME}/plugins/interlis2/ili22models to default modeldirs 
+- added ili2.3 model support
+- use feature type name if XTF_CLASS value missing
+
+ili2fme 3.0.1 (2006-10-31) BETA
+-------------------------------
+- interlis2.db contains wrong format name
+
+ili2fme 3.0.0 (2006-10-30) BETA
+-------------------------------
+- itf-reader: build polygons from boundary line tables
+- format name renamed from CH.INTERLIS.ILI2FME.ILI2FME to CH.EHI.FME.MAIN  (due to COM ProgID limitation, Settings dialog requirement)
+
+ili2fme 2.1.1 (2006-08-07) BETA
+-------------------------------
+- explicitly dispose IFMEFeatureVectorOnDisk
+- bug xtf-reader: tried to read non existing attributes  
+- bug xtf-writer: tried to write non existing attributes  
+- bug reader: imports feature types without user defined attributes
+
+ili2fme 2.1.0 (2006-07-31) BETA
+-------------------------------
+- writes INTERLIS 1 transfer files
+- test ili2fme with FME2006GB
+- metafile: make use of %XTF_DIR 
+- expand %XTF_DIR in parameter MODEL_DIR
+- file formats/formats_db.txt moved to FME Suite/formatsinfo/interlis2.db
+- use streaming itf/xtf writer
+- bug metafile: use ${FME}/plugins/interlis2/ilimodels instead of ${FME}/ilimodels
+- bug: superfluous message "no logging listeners left"
+- bug: NullPointerException when reading first feature if model read from xtffile (safe:null2interlis.fmw) 
+- bug: native exception in writer if parent directory of output file doesn't exist
+- bug: IllegalStateException("swigCPtr==0") when reader and writer are interlis2 format (safe:interlis2tointerlis2.fmw)
+
+ili2fme 2.0.0 (2006-06-30) BETA
+-------------------------------
+- reads INTERLIS 1 transfer files
+- compile ili-files with option --without-warnings
+- limit length of XTF_CLASS/XTF_TOPIC as needed 
+- log version info
+- log ilifile locations
+- iom_java.dll renamed to iom_fme.dll
+- use xerces-c_2_6-interlis2.dll instead of xerces-c_2_6.dll
+- read models from ${FME}/plugins/interlis2/ilimodels
+- read models first from xtf-file location and then from ${FME}/plugins/interlis2/ilimodels
+- bug xtf-reader: doesn't report/detect compiler failure
+- bug xtf-writer: writes empty properties
+
+ili2fme 1.2.0 (2006-05-09)
+----------------------------
+- version info added to DLL and jar
+- log error msg to fme if iom_java.dll can not be loaded
+- xtf-reader: log model name if extracted from xtf
+- xtf-reader: do just schema read (if ili-file given instead of xtf-file)
+- bug xtf-writer: doesn't write struct elements
+- bug: don't free iom native objects from gc thread
+
+ili2fme 2006-03-29
+----------------------------
+- xtf-writer: improved error message if XTF_BASKET features missing
+- xtf-writer: improved error message if xtf_id,xtf_basket,xtf_class attributes in a feature type missing
+- xtf-writer: improved error message if MODELS and MODEL_DIR not present in the mapping file
+- xtf-writer: test if attribute value exists before getting it
+- xtf-reader: create feature types of all directly or indirectly used ili-models
+- apply subclass strategy to CLASSes of model INTERLIS (e.g. METAOBJECT) 
+- bug: doesn't work with universal translator
+- bug: work around FME to handle UNC-filename (translate "//share/file" back to "\\share/file")
+
+ili2fme 2005-12-06
+----------------------------
+- handle STRUCTURE
+- ili-reader: use "attr{}" instead of "attr{0}" to describe list attributes
+- xtf-reader: allow null reference
+- xtf-reader: use defaults for MODELS and MODEL_DIR if not present in the mapping file
+- how to get an "Automated mapping ..." entry in the universal translator? add an entry to gallery.db
+- format.db/gallery.db entry have to be in uppercase
+- update of INTERLIS-compiler (ili2c.jar version 2.6.3)
+
+ili2fme 2005-05-23
+----------------------------
+- added Writer: writes INTERLIS 2 transfer files
+
+ili2fme 2005-04-14
+----------------------------
+- Added note about FME_VIEWER_THREADING=SINGLE to avoid crash of FME Universal Viewer
+- Added note about ${FME}/ilimodels
+- reader: handle STRUCTURE
+
+ili2fme 2005-02-15
+----------------------------
+- initial release
+- reads INTERLIS 2 transfer files

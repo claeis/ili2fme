@@ -1,0 +1,31 @@
+#
+# sample converter to convert from INTERLIS 1 AREA attributes to FME polygons/donuts
+# use filename as value to ili2fme parameter ILI1_CONVERTAREA
+#
+# when used, ili2fme defines/passes the following macros
+# MACRO lineTableName name of FME feature type with polylines on input
+# MACRO mainTableName name of main FME feature type on input (point) and output (polygon/donut) 
+# MACRO maxOverlaps max overlaps as defined by datatype of attribute in INTERLIS model
+
+FACTORY_DEF * IntersectionFactory \
+ INPUT FEATURE_TYPE $(lineTableName) @Transform(ch.ehi.fme.Main,FME_GENERIC) \
+ OUTPUT SEGMENT  FEATURE_TYPE $(lineTableName)_F1_SEG
+
+FACTORY_DEF * PolygonFactory \
+ INPUT FEATURE_TYPE $(lineTableName)_F1_SEG\
+ END_NODED \
+ OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F2_POLY \
+ OUTPUT LINE FEATURE_TYPE $(lineTableName)_POLY_ERROR
+
+FACTORY_DEF * DonutFactory \
+ INPUT FEATURE_TYPE $(lineTableName)_F2_POLY \
+ INPUT FEATURE_TYPE $(mainTableName)  @Transform(ch.ehi.fme.Main,FME_GENERIC)\
+ OUTPUT PIP FEATURE_TYPE $(mainTableName)_F3_PIP \
+ OUTPUT DONUT FEATURE_TYPE $(mainTableName)_DONUT_ERROR  \
+ OUTPUT POINT FEATURE_TYPE $(mainTableName)_POINT_ERROR  \
+ OUTPUT POLYGON FEATURE_TYPE $(mainTableName)_POLY_ERROR
+
+FACTORY_DEF * PIPComponentsFactory \
+ INPUT FEATURE_TYPE $(mainTableName)_F3_PIP \
+ OUTPUT POLYGON FEATURE_TYPE $(mainTableName)  @Transform(FME_GENERIC,ch.ehi.fme.Main)
+

@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: ch.interlis.ili2fme.AboutDialog
+Class-Path: ili2c.jar pluginbuilder.jar iom_java.jar
+

@@ -1,0 +1,170 @@
+! ----------------------------------------------------------------------
+! INTERLIS 2 format metafile
+! 
+! Author               Date            Changes made
+! ------------------   ------------    -------------------------------
+! Claude Eisenhut      Nov 18, 2005    Original definition
+! Dave Campanas        Dec 13, 2005    Added keyword definitions only
+!                                      for UT - not used in workbench
+! Philipp Svehla       Dec 13, 2007    PR#14267. Allow selection of INTERLIS 1 files 
+!                                      for reading and writing.
+! ----------------------------------------------------------------------
+
+! ----------------------------------------------------------------------
+! First define the format name.
+
+SOURCE_READER ch.ehi.fme.Main \
+ MODELS "$(MODELS)"\
+ MODEL_DIR "$(MODEL_DIR)"\ 
+ CREATE_LINETABLES "$(CREATE_LINETABLES)"\ 
+ SKIP_POLYGONBUILDING  "$(SKIP_POLYGONBUILDING)"\
+ INHERITANCE_MAPPING  "$(INHERITANCE_MAPPING)"\
+ ILI1_ADDDEFVAL  "$(ILI1_ADDDEFVAL)"\
+ ILI1_CONVERTAREA  "$(ILI1_CONVERTAREA)"\
+ ILI1_CONVERTSURFACE  "$(ILI1_CONVERTSURFACE)"\
+ ILI1_ENUMASITFCODE  "$(ILI1_ENUMASITFCODE)"\
+ TRACEMSGS  "$(TRACEMSGS)"
+
+IGNORE_ATTRIBUTES_WITH_PREFIX xtf_
+!KEEP_ATTRIBUTE autocad_elevation
+
+FORMAT_NAME ch.ehi.fme.Main
+
+!------------------------------------------------------------------------
+! If not using workbench, add the keyword definitions. Keyword 
+! definitions are required for Java plug-ins, but are automatically 
+! added by workbench using its own naming convention.
+
+INCLUDE [if {"$(_WORKBENCH)" != "yes"} { \
+     puts {SOURCE_KEYWORD ch.ehi.fme.Main_IN}; \
+     puts {DESTINATION_KEYWORD ch.ehi.fme.Main_OUT}; \
+            } ]
+
+SOURCE_DATASET \"$[SourceDataset]\"
+	    
+! ----------------------------------------------------------------------
+! Define the preamble for stuff that is only output when INTERLIS 2 is 
+! the source format.
+
+SOURCE_PREAMBLE
+
+# ============================================================================ 
+# The following GUI line prompts for a file to be used as the
+# source of the input data.
+# The user input is stored in a macro, which is then used to define
+# the dataset to be read.
+
+GUI FILENAME SourceDataset INTERLIS_Files(*.xtf;*.xml;*.itf)|*.xtf;*.xml;*.itf|INTERLIS_2_Files(*.xtf;*.xml)|*.xtf;*.xml|INTERLIS_1_FILES(*.itf)|*.itf|All_Files|*.* Original INTERLIS 2 File:
+END_SOURCE_PREAMBLE
+
+SOURCE_SETTINGS
+GUI TITLE INTERLIS (ili2fme) Source Settings
+DEFAULT_VALUE MODELS "%DATA"
+GUI TEXT MODELS Models:
+DEFAULT_VALUE MODEL_DIR "%XTF_DIR;$(FME_HOME)plugins/interlis2/ilimodels;$(FME_HOME)plugins/interlis2/ili22models"
+GUI TEXT MODEL_DIR Models directory:
+DEFAULT_VALUE CREATE_LINETABLES "No"
+GUI CHOICE CREATE_LINETABLES Yes%No Create Linetables:
+DEFAULT_VALUE SKIP_POLYGONBUILDING "No"
+GUI CHOICE SKIP_POLYGONBUILDING Yes%No Skip polygon building:
+DEFAULT_VALUE INHERITANCE_MAPPING "SuperClass"
+GUI CHOICE INHERITANCE_MAPPING SuperClass%SubClass Inheritance mapping strategy:
+DEFAULT_VALUE ILI1_ADDDEFVAL "No"
+GUI CHOICE ILI1_ADDDEFVAL Yes%No ITF Add default values:
+DEFAULT_VALUE ILI1_CONVERTAREA ""
+GUI OPTIONAL FILENAME ILI1_CONVERTAREA FME_Mapping_Files(*.fmi)|*.fmi|All_Files|*.* Convert ILI AREA to FME Donut:
+DEFAULT_VALUE ILI1_CONVERTSURFACE ""
+GUI OPTIONAL FILENAME ILI1_CONVERTSURFACE FME_Mapping_Files(*.fmi)|*.fmi|All_Files|*.* Convert ILI SURFACE to FME Donut:
+DEFAULT_VALUE ILI1_ENUMASITFCODE "No"
+GUI CHOICE ILI1_ENUMASITFCODE Yes%No ITF Read enum values as code:
+DEFAULT_VALUE TRACEMSGS "No"
+GUI CHOICE TRACEMSGS Yes%No Enable trace messages:
+END_SOURCE_SETTINGS
+
+DESTINATION_DATASET \"$[DestDataset]\"
+
+! ----------------------------------------------------------------------
+! Define the preamble for stuff that is only output when INTERLIS 2 is 
+! the destination format.
+
+DESTINATION_PREAMBLE
+
+# ============================================================================ 
+# The following GUI line prompts for a file to be used as the
+# the destination for the INTERLIS 2 data.
+GUI FILENAME DestDataset INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|All_Files|*.* Destination INTERLIS 2 File:
+END_DESTINATION_PREAMBLE
+
+DESTINATION_SETTINGS
+GUI TITLE INTERLIS (ili2fme) Destination Settings
+DEFAULT_VALUE MODELS "%DATA"
+GUI TEXT MODELS Models:
+DEFAULT_VALUE MODEL_DIR "%XTF_DIR;$(FME_HOME)plugins/interlis2/ilimodels;$(FME_HOME)plugins/interlis2/ili22models"
+GUI TEXT MODEL_DIR Models directory:
+DEFAULT_VALUE INHERITANCE_MAPPING "SuperClass"
+GUI CHOICE INHERITANCE_MAPPING SuperClass%SubClass Inheritance mapping strategy:
+DEFAULT_VALUE USE_LINETABLES "No"
+GUI CHOICE USE_LINETABLES Yes%No Use Linetables:
+DEFAULT_VALUE TRACEMSGS "No"
+GUI CHOICE TRACEMSGS Yes%No Enable trace messages:
+END_DESTINATION_SETTINGS
+
+PREAMBLE
+
+END_PREAMBLE
+
+WORKBENCH_EXPOSABLE_ATTRIBUTES \
+    xtf_class    xtf_char(255) \
+    xtf_basket    xtf_char(200) \
+    xtf_geomattr xtf_char(255) \ 
+    xtf_operation xtf_char(6) \
+    xtf_consistency xtf_char(12) 
+			
+
+ATTRIBUTE_CASE ANY
+
+! Setting of ATTRIBUTE_LENGTH is required by FME. 
+! Otherwise appear strange attribute names in output schema
+ATTRIBUTE_LENGTH 255
+
+!ATTRIBUTE_INVALID_CHARS ": %-#[]\"()!?*'&+\/{}"
+!DEST_ILLEGAL_ATTR_LIST         \
+!    "_"                        \
+!    INTERLIS                   
+
+DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME} 
+CORR_LINE_TEMPLATE {FME_GEN_GROUP_NAME} 
+DEF_LINE_BREAK ATTRIB_CHANGE
+
+GEOM_MAP xtf_none         fme_no_geom
+GEOM_MAP xtf_coord        fme_point
+GEOM_MAP xtf_coord        fme_text
+GEOM_MAP xtf_polyline     fme_line
+GEOM_MAP xtf_surface      fme_polygon
+GEOM_MAP xtf_area         fme_polygon
+
+!for fme_arc we will stroke it AND store it in a polyline
+GEOM_MAP xtf_polyline         fme_arc              \
+         XTF_PAX              fme_primary_axis     \
+         XTF_SAX              fme_secondary_axis   \
+         XTF_ROT              fme_rotation         \
+         XTF_STAN             fme_start_angle      \
+         XTF_SWAN             fme_sweep_angle      \
+         @Arc(&XTF_PAX,&XTF_SAX,0,&XTF_ROT, &XTF_STAN, &XTF_SWAN)
+         
+!for fme_ellipse we will stroke it AND store in an area
+GEOM_MAP xtf_area             fme_ellipse          \
+         XTF_PAX              fme_primary_axis     \
+         XTF_SAX              fme_secondary_axis   \
+         XTF_ROT              fme_rotation         \
+         @Arc(&XTF_PAX,&XTF_SAX,0,&XTF_ROT)
+         
+!for fme_rectangle AND fme_rounded_rectangle we will store it in an area
+GEOM_MAP xtf_area fme_rectangle
+GEOM_MAP xtf_area fme_rounded_rectangle 
+
+ATTR_TYPE_MAP  xtf_char(width)             fme_char(width)            \
+               xtf_number(width,decimal)   fme_decimal(width,decimal) 
+
+GENERICIZE_GEOMTYPE_ATTR_NAME xtf_geomtype
+
