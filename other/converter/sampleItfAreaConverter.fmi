@@ -7,25 +7,57 @@
 # MACRO mainTableName name of main FME feature type on input (point) and output (polygon/donut) 
 # MACRO maxOverlaps max overlaps as defined by datatype of attribute in INTERLIS model
 
+## first a selfintersection  (workaround)
 FACTORY_DEF * IntersectionFactory \
  INPUT FEATURE_TYPE $(lineTableName) @Transform(ch.ehi.fme.Main,FME_GENERIC) \
+ SELF_INTERSECTION_ONLY                                              \
+ OUTPUT SEGMENT  FEATURE_TYPE $(lineTableName)_F01_SEG
+
+## standard intersection  
+FACTORY_DEF * IntersectionFactory \
+ INPUT FEATURE_TYPE $(lineTableName)_F01_SEG  \
+ OUTPUT SEGMENT  FEATURE_TYPE $(lineTableName)_F02_SEG
+
+## second intersection (workaround)
+FACTORY_DEF * IntersectionFactory \
+ INPUT FEATURE_TYPE $(lineTableName)_F02_SEG \
  OUTPUT SEGMENT  FEATURE_TYPE $(lineTableName)_F1_SEG
 
+## build polygons
 FACTORY_DEF * PolygonFactory \
  INPUT FEATURE_TYPE $(lineTableName)_F1_SEG\
  END_NODED \
  OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F2_POLY \
  OUTPUT LINE FEATURE_TYPE $(lineTableName)_POLY_ERROR
-
+ 
+## create donuts
 FACTORY_DEF * DonutFactory \
  INPUT FEATURE_TYPE $(lineTableName)_F2_POLY \
- INPUT FEATURE_TYPE $(mainTableName)  @Transform(ch.ehi.fme.Main,FME_GENERIC)\
- OUTPUT PIP FEATURE_TYPE $(mainTableName)_F3_PIP \
- OUTPUT DONUT FEATURE_TYPE $(mainTableName)_DONUT_ERROR  \
- OUTPUT POINT FEATURE_TYPE $(mainTableName)_POINT_ERROR  \
- OUTPUT POLYGON FEATURE_TYPE $(mainTableName)_POLY_ERROR
+ DROP_HOLES no \
+ TAG_HOLES no \
+ OUTPUT DONUT FEATURE_TYPE $(lineTableName)_F3_DONUT \
+ OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F3_DONUT \
+ OUTPUT POINT FEATURE_TYPE $(lineTableName)_F3_POINT_ERROR \
+ OUTPUT LINE FEATURE_TYPE $(lineTableName)_F3_LINE_ERROR 
 
-FACTORY_DEF * PIPComponentsFactory \
- INPUT FEATURE_TYPE $(mainTableName)_F3_PIP \
- OUTPUT POLYGON FEATURE_TYPE $(mainTableName)  @Transform(FME_GENERIC,ch.ehi.fme.Main)
+## overlay with points
+FACTORY_DEF * OverlayFactory \
+ INPUT POLYGON FEATURE_TYPE $(lineTableName)_F3_DONUT \
+ INPUT POINT   FEATURE_TYPE $(mainTableName) @Transform(ch.ehi.fme.Main,FME_GENERIC) \
+ OVERLAP_COUNT_ATTRIBUTE _overlaps \
+ OUTPUT POLYGON FEATURE_TYPE $(mainTableName)_F4_OVERLAY
+
+## keep those with 1 or more overlaps
+FACTORY_DEF * TestFactory \
+ INPUT  FEATURE_TYPE $(mainTableName)_F4_OVERLAY \
+ TEST &_overlaps = "0"  \
+ OUTPUT PASSED FEATURE_TYPE $(mainTableName)_F5_NO_OVERLAPS \
+ OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F5_MANYPOINTS
+
+## keep those with 1 overlap
+FACTORY_DEF * TestFactory  \
+ INPUT  FEATURE_TYPE $(mainTableName)_F5_MANYPOINTS  \
+ TEST &_overlaps = "1"  \
+ OUTPUT PASSED FEATURE_TYPE $(mainTableName) @RemoveAttributes( _overlaps) @Transform(FME_GENERIC,ch.ehi.fme.Main) \
+ OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F6_TOOMANYPOINTS
 

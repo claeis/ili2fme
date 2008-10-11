@@ -1054,14 +1054,42 @@ public class Ili2Reader implements IFMEReader {
 					surfaceBuilder.addFactories(converterAbsPath);
 				}else{
 					surfaceBuilder=session.createFactoryPipeline(mainTableName,null);
+					boolean withLut=false;
+					if(withLut){
+						IFMEStringArray lut=session.createStringArray();
+						lut.append("Lookup");lut.append("Lut");
+						lut.append("0");lut.append("ok");
+						lut.append("1");lut.append("ok");
+						lut.append("\"\"");lut.append("notok");
+						lut.append("ENCODED");
+						EhiLogger.traceState("factory "+lut);
+						surfaceBuilder.configureFunction(lut);
+						//session.configure(lut);
+					}
+					
 					String factory=null;
 					factory="FACTORY_DEF * IntersectionFactory "
 						+" INPUT FEATURE_TYPE "+lineTableName +"  @Transform("+Main.ILI2FME_FORMAT_NAME+",FME_GENERIC)"// +" @Log()"
+						+" SELF_INTERSECTION_ONLY"
 						+" OUTPUT SEGMENT  FEATURE_TYPE "+lineTableName+"_F1_SEG"
 						;
 					EhiLogger.traceState("factory "+factory);
 					surfaceBuilder.addFactory(factory," ");
 					
+					factory="FACTORY_DEF * IntersectionFactory "
+						+" INPUT FEATURE_TYPE "+lineTableName +"_F01_SEG"
+						+" OUTPUT SEGMENT  FEATURE_TYPE "+lineTableName+"_F02_SEG"
+						;
+					EhiLogger.traceState("factory "+factory);
+					surfaceBuilder.addFactory(factory," ");
+
+					factory="FACTORY_DEF * IntersectionFactory "
+						+" INPUT FEATURE_TYPE "+lineTableName +"_F02_SEG"
+						+" OUTPUT SEGMENT  FEATURE_TYPE "+lineTableName+"_F1_SEG"
+						;
+					EhiLogger.traceState("factory "+factory);
+					surfaceBuilder.addFactory(factory," ");
+
 					factory="FACTORY_DEF * PolygonFactory "
 						+" INPUT FEATURE_TYPE "+lineTableName+"_F1_SEG"
 						+" END_NODED "
@@ -1073,21 +1101,63 @@ public class Ili2Reader implements IFMEReader {
 
 					factory="FACTORY_DEF * DonutFactory "
 						+" INPUT FEATURE_TYPE "+lineTableName+"_F2_POLY "
-						+" INPUT FEATURE_TYPE "+mainTableName +"  @Transform("+Main.ILI2FME_FORMAT_NAME+",FME_GENERIC)" //+" @Log()"
-						+" OUTPUT PIP FEATURE_TYPE "+mainTableName+"_F3_PIP "
-						+" OUTPUT DONUT FEATURE_TYPE "+mainTableName+"_DONUT_ERROR  "
-						+" OUTPUT POINT FEATURE_TYPE "+mainTableName+"_POINT_ERROR  "
-						+" OUTPUT POLYGON FEATURE_TYPE "+mainTableName+"_POLY_ERROR"
+						+" DROP_HOLES no"
+						+" TAG_HOLES no"
+						+" OUTPUT DONUT FEATURE_TYPE "+lineTableName+"_F3_DONUT"
+						+" OUTPUT POLYGON FEATURE_TYPE "+lineTableName+"_F3_DONUT"
+						+" OUTPUT POINT FEATURE_TYPE "+lineTableName+"_F3_POINT_ERROR"
+						+" OUTPUT LINE FEATURE_TYPE "+lineTableName+"_F3_LINE_ERROR"
 						; 
 					EhiLogger.traceState("factory "+factory);
 					surfaceBuilder.addFactory(factory," ");
 
-					factory="FACTORY_DEF * PIPComponentsFactory "
-						+" INPUT FEATURE_TYPE "+mainTableName+"_F3_PIP "
-						+" OUTPUT POLYGON FEATURE_TYPE "+mainTableName+"  @Transform(FME_GENERIC,"+Main.ILI2FME_FORMAT_NAME+")"// +" @Log()"
+					factory="FACTORY_DEF * OverlayFactory"
+					 	+" INPUT POLYGON FEATURE_TYPE "+lineTableName+"_F3_DONUT"
+						+" INPUT POINT   FEATURE_TYPE "+mainTableName+" @Transform("+Main.ILI2FME_FORMAT_NAME+",FME_GENERIC)" //+" @Log()"
+						+" OVERLAP_COUNT_ATTRIBUTE _overlaps"
+						+" OUTPUT POLYGON FEATURE_TYPE "+mainTableName+"_F4_OVERLAY"
 						; 
 					EhiLogger.traceState("factory "+factory);
 					surfaceBuilder.addFactory(factory," ");
+					
+					if(withLut){
+						factory="FACTORY_DEF * TestFactory"
+							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F4_OVERLAY"
+							 +" TEST @Lookup(Lut,_overlaps,ENCODED_ATTR) == \"ok\""
+							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F5_OK"
+							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F5_TOOMANYPOINTS"
+							 ;
+							EhiLogger.traceState("factory "+factory);
+							surfaceBuilder.addFactory(factory," ");
+							 
+							factory="FACTORY_DEF * TestFactory"
+							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F5_OK"
+							 +" TEST &_overlaps = \"0\""
+							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F6_NO_OVERLAPS"
+							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F6_ONE_OVERLAP"
+							 ;
+							EhiLogger.traceState("factory "+factory);
+							surfaceBuilder.addFactory(factory," ");
+					}else{
+						factory="FACTORY_DEF * TestFactory"
+							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F4_OVERLAY"
+							 +" TEST &_overlaps = 0"
+							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F5_NO_OVERLAPS"
+							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F5_MANYPOINTS"
+							 ;
+							EhiLogger.traceState("factory "+factory);
+							surfaceBuilder.addFactory(factory," ");
+							 
+							factory="FACTORY_DEF * TestFactory"
+							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F5_MANYPOINTS"
+							 +" TEST &_overlaps = 1"
+							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+" @RemoveAttributes(_overlaps) @Transform(FME_GENERIC,"+Main.ILI2FME_FORMAT_NAME+")"
+							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F6_TOOMANYPOINTS"
+							 ;
+							EhiLogger.traceState("factory "+factory);
+							surfaceBuilder.addFactory(factory," ");
+					}
+					 					
 				}
 			}else if(attrType instanceof SurfaceType){
 				PrecisionDecimal maxOverlaps=((SurfaceType)attrType).getMaxOverlap();
