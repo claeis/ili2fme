@@ -736,7 +736,7 @@ public class Ili2Reader implements IFMEReader {
 					} catch (Iox2jtsException e) {
 						throw new DataException(e);
 					}
-					updateWkb(ret,prefix+attrName,wkb);
+					checkWkb(ret,prefix+attrName,wkb);
 					 //EhiLogger.debug(attrName+" "+wkb);
 					 ret.setStringAttribute(prefix+attrName, wkb);
 				 }else{
@@ -777,7 +777,7 @@ public class Ili2Reader implements IFMEReader {
 					} catch (Iox2jtsException e) {
 						throw new DataException(e);
 					}
- 					updateWkb(ret,prefix+attrName,wkb);
+ 					checkWkb(ret,prefix+attrName,wkb);
 					 //EhiLogger.debug(attrName+" "+wkb);
 					 ret.setStringAttribute(prefix+attrName, wkb);
 				 }
@@ -854,7 +854,7 @@ public class Ili2Reader implements IFMEReader {
 					} catch (Iox2jtsException e) {
 						throw new DataException(e);
 					}
- 					updateWkb(ret,prefix+attrName,wkb);
+ 					checkWkb(ret,prefix+attrName,wkb);
 					 //EhiLogger.debug(attrName+" "+wkb);
 					 ret.setStringAttribute(prefix+attrName, wkb);
 				 }
@@ -949,7 +949,7 @@ public class Ili2Reader implements IFMEReader {
 					} catch (Iox2jtsException e) {
 						throw new DataException(e);
 					}
- 					updateWkb(ret,prefix+attrName,wkb);
+ 					checkWkb(ret,prefix+attrName,wkb);
 					 //EhiLogger.debug(attrName+" "+wkb);
 					 ret.setStringAttribute(prefix+attrName, wkb);
 				}else{
@@ -979,39 +979,10 @@ public class Ili2Reader implements IFMEReader {
 		}
 		return feedToPipeline;
 	}
-	private String lastWkb="";
-	private PrintWriter wkbout=null; 
-	private void updateWkb(IFMEFeature fme,String attr,String value)
+	private void checkWkb(IFMEFeature fme,String attr,String value)
 	throws DataException
 	{
-		if(false){
-			if(wkbout==null){
-				String file="C:/tmp/jeff/rpag/wkb.csv";
-				try{
-					wkbout=new PrintWriter(new java.io.BufferedWriter(new java.io.FileWriter(file)));
-					wkbout.println("XTF_ID,WKB_LENGTH,GEOM");
-				}catch(java.io.IOException ex){
-					EhiLogger.logError(ex);
-				}
-			}
-			try {
-				String tid=fme.getStringAttribute(Main.XTF_ID);
-				if(tid.equals("xe3af217a2b14e544af165bfcb37962bd")){
-					wkbout.println(tid+ ","+value.length()+","+value);
-				}
-				try {
-					IomObject iom_obj=Jts2iox.hexwkb2surface(value);
-					setSurface(fme, iom_obj);
-				} catch (Iox2jtsException ex) {
-					EhiLogger.logError(ex);
-				}
-			} catch (FMEException e) {
-			}
-			if(value!=null && value.length()>lastWkb.length()){
-				lastWkb=value;
-			}
-			
-		}
+		// TODO checkWKB
 	}
 	private IFMEFactoryPipeline getSurfaceBuilder(AttributeDef geomAttr)
 	throws ConfigException
@@ -1826,11 +1797,6 @@ public class Ili2Reader implements IFMEReader {
 			Main.endLogging();
 			listener=null;
 		}
-		if(wkbout!=null){
-			wkbout.close();
-			wkbout=null;
-		}
-
 	}
 	private String getIliQNameType()
 	{
