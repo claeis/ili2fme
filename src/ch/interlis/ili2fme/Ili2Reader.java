@@ -1031,11 +1031,11 @@ public class Ili2Reader implements IFMEReader {
 						lut.append("Lookup");lut.append("Lut");
 						lut.append("0");lut.append("ok");
 						lut.append("1");lut.append("ok");
-						lut.append("\"\"");lut.append("notok");
-						lut.append("ENCODED");
+						lut.append("");lut.append("notok");
+						//lut.append("ENCODED");
 						EhiLogger.traceState("factory "+lut);
-						surfaceBuilder.configureFunction(lut);
-						//session.configure(lut);
+						//surfaceBuilder.configureFunction(lut);
+						session.configure(lut);
 					}
 					
 					String factory=null;
@@ -1094,7 +1094,7 @@ public class Ili2Reader implements IFMEReader {
 					if(withLut){
 						factory="FACTORY_DEF * TestFactory"
 							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F4_OVERLAY"
-							 +" TEST @Lookup(Lut,_overlaps,ENCODED_ATTR) == \"ok\""
+							 +" TEST @Lookup(Lut,_overlaps,ENCODED_ATTR) == ok"
 							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F5_OK"
 							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F5_TOOMANYPOINTS"
 							 ;
@@ -1103,9 +1103,9 @@ public class Ili2Reader implements IFMEReader {
 							 
 							factory="FACTORY_DEF * TestFactory"
 							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F5_OK"
-							 +" TEST &_overlaps = \"0\""
+							 +" TEST &_overlaps = 0"
 							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F6_NO_OVERLAPS"
-							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F6_ONE_OVERLAP"
+							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+" @RemoveAttributes(_overlaps) @Transform(FME_GENERIC,"+Main.ILI2FME_FORMAT_NAME+")"
 							 ;
 							EhiLogger.traceState("factory "+factory);
 							surfaceBuilder.addFactory(factory," ");
