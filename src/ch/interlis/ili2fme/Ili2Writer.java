@@ -1003,16 +1003,22 @@ public class Ili2Writer implements IFMEWriter {
 				if(geomattr!=null && attrName.equals(geomattr)){
 					if(doRichGeometry){
 						IFMEGeometry fmeGeom=null;
-						fmeGeom=obj.getGeometry();
-						if(fmeGeom instanceof IFMEArea){
-							IomObject surface=Fme2iox.FME2surface(session,(IFMEArea)fmeGeom);
-							iomObj.addattrobj(attrName,surface);
-						}else if(fmeGeom instanceof IFMENull){
-							// skip it
-						}else{
-							throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+						try{
+							fmeGeom=obj.getGeometry();
+							if(fmeGeom instanceof IFMEArea){
+								IomObject surface=Fme2iox.FME2surface(session,(IFMEArea)fmeGeom);
+								iomObj.addattrobj(attrName,surface);
+							}else if(fmeGeom instanceof IFMENull){
+								// skip it
+							}else{
+								throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+							}
+						}finally{
+							if(fmeGeom!=null){
+								fmeGeom.dispose();
+								fmeGeom=null;
+							}
 						}
-						fmeGeom.dispose();
 					}else{
 						mapClassicSurface(obj, iomObj, type, attrName);
 					}
@@ -1040,21 +1046,27 @@ public class Ili2Writer implements IFMEWriter {
 						if(geomattr!=null && attrName.equals(geomattr)){
 							if(doRichGeometry){
 								IFMEGeometry fmeGeom=null;
-								fmeGeom=obj.getGeometry();
-								if(fmeGeom instanceof IFMEPoint){
-									IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
-									iomObj.addattrobj(attrName,coord);
-								}else if(fmeGeom instanceof IFMENull){
-									// skip it
-								}else if(fmeGeom instanceof IFMEArea){
-									double valuev[]=obj.generatePointInPolygon(true);
-									IomObject coord=iomObj.addattrobj(attrName,"COORD");
-									coord.setattrvalue("C1",Double.toString(valuev[0]));
-									coord.setattrvalue("C2",Double.toString(valuev[1]));						
-								}else{
-									throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+								try{
+									fmeGeom=obj.getGeometry();
+									if(fmeGeom instanceof IFMEPoint){
+										IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
+										iomObj.addattrobj(attrName,coord);
+									}else if(fmeGeom instanceof IFMENull){
+										// skip it
+									}else if(fmeGeom instanceof IFMEArea){
+										double valuev[]=obj.generatePointInPolygon(true);
+										IomObject coord=iomObj.addattrobj(attrName,"COORD");
+										coord.setattrvalue("C1",Double.toString(valuev[0]));
+										coord.setattrvalue("C2",Double.toString(valuev[1]));						
+									}else{
+										throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+									}
+								}finally{
+									if(fmeGeom!=null){
+										fmeGeom.dispose();
+										fmeGeom=null;
+									}
 								}
-								fmeGeom.dispose();
 							}else{
 								double valuev[]=obj.get3DCoordinate(0);
 								IomObject coord=iomObj.addattrobj(attrName,"COORD");
@@ -1069,16 +1081,22 @@ public class Ili2Writer implements IFMEWriter {
 			if(geomattr!=null && attrName.equals(geomattr)){
 				if(doRichGeometry){
 					IFMEGeometry fmeGeom=null;
-					fmeGeom=obj.getGeometry();
-					if(fmeGeom instanceof IFMEPoint){
-						IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
-						iomObj.addattrobj(attrName,coord);
-					}else if(fmeGeom instanceof IFMENull){
-						// skip it
-					}else{
-						throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+					try{
+						fmeGeom=obj.getGeometry();
+						if(fmeGeom instanceof IFMEPoint){
+							IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
+							iomObj.addattrobj(attrName,coord);
+						}else if(fmeGeom instanceof IFMENull){
+							// skip it
+						}else{
+							throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+						}
+					}finally{
+						if(fmeGeom!=null){
+							fmeGeom.dispose();
+							fmeGeom=null;
+						}
 					}
-					fmeGeom.dispose();
 				}else{
 					double valuev[]=obj.get3DCoordinate(0);
 					IomObject coord=iomObj.addattrobj(attrName,"COORD");

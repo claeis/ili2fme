@@ -54,9 +54,17 @@ public class Fme2iox {
 		int segc=value.numSegments();
 		for(int segi=0;segi<segc;segi++){
 			IFMESegment seg=null;
-			seg=value.getSegmentAt(segi);
-			boolean is3D=value.is3D();
-			addSegment(session,sequence, seg, is3D);
+			try{
+				seg=value.getSegmentAt(segi);
+				COM.safe.fmeobjects.FMEObjectsPatch.setOwnsNative(seg, false);
+				boolean is3D=value.is3D();
+				addSegment(session,sequence, seg, is3D);
+			}finally{
+				if(seg!=null){
+					seg.dispose();
+					seg=null;
+				}
+			}
 		}
 		return ret;
 	}
@@ -161,19 +169,33 @@ public class Fme2iox {
 
 		// shell
 		IFMECurve shell=null;
-		shell=value.getOuterBoundaryAsCurve();
-		IomObject boundary=new ch.interlis.iom_j.Iom_jObject("BOUNDARY",null);
-		surface.addattrobj("boundary",boundary);
-		boundary.addattrobj("polyline", FME2polyline(session,shell));
+		try{
+			shell=value.getOuterBoundaryAsCurve();
+			IomObject boundary=new ch.interlis.iom_j.Iom_jObject("BOUNDARY",null);
+			surface.addattrobj("boundary",boundary);
+			boundary.addattrobj("polyline", FME2polyline(session,shell));
+		}finally{
+			if(shell!=null){
+				shell.dispose();
+				shell=null;
+			}
+		}
 		
 		// holes
 		int holec=value.numInnerBoundaries();
 		for(int holei=0;holei<holec;holei++){
 			IFMECurve hole=null;
-			hole=value.getInnerBoundaryAsCurveAt(holei);
-			boundary=new ch.interlis.iom_j.Iom_jObject("BOUNDARY",null);
-			surface.addattrobj("boundary",boundary);
-			boundary.addattrobj("polyline", FME2polyline(session,hole));
+			try{
+				hole=value.getInnerBoundaryAsCurveAt(holei);
+				IomObject boundary=new ch.interlis.iom_j.Iom_jObject("BOUNDARY",null);
+				surface.addattrobj("boundary",boundary);
+				boundary.addattrobj("polyline", FME2polyline(session,hole));
+			}finally{
+				if(hole!=null){
+					hole.dispose();
+					hole=null;
+				}
+			}
 		}
 		return ret;
 	}
@@ -191,10 +213,17 @@ public class Fme2iox {
 			IomObject surface=new ch.interlis.iom_j.Iom_jObject("SURFACE",null);
 			ret.addattrobj("surface",surface);
 			IFMECurve shell=null;
-			shell=((IFMESimpleArea)value).getBoundaryAsCurve();
-			IomObject boundary=new ch.interlis.iom_j.Iom_jObject("BOUNDARY",null);
-			surface.addattrobj("boundary",boundary);
-			boundary.addattrobj("polyline", FME2polyline(session,shell));
+			try{
+				shell=((IFMESimpleArea)value).getBoundaryAsCurve();
+				IomObject boundary=new ch.interlis.iom_j.Iom_jObject("BOUNDARY",null);
+				surface.addattrobj("boundary",boundary);
+				boundary.addattrobj("polyline", FME2polyline(session,shell));
+			}finally{
+				if(shell!=null){
+					shell.dispose();
+					shell=null;
+				}
+			}
 			return ret;
 		}else{
 			throw new IllegalArgumentException("unexpected IFMEArea "+value.getClass().getName());
