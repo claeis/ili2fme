@@ -1128,16 +1128,23 @@ public class Ili2Writer implements IFMEWriter {
 		boolean is3D=3==((CoordType)((SurfaceOrAreaType)type).getControlPointDomain().getType()).getDimensions().length;
 		if(doRichGeometry){
 			IFMEGeometry fmeGeom=null;
-			fmeGeom=obj.getGeometry();
-			if(fmeGeom instanceof IFMECurve){
-				IomObject polyline=Fme2iox.FME2polyline(session,(IFMECurve)fmeGeom);
-				iomObj.addattrobj(attrName,polyline);
-			}else if(fmeGeom instanceof IFMESimpleArea){
-				IomObject polyline=Fme2iox.FME2polyline(session,((IFMESimpleArea)fmeGeom).getBoundaryAsCurve());
-				iomObj.addattrobj(attrName,polyline);
-			}else{
-				obj.performFunction("@Log()");
-				throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+			try{
+				fmeGeom=obj.getGeometry();
+				if(fmeGeom instanceof IFMECurve){
+					IomObject polyline=Fme2iox.FME2polyline(session,(IFMECurve)fmeGeom);
+					iomObj.addattrobj(attrName,polyline);
+				}else if(fmeGeom instanceof IFMESimpleArea){
+					IomObject polyline=Fme2iox.FME2polyline(session,((IFMESimpleArea)fmeGeom).getBoundaryAsCurve());
+					iomObj.addattrobj(attrName,polyline);
+				}else{
+					obj.performFunction("@Log()");
+					throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+				}
+			}finally{
+				if(fmeGeom!=null){
+					fmeGeom.dispose();
+					fmeGeom=null;
+				}
 			}
 			fmeGeom.dispose();
 		}else{
