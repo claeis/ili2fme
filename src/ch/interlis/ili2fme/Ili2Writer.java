@@ -1146,7 +1146,6 @@ public class Ili2Writer implements IFMEWriter {
 					fmeGeom=null;
 				}
 			}
-			fmeGeom.dispose();
 		}else{
 			mapClassicPolyline(obj, iomObj, attrName, is3D);
 		}
