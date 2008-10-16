@@ -123,17 +123,33 @@ public class Iox2fme {
 					if (startPoint.equals(arcPoint) || endPoint.equals(arcPoint)){
 						EhiLogger.logAdaption("Ignored arc because arcpoint identical to start or end point" +
 								"("+arcPoint.getX()+","+arcPoint.getY()+")");
-							path.appendCurve(tools.convertToLine(arc));
+						IFMELine line=null;
+						try{
+							line=tools.convertToLine(arc);
+							path.appendCurve(line);
+						}finally{
+							if(line!=null){
+								line.dispose();
+								line=null;
+							}
+						}
 					}else{
-						
-							path.appendCurve(arc);
-						
-							}	
+						path.appendCurve(arc);
+					}	
 				}else{
 					EhiLogger.logAdaption("Changed straight arc to straight on arc point " +
 							"("+arcPoint.getX()+","+arcPoint.getY()+")");
 							//add straight
-							path.appendCurve(tools.convertToLine(arc));
+					IFMELine line=null;
+					try{
+						line=tools.convertToLine(arc);
+						path.appendCurve(line);
+					}finally{
+						if(line!=null){
+							line.dispose();
+							line=null;
+						}
+					}
 				}
 			}catch(FMEException ex){
 				throw new DataException("failed to add Arc",ex);
