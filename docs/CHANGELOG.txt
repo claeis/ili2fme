@@ -3,7 +3,7 @@ ili2fme 4.8.3 (2008-10-16)
 - ili2c-3.6.8
 - bug: fixed memory leak in rich geometry handling
 - get rid of PIPs in ITF area builder (use OverlayFactory instead of PIPComponentsFactory)
-- added additional InterectionFactories add head of ITF area builder   
+- added additional InterectionFactories at head of ITF area builder   
 
 ili2fme 4.8.2 (2008-06-13) 
 ---------------------------
