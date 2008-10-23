@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- <?define version="4.8.3"?> -->
+<!-- <?define basedir=".."?> -->
+<!-- <Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi"> -->
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product UpgradeCode="698C5BA1-6885-466F-93E0-28AB0749B063" Id="*" 
+  	Name="ili2fme" Language="1033" Version="$(var.version)" Manufacturer="Eisenhut Informatik AG">
+    <Package Id="*" Keywords="Installer, MSI, FME, ili2fme, INTERLIS" Description="INTERLIS-plugin for FME" 
+    	Comments="This installer database contains the logic and data required to install ili2fme." 
+	Manufacturer="Eisenhut Informatik AG" InstallerVersion="200" 
+		Languages="1033" Compressed="yes" SummaryCodepage="1252" ReadOnly="no" />
+		
+    <Condition Message='This module can only be installed if FME has been installed first.'>FME_HOME</Condition>
+
+    <Property Id="FME_HOME">  
+	<RegistrySearch Id='FmeHomeRegistry' Type='raw'
+		Root='HKLM' Key='SOFTWARE\Safe Software Inc.\Feature Manipulation Engine' Name='FME_HOME' />
+    </Property>
+    
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="FME_HOME" Name="FME_HOME">
+        <Directory Id="metafile_DIR" Name="metafile">
+          <Component Id="ch.ehi.fme.Main.fmf" Guid="A77C23CF-82EA-4B59-BB77-C0269B286C3E">
+            <File Id="ch.ehi.fme.Main.fmf" Name="ch.ehi.fme.Main.fmf" Source="$(var.basedir)\other\ch.ehi.fme.Main.fmf" KeyPath="yes" DiskId="1" />
+          </Component>
+        </Directory>
+        <Directory Id="formatsinfo_DIR" Name="formatsinfo">
+          <Component Id="interlis2.db" Guid="D8691BAD-2630-4F5E-8958-1DF8F948A52E">
+            <File Id="interlis2.db" Name="interlis2.db" Source="$(var.basedir)\other\interlis2.db" KeyPath="yes" DiskId="1" />
+          </Component>
+        </Directory>
+        <Directory Id="plugins_DIR" Name="plugins">
+          <Component Id="ili2c.jar" Guid="6227EF75-E49F-4A6D-B406-8D01309F90BB" KeyPath="yes">
+            <File Id="ili2c.jar" Name="ili2c.jar" Source="$(var.basedir)\lib\ili2c.jar"  DiskId="1" />
+            <File Id="ili2fme.jar" Name="ili2fme.jar" Source="$(var.basedir)\build\jar\ili2fme.jar" DiskId="1" />
+            <File Id="jts_1.8.jar" Name="jts-1.8.jar" Source="$(var.basedir)\lib\jts-1.8.jar" DiskId="1" />
+          </Component>
+          <Directory Id="interlis2_DIR" Name="interlis2">
+            <Directory Id="ili22models_DIR" Name="ili22models">
+              <Component Id="standardmodels22" Guid="289ADCB9-6361-447F-9DD7-B33030D5A51D">
+                <File Id="AbstractSymbology.ili22" Name="AbstractSymbology.ili" Source="$(var.basedir)\other\ili22models\AbstractSymbology.ili" KeyPath="yes" DiskId="1" />
+                <File Id="CoordSys.ili22" Name="CoordSys.ili" Source="$(var.basedir)\other\ili22models\CoordSys.ili" DiskId="1" />
+                <File Id="StandardSymbology.ili22" Name="StandardSymbology.ili" Source="$(var.basedir)\other\ili22models\StandardSymbology.ili" DiskId="1" />
+                <File Id="Time.ili22" Name="Time.ili" Source="$(var.basedir)\other\ili22models\Time.ili" DiskId="1" />
+                <File Id="Units.ili22" Name="Units.ili" Source="$(var.basedir)\other\ili22models\Units.ili" DiskId="1" />
+              </Component>
+            </Directory>
+            <Directory Id="converter_DIR" Name="converter">
+              <Component Id="sampleItfAreaConverter.fmi" Guid="6098E28E-ACD6-4D7B-B4B1-72B8D350C93C">
+                <File Id="sampleItfAreaConverter.fmi" Name="sampleItfAreaConverter.fmi" Source="$(var.basedir)\other\converter\sampleItfAreaConverter.fmi" DiskId="1" />
+                <File Id="sampleItfSurfaceConverter.fmi" Name="sampleItfSurfaceConverter.fmi" Source="$(var.basedir)\other\converter\sampleItfSurfaceConverter.fmi" DiskId="1" />
+              </Component>
+            </Directory>
+            <Directory Id="docs_DIR" Name="docs">
+              <Component Id="docs" Guid="FBA37959-A097-471f-9BC9-AABE65477DB0">
+                <File Id="CHANGELOG.txt" Name="CHANGELOG.txt" Source="$(var.basedir)\docs\CHANGELOG.txt" DiskId="1" />
+                <File Id="README.txt" Name="README.txt" Source="$(var.basedir)\docs\README.txt" DiskId="1" />
+                <File Id="interlis2.pdf" Name="interlis2.pdf" Source="$(var.basedir)\docs\interlis2.pdf" DiskId="1" />
+                <File Id="LICENSE.antlr" Name="LICENSE.antlr" Source="$(var.basedir)\docs\LICENSE.antlr" DiskId="1" />
+                <File Id="LICENSE.apache" Name="LICENSE.apache" Source="$(var.basedir)\docs\LICENSE.apache" DiskId="1" />
+                <File Id="LICENSE.lgpl" Name="LICENSE.lgpl" Source="$(var.basedir)\docs\LICENSE.lgpl" DiskId="1" />
+                <File Id="LICENSE.mitx" Name="LICENSE.mitx" Source="$(var.basedir)\docs\LICENSE.mitx" DiskId="1" />
+              </Component>
+            </Directory>
+            <Directory Id="ilimodels_DIR" Name="ilimodels">
+              <Component Id="standardmodels" Guid="1BD7FC19-8133-433A-B16D-0FEDC108FFAF">
+                <File Id="AbstractSymbology.ili" Name="AbstractSymbology.ili" Source="$(var.basedir)\other\ilimodels\AbstractSymbology.ili" KeyPath="yes" DiskId="1" />
+                <File Id="CoordSys.ili" Name="CoordSys.ili" Source="$(var.basedir)\other\ilimodels\CoordSys.ili" DiskId="1" />
+                <File Id="StandardSymbology.ili" Name="StandardSymbology.ili" Source="$(var.basedir)\other\ilimodels\StandardSymbology.ili" DiskId="1" />
+                <File Id="Time.ili" Name="Time.ili" Source="$(var.basedir)\other\ilimodels\Time.ili" DiskId="1" />
+                <File Id="Units.ili" Name="Units.ili" Source="$(var.basedir)\other\ilimodels\Units.ili" DiskId="1" />
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+    <Feature Id="MainFeature" Title="MainFeature" Description="Description" Display="expand" Level="1" ConfigurableDirectory="FME_HOME">
+      <ComponentRef Id="ili2c.jar" />
+      <ComponentRef Id="sampleItfAreaConverter.fmi" />
+      <ComponentRef Id="standardmodels22" />
+      <ComponentRef Id="standardmodels" />
+      <ComponentRef Id="interlis2.db" />
+      <ComponentRef Id="ch.ehi.fme.Main.fmf" />
+      <ComponentRef Id="docs" />
+    </Feature>
+    <Upgrade Id="698C5BA1-6885-466F-93E0-28AB0749B063">
+      <UpgradeVersion Maximum="$(var.version)" Property="OLDPRODUCTFOUND" MigrateFeatures="yes" />
+      <!-- <Property Id="OLDPRODUCTS" Secure="yes" /> -->
+      <UpgradeVersion Minimum="$(var.version)" Property="NEWERPRODUCTFOUND" OnlyDetect="yes" />
+      <!-- <Property Id="AI_NEWERPRODUCTFOUND" Secure="yes" /> -->
+    </Upgrade>
+    <Media Id="1" EmbedCab="yes" Cabinet="disk1.cab" />
+    <CustomAction Id='AlreadyUpdated' Error='ilifme has already been updated to $(var.version) or newer.' />
+   <InstallExecuteSequence>
+    	 <Custom Action='AlreadyUpdated' After='FindRelatedProducts'>NEWERPRODUCTFOUND</Custom>
+	  <!-- <LaunchConditions After='AppSearch' /> -->
+	  <RemoveExistingProducts After='InstallFinalize' />
+    </InstallExecuteSequence>
+    
+  </Product>
+</Wix>
