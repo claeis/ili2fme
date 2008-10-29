@@ -611,7 +611,7 @@ public class Ili2Reader implements IFMEReader {
 			// if SURFACE helper table
 			if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof SurfaceType){
 				//add ref to main table
-				String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
+				String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
 				IomObject structvalue=iomObj.getattrobj(fkName,0);
 				String refoid=structvalue.getobjectrefoid();
 				ret.setStringAttribute(fkName,refoid);
@@ -782,49 +782,56 @@ public class Ili2Reader implements IFMEReader {
 					 ret.setStringAttribute(prefix+attrName, wkb);
 				 }
 			 }else{
-				 // is itf and main table?
-				 if(formatMode==MODE_ITF && !wrapper.isHelper()){
-				 	// no geometry
-				 	feedToPipeline=true;
-				 	if(createLineTableFeatures){
-				 		cloneFeatureType.append(ret.getFeatureType()+"_MT");
-				 	}
+				 // is itf? 
+				 if(formatMode==MODE_ITF){
+					 // main table?
+					 if(!wrapper.isHelper()){
+						 	// no geometry
+						 	feedToPipeline=true;
+						 	if(createLineTableFeatures){
+						 		cloneFeatureType.append(ret.getFeatureType()+"_MT");
+						 	}
+					 }else{
+						// helper table
+						 IomObject value=iomObj.getattrobj(ch.interlis.iom_j.itf.ModelUtilities.getHelperTableGeomAttrName(attr),0);
+						 if(value!=null){
+								// helper table
+								ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_polyline");
+								 if(doRichGeometry){
+									 IFMEPath fmeLine=null;
+									 try{
+										 fmeLine=Iox2fme.polyline2FME(session,value,false);
+										 ret.setGeometry(fmeLine);
+									 }finally{
+										 if(fmeLine!=null){
+											 fmeLine.dispose();
+											 fmeLine=null;
+										 }
+									 }
+								 }else{
+									setPolyline(ret,value,false,getP((SurfaceType)type));
+								 }
+								feedToPipeline=true;
+								if(createLineTableFeatures){
+									cloneFeatureType.append(ret.getFeatureType()+"_LT");
+								}
+								// add line attributes
+								SurfaceType surfaceType=(SurfaceType)type;
+								Table lineAttrTable=surfaceType.getLineAttributeStructure();
+								if(lineAttrTable!=null){
+								    Iterator attri = lineAttrTable.getAttributes ();
+								    while(attri.hasNext()){
+								    	AttributeDef lineattr=(AttributeDef)attri.next();
+										mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null);
+								    }
+								}
+						 }
+					 }
 				 }else{
+					 // XTF
 					 //ret.setStringAttribute("fme_geometry{0}", "xtf_surface");
 					 IomObject value=iomObj.getattrobj(attrName,0);
 					 if(value!=null){
-						if(formatMode==MODE_ITF){
-							// helper table
-							ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_polyline");
-							 if(doRichGeometry){
-								 IFMEPath fmeLine=null;
-								 try{
-									 fmeLine=Iox2fme.polyline2FME(session,value,false);
-									 ret.setGeometry(fmeLine);
-								 }finally{
-									 if(fmeLine!=null){
-										 fmeLine.dispose();
-										 fmeLine=null;
-									 }
-								 }
-							 }else{
-								setPolyline(ret,value,false,getP((SurfaceType)type));
-							 }
-							feedToPipeline=true;
-							if(createLineTableFeatures){
-								cloneFeatureType.append(ret.getFeatureType()+"_LT");
-							}
-							// add line attributes
-							SurfaceType surfaceType=(SurfaceType)type;
-							Table lineAttrTable=surfaceType.getLineAttributeStructure();
-							if(lineAttrTable!=null){
-							    Iterator attri = lineAttrTable.getAttributes ();
-							    while(attri.hasNext()){
-							    	AttributeDef lineattr=(AttributeDef)attri.next();
-									mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null);
-							    }
-							}
-						}else{
 							ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_surface");
 							 if(doRichGeometry){
 								 IFMEDonut fmeSurface=null;
@@ -840,7 +847,6 @@ public class Ili2Reader implements IFMEReader {
 							 }else{
 								setSurface(ret,value,(SurfaceType)type);
 							 }
-						}
 					 }
 				 }
 			 }
@@ -860,80 +866,87 @@ public class Ili2Reader implements IFMEReader {
 				 }
 			 }else{
 				 //ret.setStringAttribute("fme_geometry{0}", "xtf_area");
-				 IomObject value=iomObj.getattrobj(attrName,0);
-				 if(value!=null){
 					if(formatMode==MODE_ITF){
 						feedToPipeline=true;
 						// is helper table?
 						if(wrapper.isHelper()){
-							ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_polyline");
-							 if(doRichGeometry){
-								 IFMEPath fmeLine=null;
-								 try{
-									 fmeLine=Iox2fme.polyline2FME(session,value,false);
-									 ret.setGeometry(fmeLine);
-								 }finally{
-									 if(fmeLine!=null){
-										 fmeLine.dispose();
-										 fmeLine=null;
+							 IomObject value=iomObj.getattrobj(ch.interlis.iom_j.itf.ModelUtilities.getHelperTableGeomAttrName(attr),0);
+							 if(value!=null){
+									ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_polyline");
+									 if(doRichGeometry){
+										 IFMEPath fmeLine=null;
+										 try{
+											 fmeLine=Iox2fme.polyline2FME(session,value,false);
+											 ret.setGeometry(fmeLine);
+										 }finally{
+											 if(fmeLine!=null){
+												 fmeLine.dispose();
+												 fmeLine=null;
+											 }
+										 }
+									 }else{
+											setPolyline(ret,value,false,getP((AreaType)type));
 									 }
-								 }
-							 }else{
-									setPolyline(ret,value,false,getP((AreaType)type));
+										if(createLineTableFeatures){
+											cloneFeatureType.append(ret.getFeatureType()+"_LT");
+										}
+										// add line attributes
+										AreaType surfaceType=(AreaType)type;
+										Table lineAttrTable=surfaceType.getLineAttributeStructure();
+										if(lineAttrTable!=null){
+										    Iterator attri = lineAttrTable.getAttributes ();
+										    while(attri.hasNext()){
+										    	AttributeDef lineattr=(AttributeDef)attri.next();
+												mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null);
+										    }
+										}
 							 }
-							if(createLineTableFeatures){
-								cloneFeatureType.append(ret.getFeatureType()+"_LT");
-							}
-							// add line attributes
-							AreaType surfaceType=(AreaType)type;
-							Table lineAttrTable=surfaceType.getLineAttributeStructure();
-							if(lineAttrTable!=null){
-							    Iterator attri = lineAttrTable.getAttributes ();
-							    while(attri.hasNext()){
-							    	AttributeDef lineattr=(AttributeDef)attri.next();
-									mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null);
-							    }
-							}
 						}else{
 							// main table
-							ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_coord");
-							 if(doRichGeometry){
-								 IFMEPoint point=null;
-								 try{
-									 point=Iox2fme.coord2FME(session,value);
-									 ret.setGeometry(point);
-								 }finally{
-									 if(point!=null){
-										 point.dispose();
-										 point=null;
+							 IomObject value=iomObj.getattrobj(attrName,0);
+							 if(value!=null){
+									ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_coord");
+									 if(doRichGeometry){
+										 IFMEPoint point=null;
+										 try{
+											 point=Iox2fme.coord2FME(session,value);
+											 ret.setGeometry(point);
+										 }finally{
+											 if(point!=null){
+												 point.dispose();
+												 point=null;
+											 }
+										 }
+									 }else{
+											ret.setGeometryType(IFMEFeature.FME_GEOM_POINT);
+											addCoord(ret,value);
 									 }
-								 }
-							 }else{
-									ret.setGeometryType(IFMEFeature.FME_GEOM_POINT);
-									addCoord(ret,value);
+									if(createLineTableFeatures){
+										cloneFeatureType.append(ret.getFeatureType()+"_MT");
+									}
 							 }
-							if(createLineTableFeatures){
-								cloneFeatureType.append(ret.getFeatureType()+"_MT");
-							}
 						}
 					}else{
-						ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_area");
-						 if(doRichGeometry){
-							 IFMEDonut fmeSurface=null;
-							 try{
-								 fmeSurface=Iox2fme.surface2FME(session,value);
-								 ret.setGeometry(fmeSurface);
-							 }finally{
-								 if(fmeSurface!=null){
-									 fmeSurface.dispose();
-									 fmeSurface=null;
+						// XTF
+						 IomObject value=iomObj.getattrobj(attrName,0);
+						 if(value!=null){
+								ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_area");
+								 if(doRichGeometry){
+									 IFMEDonut fmeSurface=null;
+									 try{
+										 fmeSurface=Iox2fme.surface2FME(session,value);
+										 ret.setGeometry(fmeSurface);
+									 }finally{
+										 if(fmeSurface!=null){
+											 fmeSurface.dispose();
+											 fmeSurface=null;
+										 }
+									 }
+								 }else{
+									setSurface(ret,value,(AreaType)type);
 								 }
-							 }
-						 }else{
-							setSurface(ret,value,(AreaType)type);
 						 }
 					}
-				 }
 			 }
 		 }else if(type instanceof CoordType){
 			 //ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
@@ -1132,7 +1145,7 @@ public class Ili2Reader implements IFMEReader {
 				}
 			}else if(attrType instanceof SurfaceType){
 				PrecisionDecimal maxOverlaps=((SurfaceType)attrType).getMaxOverlap();
-				String mainTableRef=geomAttr.getContainer().getName();
+				String mainTableRef=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(geomAttr);
 				//EhiLogger.debug("mainTableName "+mainTableName);
 				//EhiLogger.debug("lineTableName "+lineTableName);
 				//EhiLogger.debug("mainTableRef "+mainTableRef);

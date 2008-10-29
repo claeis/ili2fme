@@ -348,6 +348,8 @@ public class Ili2Writer implements IFMEWriter {
 		// do not dispose featurev here; because it is used again when writing the line table of SURFACEs to ITF
 		// dispose it in cleanup()
 	}
+	/** use FME features of AREA mainTable to build and write IOM objects of line table.
+	 */
 	private void writeItfLineTableArea(String mainTableName,String lineTableName) throws Exception, IoxException {
 		//EhiLogger.debug("bufferKey "+bufferKey);
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(mainTableName);
@@ -359,14 +361,24 @@ public class Ili2Writer implements IFMEWriter {
 			IFMEFactoryPipeline lineTableBuilder=null;
 			lineTableBuilder=session.createFactoryPipeline(mainTableName,null);
 			String factory=null;
-			
-			factory="FACTORY_DEF * IntersectionFactory "
-				+" INPUT FEATURE_TYPE *"
-				+" IGNORE_NODE_HEIGHTS yes"
-				+" OUTPUT SEGMENT  FEATURE_TYPE "+lineTableName
-				;
-			EhiLogger.traceState("factory "+factory);
-			lineTableBuilder.addFactory(factory," ");
+			boolean useTopology=false;
+			if(useTopology){
+				factory="FACTORY_DEF * TopologyFactory "
+					+" INPUT FEATURE_TYPE *"
+					+" IGNORE_NODE_HEIGHTS yes"
+					+" OUTPUT LINE  FEATURE_TYPE "+lineTableName
+					;
+				EhiLogger.traceState("factory "+factory);
+				lineTableBuilder.addFactory(factory," ");								
+			}else{				
+				factory="FACTORY_DEF * IntersectionFactory "
+					+" INPUT FEATURE_TYPE *"
+					+" IGNORE_NODE_HEIGHTS yes"
+					+" OUTPUT SEGMENT  FEATURE_TYPE "+lineTableName
+					;
+				EhiLogger.traceState("factory "+factory);
+				lineTableBuilder.addFactory(factory," ");
+			}
 			
 			// feed all features to pipeline
 			for(int featurei=0;featurei<featurec;featurei++){
@@ -381,13 +393,13 @@ public class Ili2Writer implements IFMEWriter {
 			// read all features from pipeline			
 			ViewableWrapper wrapper=(ViewableWrapper)fmeFeatureTypev.get(lineTableName);
 			AttributeDef attr=wrapper.getGeomAttr4FME();
-			String attrName=attr.getName();
+			String iomAttrName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableGeomAttrName(attr);
 			Type type = attr.getDomainResolvingAliases();
 			IFMEFeature feature=session.createFeature();
 			while(lineTableBuilder.getOutputFeature(feature)){
 				// process feature
 				IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
-				mapItfPolylineValueOfLineTable(feature, iomObj, wrapper, type, attrName);
+				mapItfPolylineValueOfLineTable(feature, iomObj, wrapper, type, iomAttrName);
 				// add line attributes
 				//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 				//addItfLineAttributes(iomObj, feature, wrapper, surfaceType);
@@ -400,6 +412,8 @@ public class Ili2Writer implements IFMEWriter {
 		}
 		
 	}
+	/** use FME features of SURFACE mainTable to build and write IOM objects of line table.
+	 */
 	private void writeItfLineTableSurface(String mainTableName,String lineTableName) throws Exception, IoxException {
 		//EhiLogger.debug("bufferKey "+bufferKey);
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(mainTableName);
@@ -409,7 +423,8 @@ public class Ili2Writer implements IFMEWriter {
 			
 			ViewableWrapper wrapper=(ViewableWrapper)fmeFeatureTypev.get(lineTableName);
 			AttributeDef attr=wrapper.getGeomAttr4FME();
-			String attrName=attr.getName();
+			String iomAttrName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableGeomAttrName(attr);
+			String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(attr);
 			Type type = attr.getDomainResolvingAliases();
 			
 			for(int featurei=0;featurei<featurec;featurei++){
@@ -428,14 +443,13 @@ public class Ili2Writer implements IFMEWriter {
 							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
 
 							//add ref to main table
-							String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
 							IomObject structvalue=iomObj.addattrobj(fkName,"REF");
 							structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
 							
 							IFMECurve shell=null;
 							shell=fmeDonut.getOuterBoundaryAsCurve();
 							IomObject polyline=Fme2iox.FME2polyline(session,shell);
-							iomObj.addattrobj(attrName,polyline);
+							iomObj.addattrobj(iomAttrName,polyline);
 							
 							// add line attributes
 							//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
@@ -449,14 +463,13 @@ public class Ili2Writer implements IFMEWriter {
 							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
 
 							//add ref to main table
-							String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
 							IomObject structvalue=iomObj.addattrobj(fkName,"REF");
 							structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
 							
 							IFMECurve hole=null;
 							hole=fmeDonut.getInnerBoundaryAsCurveAt(holei);
 							IomObject polyline=Fme2iox.FME2polyline(session,hole);
-							iomObj.addattrobj(attrName,polyline);
+							iomObj.addattrobj(iomAttrName,polyline);
 							
 							// add line attributes
 							//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
@@ -467,11 +480,10 @@ public class Ili2Writer implements IFMEWriter {
 						IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
 
 						//add ref to main table
-						String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
 						IomObject structvalue=iomObj.addattrobj(fkName,"REF");
 						structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
 						IomObject polyline=Fme2iox.FME2polyline(session,((IFMESimpleArea)fmeGeom).getBoundaryAsCurve());
-						iomObj.addattrobj(attrName,polyline);
+						iomObj.addattrobj(iomAttrName,polyline);
 						
 						// add line attributes
 						//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
@@ -868,7 +880,7 @@ public class Ili2Writer implements IFMEWriter {
 			// if SURFACE helper table
 			if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof SurfaceType){
 				//add ref to main table
-				String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
+				String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
 				IomObject structvalue=iomObj.addattrobj(fkName,"REF");
 				structvalue.setobjectrefoid(getStringAttribute(obj,fkName));
 			}
@@ -1036,7 +1048,8 @@ public class Ili2Writer implements IFMEWriter {
 		 		// formatMode==MODE_ITF
 				// if helper table
 				if(wrapper.isHelper()){
-					mapItfPolylineValueOfLineTable(obj, iomObj, wrapper, type, attrName);
+					String iomAttrName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableGeomAttrName(attr);
+					mapItfPolylineValueOfLineTable(obj, iomObj, wrapper, type, iomAttrName);
 					// add line attributes
 					SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 					addItfLineAttributes(iomObj, obj, wrapper, surfaceType);
@@ -1124,7 +1137,7 @@ public class Ili2Writer implements IFMEWriter {
 			}
 		}
 	}
-	private void mapItfPolylineValueOfLineTable(IFMEFeature obj, IomObject iomObj, ViewableWrapper wrapper, Type type, String attrName) throws DataException, FMEException, Exception, Iox2jtsException {
+	private void mapItfPolylineValueOfLineTable(IFMEFeature obj, IomObject iomObj, ViewableWrapper wrapper, Type type, String iomAttrName) throws DataException, FMEException, Exception, Iox2jtsException {
 		boolean is3D=3==((CoordType)((SurfaceOrAreaType)type).getControlPointDomain().getType()).getDimensions().length;
 		if(doRichGeometry){
 			IFMEGeometry fmeGeom=null;
@@ -1132,10 +1145,10 @@ public class Ili2Writer implements IFMEWriter {
 				fmeGeom=obj.getGeometry();
 				if(fmeGeom instanceof IFMECurve){
 					IomObject polyline=Fme2iox.FME2polyline(session,(IFMECurve)fmeGeom);
-					iomObj.addattrobj(attrName,polyline);
+					iomObj.addattrobj(iomAttrName,polyline);
 				}else if(fmeGeom instanceof IFMESimpleArea){
 					IomObject polyline=Fme2iox.FME2polyline(session,((IFMESimpleArea)fmeGeom).getBoundaryAsCurve());
-					iomObj.addattrobj(attrName,polyline);
+					iomObj.addattrobj(iomAttrName,polyline);
 				}else{
 					obj.performFunction("@Log()");
 					throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
@@ -1147,7 +1160,7 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 		}else{
-			mapClassicPolyline(obj, iomObj, attrName, is3D);
+			mapClassicPolyline(obj, iomObj, iomAttrName, is3D);
 		}
 	}
 	private void mapClassicPolyline(

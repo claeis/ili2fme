@@ -1,3 +1,7 @@
+ili2fme 4.9.0 (2008-10-29) 
+---------------------------
+- renamed reference property of SURFACE linetable to maintable (might break existing configs that use CREATE_LINETABLES=Yes)
+
 ili2fme 4.8.3 (2008-10-16) 
 ---------------------------
 - ili2c-3.6.8
