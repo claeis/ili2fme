@@ -2,14 +2,16 @@
 <project basedir="." default="jar" name="ili2fme">
 
   <!-- set global properties for this build -->
+  <property file="user.properties" />
+  <!-- default if not set by user.properties -->
+  <property name="fmehome" value="C:\Program Files\FME"/>
+  <property name="wix_candle" value="C:/Program Files/wix/candle.exe"/>
+  <property name="wix_light" value="C:/Program Files/wix/light.exe"/>
+
   <property name="src" value="${basedir}/src"/>
   <property name="build" value="${basedir}/build"/>
   <property name="dist" value="${basedir}/dist"/>
-  <property name="fmehome" value="C:\Program Files\FME-5197"/>
-  <property name="wix_candle" value="C:/Program Files/wix-3.0.4318/candle.exe"/>
-  <property name="wix_light" value="C:/Program Files/wix-3.0.4318/light.exe"/>
-  <!-- <property name="fmehome" value="C:\Program Files\FME2007"/> -->
-
+  
   <target name="init">
     <!-- Create the time stamp -->
     <tstamp/>
