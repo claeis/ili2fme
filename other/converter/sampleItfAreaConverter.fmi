@@ -25,7 +25,7 @@ FACTORY_DEF * IntersectionFactory \
 
 ## build polygons
 FACTORY_DEF * PolygonFactory \
- INPUT FEATURE_TYPE $(lineTableName)_F1_SEG\
+ INPUT FEATURE_TYPE $(lineTableName)_F1_SEG \
  END_NODED \
  OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F2_POLY \
  OUTPUT LINE FEATURE_TYPE $(lineTableName)_POLY_ERROR
@@ -50,14 +50,14 @@ FACTORY_DEF * OverlayFactory \
 ## keep those with 1 or more overlaps
 FACTORY_DEF * TestFactory \
  INPUT  FEATURE_TYPE $(mainTableName)_F4_OVERLAY \
- TEST &_overlaps = "0"  \
+ TEST &_overlaps = 0  \
  OUTPUT PASSED FEATURE_TYPE $(mainTableName)_F5_NO_OVERLAPS \
  OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F5_MANYPOINTS
 
 ## keep those with 1 overlap
 FACTORY_DEF * TestFactory  \
  INPUT  FEATURE_TYPE $(mainTableName)_F5_MANYPOINTS  \
- TEST &_overlaps = "1"  \
+ TEST &_overlaps = 1  \
  OUTPUT PASSED FEATURE_TYPE $(mainTableName) @RemoveAttributes( _overlaps) @Transform(FME_GENERIC,ch.ehi.fme.Main) \
  OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F6_TOOMANYPOINTS
 

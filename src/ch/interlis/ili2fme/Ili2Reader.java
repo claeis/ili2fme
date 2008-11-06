@@ -1070,7 +1070,7 @@ public class Ili2Reader implements IFMEReader {
 					factory="FACTORY_DEF * IntersectionFactory "
 						+" INPUT FEATURE_TYPE "+lineTableName +"  @Transform("+Main.ILI2FME_FORMAT_NAME+",FME_GENERIC)"// +" @Log()"
 						+" SELF_INTERSECTION_ONLY"
-						+" OUTPUT SEGMENT  FEATURE_TYPE "+lineTableName+"_F1_SEG"
+						+" OUTPUT SEGMENT  FEATURE_TYPE "+lineTableName+"_F01_SEG"
 						;
 					EhiLogger.traceState("factory "+factory);
 					surfaceBuilder.addFactory(factory," ");
