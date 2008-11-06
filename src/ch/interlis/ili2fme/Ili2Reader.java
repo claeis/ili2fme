@@ -139,10 +139,23 @@ public class Ili2Reader implements IFMEReader {
 		}
 		//EhiLogger.debug("fmeBuildNumber "+session.fmeBuildNumber());
 		//EhiLogger.debug("fmeVersion "+session.fmeVersion());
-		{
-			doRichGeometry=false;
+		int fme_buildnr=session.fmeBuildNumber();
+		doRichGeometry=false;
+		if(fme_buildnr>=5608){
+			IFMEStringArray settings=session.createStringArray();
+			session.getSettings("FME_GEOMETRY_HANDLING",settings);
+
+			int entc=settings.entries();
+			if(entc==1){
+				String fmeUseRichGeometry=settings.getElement(0);
+				if(fmeUseRichGeometry.equals("Enhanced")){
+					doRichGeometry=true;
+				}
+			}
+		}else{
 			IFMEStringArray settings=session.createStringArray();
 			session.getSettings("FME_USE_RICH_GEOMETRY",settings);
+
 			int entc=settings.entries();
 			if(entc==1){
 				String fmeUseRichGeometry=settings.getElement(0);
@@ -150,9 +163,11 @@ public class Ili2Reader implements IFMEReader {
 					doRichGeometry=true;
 				}
 			}
-			if(!doRichGeometry){
-				EhiLogger.logState("ili2fme reader uses classic geometry model");
-			}
+		}
+		if(!doRichGeometry){
+			EhiLogger.logState("ili2fme reader uses classic geometry handling");
+		}else{
+			EhiLogger.logState("ili2fme reader uses enhanced geometry handling");
 		}
 		if(false){
 			//session.logSettings("DUMP_CONFIG");
