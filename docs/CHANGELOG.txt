@@ -1,3 +1,8 @@
+ili2fme 4.9.1 (2008-11-06) 
+---------------------------
+- adapted to FME_GEOMETRY_HANDLING=Enhanced
+- fixed spelling error in polygon building script of AREAs
+
 ili2fme 4.9.0 (2008-10-29) 
 ---------------------------
 - renamed reference property of SURFACE linetable to maintable (might break existing configs that use CREATE_LINETABLES=Yes)
