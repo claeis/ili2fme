@@ -91,6 +91,7 @@ public class Ili2Reader implements IFMEReader {
 	private String ili1ConvertSurface=null;
 	private String ili1ConvertArea=null;
 	private boolean ili1EnumAsItfCode=false;
+	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		readerKeyword=keyword;
@@ -213,6 +214,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.INHERITANCE_MAPPING)){
 				i++;
 				inheritanceMapping=InheritanceMapping.valueOf((String)args.get(i));
+			}else if(arg.equals(Main.CREATEFEATURETYPE4ENUM )){
+				i++;
+				createEnumTypes=CreateEnumFeatureTypes.valueOf((String)args.get(i));
 			}else{
 				// skip this argument
 			}
@@ -240,6 +244,8 @@ public class Ili2Reader implements IFMEReader {
 					ili1ConvertSurface=StringUtility.purge((String)ele.get(1));	
 				}else if(val.equals(readerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.CREATEFEATURETYPE4ENUM)){
+					createEnumTypes=CreateEnumFeatureTypes.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ENUMASITFCODE)){
 					ili1EnumAsItfCode=FmeUtility.isTrue((String)ele.get(1));
 				}
@@ -248,6 +254,7 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("createLineTables <"+createLineTableFeatures+">");
 		EhiLogger.logState("skipPolygonBuilding <"+skipPolygonBuilding+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
+		EhiLogger.logState("createEnumTypes <"+CreateEnumFeatureTypes.toString(createEnumTypes)+">");
 		EhiLogger.logState("ili1AddDefVal <"+ili1AddDefVal+">");
 		EhiLogger.logState("ili1EnumAsItfCode <"+ili1EnumAsItfCode+">");
 		EhiLogger.logState("ili1ConvertArea <"+(ili1ConvertArea!=null?ili1ConvertArea:"")+">");
@@ -286,6 +293,8 @@ public class Ili2Reader implements IFMEReader {
 		String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(new java.io.File(xtfFile)).toLowerCase();
 		if(xtfExt.equals("itf")){
 			formatMode=MODE_ITF;
+		}else if(xtfExt.equals("gml")){
+			throw new IllegalArgumentException("INTERLIS GML not yet supported by ili2fme reader");
 		}else{
 			formatMode=MODE_XTF;
 		}
@@ -369,6 +378,10 @@ public class Ili2Reader implements IFMEReader {
 		}
 		transferViewablei=null;
 		
+		if(createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF || createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+			collectEnums(iliTd);
+		}
+
 		// setup mapping from xml-elementnames to types
 		if(formatMode==MODE_XTF){
 			tag2class=ch.interlis.ili2c.generator.XSDGenerator.getTagMap(iliTd);
@@ -440,10 +453,19 @@ public class Ili2Reader implements IFMEReader {
 	{
 		// ili-file mode?
 		if(xtfFile==null){
+			if(createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF || createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+				return processEnums(ret);
+			}
 			// no features, just schema features!
 			return null;
 		}
 		try{
+			if(createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF || createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+				IFMEFeature enumEle=processEnums(ret);
+				if(enumEle!=null){
+					return enumEle;
+				}
+			}
 			if(doPipeline){
 				Iterator surfaceBuilderi=surfaceBuilders.values().iterator();
 				while(surfaceBuilderi.hasNext()){
@@ -1308,6 +1330,37 @@ public class Ili2Reader implements IFMEReader {
 					formatFeatureTypeIdx++;
 					return ret;	
 				}
+				if(formatFeatureTypeIdx==2 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+					ret.setFeatureType(Main.XTF_ENUMS);
+					ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+					ret.setStringAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
+					ret.setStringAttribute(Main.XTF_ENUMBASE,Main.ILINAME_TYPE);
+					ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
+					ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
+					ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+					formatFeatureTypeIdx++;
+					return ret;	
+				}
+				if(formatFeatureTypeIdx>=2 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
+					if(formatFeatureTypeIdx==2){
+						enumDefi=enumDefs.iterator();
+					}
+					if(enumDefi!=null){
+						if(enumDefi.hasNext()){
+							Object enumDef=enumDefi.next();
+							String enumTypeName = mapEnumDefName(enumDef);
+							ret.setFeatureType(enumTypeName);
+							ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+							ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
+							ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
+							ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+							formatFeatureTypeIdx++;
+							return ret;	
+						}else{
+							enumDefi=null;
+						}
+					}
+				}
 				// init class iterator
 				transferViewablei=transferViewables.keySet().iterator();
 				seenFmeTypes=new HashSet();
@@ -1446,6 +1499,19 @@ public class Ili2Reader implements IFMEReader {
 			EhiLogger.logError(ex);
 			throw ex;
 		}
+	}
+	private String mapEnumDefName(Object enumDef) {
+		String enumTypeName=null;
+		if(enumDef instanceof AttributeDef){
+			AttributeDef attr=(AttributeDef)enumDef;
+			enumTypeName=attr.getContainer().getScopedName(null)+"."+attr.getName();
+		}else if(enumDef instanceof Domain){
+			Domain domain=(Domain)enumDef;
+			enumTypeName=domain.getScopedName(null);
+		}else{
+			throw new IllegalStateException();
+		}
+		return enumTypeName;
 	}
 	private void mapFeatureType(AttributeDef geomAttr,IFMEFeature ret,ViewableWrapper wrapper,String attrNamePrefix)
 	{
@@ -1829,5 +1895,148 @@ public class Ili2Reader implements IFMEReader {
 	private String getIliQNameType()
 	{
 		return "xtf_char("+Integer.toString(iliQNameSize)+")";
+	}
+	private ArrayList enumDefs=null; // array<Domain | AttributeDef>
+	private Iterator enumDefi=null; 
+	/** collect definitions of enumerations in all compiled models.
+	 */
+	private void collectEnums(TransferDescription td)
+	{
+		enumDefs=new ArrayList();
+		enumDefi=null;
+		Iterator modeli = td.iterator();
+		while (modeli.hasNext()) {
+			Object modelo = modeli.next();
+			if (modelo instanceof Model){
+					Model model = (Model) modelo;
+					Iterator topici = model.iterator();
+					while (topici.hasNext()) {
+						Object topico = topici.next();
+						if (topico instanceof Topic) {
+							Topic topic = (Topic) topico;
+							   Iterator classi = topic.iterator();
+							   while (classi.hasNext())
+							   {
+							     Element ele = (Element)classi.next();
+							     if(ele instanceof AbstractClassDef){
+										AbstractClassDef aclass=(AbstractClassDef)ele;
+										Iterator iter = aclass.iterator();
+										while (iter.hasNext()) {
+											Object obj = iter.next();
+											if (obj instanceof AttributeDef) {
+												AttributeDef attr = (AttributeDef)obj;
+												if(attr.getExtending()==null && !attr.isTransient()){
+													// define only new attrs (==not EXTENDED)
+													if(attr.getDomain() instanceof EnumerationType){
+														enumDefs.add(attr);
+													}
+												}
+											}
+										}
+								 }else if(ele instanceof Domain){
+										if(((Domain)ele).getType() instanceof EnumerationType){
+											enumDefs.add(ele);
+										}
+								 }
+							   }
+						}else if(topico instanceof AbstractClassDef){
+							AbstractClassDef aclass=(AbstractClassDef)topico;
+							Iterator iter = aclass.iterator();
+							while (iter.hasNext()) {
+								Object obj = iter.next();
+								if (obj instanceof AttributeDef) {
+									AttributeDef attr = (AttributeDef)obj;
+									if(attr.getExtending()==null && !attr.isTransient()){
+										// define only new attrs (==not EXTENDED)
+										if(attr.getDomain() instanceof EnumerationType){
+											enumDefs.add(attr);
+										}
+									}
+								}
+							}
+							
+						}else if(topico instanceof Domain){
+							if(((Domain)topico).getType() instanceof EnumerationType){
+								enumDefs.add(topico);
+							}
+						}
+					}
+			}
+		}
+		
+	}
+	/** returns null, if no more enum eles.
+	 */
+	private Element currentEnumDef=null; // Domain | AttributeDef
+	private int currentEnumItfCode=0;
+	private int currentEnumSeq=0;
+	private Iterator currentEnumElementIterator=null;
+	private IFMEFeature processEnums(IFMEFeature ret){
+		
+		if(enumDefi==null){
+			enumDefi=enumDefs.iterator();
+		}
+		while(enumDefi.hasNext() || (currentEnumElementIterator!=null && currentEnumElementIterator.hasNext())){
+			// no more elements in current domain/attr?
+			if(currentEnumElementIterator==null || !currentEnumElementIterator.hasNext()){
+				// get next domain/attr
+				currentEnumDef=(Element)enumDefi.next();
+			}
+			String enumTypeName = mapEnumDefName(currentEnumDef);
+			EnumerationType type=null;
+			Element base=null;
+			if(currentEnumDef instanceof AttributeDef){
+				type=(EnumerationType)((AttributeDef)currentEnumDef).getDomain();
+				base=((AttributeDef)currentEnumDef).getExtending();
+			}else if(currentEnumDef instanceof Domain){
+				type=(EnumerationType)((Domain)currentEnumDef).getType();
+				base=((Domain)currentEnumDef).getExtending();
+			}else{
+				throw new IllegalStateException();
+			}
+			java.util.ArrayList ev=new java.util.ArrayList();
+			boolean isOrdered=type.isOrdered();
+			String baseClass=null;
+			if(base!=null){
+				baseClass=mapEnumDefName(base);
+			}
+
+			// no more elements in current domain/attr?
+			if(currentEnumElementIterator==null || !currentEnumElementIterator.hasNext()){
+				// setup new element iterator
+				ch.interlis.iom_j.itf.ModelUtilities.buildEnumList(ev,"",type.getConsolidatedEnumeration());
+				currentEnumItfCode=0;
+				currentEnumSeq=0;
+				currentEnumElementIterator=ev.iterator();
+			}
+			// more elements?
+			if(currentEnumElementIterator.hasNext()){
+				String ele=(String)currentEnumElementIterator.next();
+				if(createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+					ret.setFeatureType(Main.XTF_ENUMS);
+				}else{
+					ret.setFeatureType(enumTypeName);
+				}
+				ret.setStringAttribute(Main.XTF_ENUMILICODE,ele);
+				ret.setStringAttribute(Main.XTF_ENUMITFCODE,Integer.toString(currentEnumItfCode));
+				if(isOrdered){
+					ret.setStringAttribute(Main.XTF_ENUMSEQ,Integer.toString(currentEnumSeq));
+				}
+				if(createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+					ret.setStringAttribute(Main.XTF_ENUMTHIS,enumTypeName);
+					if(baseClass!=null){
+						ret.setStringAttribute(Main.XTF_ENUMBASE,baseClass);
+					}
+				}
+				currentEnumItfCode++;
+				currentEnumSeq++;
+				return ret;
+			}
+			
+		}
+		
+		// no more enum eles
+		return null;	
+		
 	}
 }

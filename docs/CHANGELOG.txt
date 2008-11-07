@@ -1,3 +1,9 @@
+ili2fme 5.0.0 (2008-11-xx) 
+---------------------------
+- read enum values (see parameter CREATEFEATURETYPE4ENUM)
+- added *.ili to file selector
+- added *.gml to file selector
+
 ili2fme 4.9.1 (2008-11-06) 
 ---------------------------
 - adapted to FME_GEOMETRY_HANDLING=Enhanced

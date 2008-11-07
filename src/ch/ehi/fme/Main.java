@@ -47,6 +47,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String USE_LINETABLES="USE_LINETABLES";
 	static public final String SKIP_POLYGONBUILDING="SKIP_POLYGONBUILDING";
 	static public final String INHERITANCE_MAPPING="INHERITANCE_MAPPING";
+	static public final String CREATEFEATURETYPE4ENUM="CREATEFEATURETYPE4ENUM";
 	static public final String TRACEMSGS="TRACEMSGS";
 	static public final String ILI1_ADDDEFVAL="ILI1_ADDDEFVAL";
 	static public final String ILI1_CONVERTAREA="ILI1_CONVERTAREA";
@@ -58,6 +59,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	// format feature types
 	static public final String XTF_BASKETS="XTF_BASKETS";
 	static public final String XTF_DELETEOBJECT="XTF_DELETEOBJECT";
+	static public final String XTF_ENUMS="XTF_ENUMS";
 	// format attributes
 	static public final String XTF_ID="xtf_id";
 	static public final String XTF_BASKET="xtf_basket";
@@ -70,6 +72,12 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String XTF_GEOMTYPE="xtf_geomtype";
 	static public final String XTF_OPERATION="xtf_operation";
 	static public final String ORDERPOS="orderPos";
+	static public final String XTF_ENUMTHIS="thisEnum";
+	static public final String XTF_ENUMBASE="baseEnum";
+	static public final String XTF_ENUMILICODE="iliCode";
+	static public final String XTF_ENUMITFCODE="itfCode";
+	static public final String XTF_ENUMSEQ="seq";
+	
 	// xtf types
 	static public final String ID_TYPE="xtf_char(200)";
 	static public final String ILINAME_TYPE="xtf_char(255)";

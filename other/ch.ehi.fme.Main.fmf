@@ -23,7 +23,9 @@ SOURCE_READER ch.ehi.fme.Main \
  ILI1_CONVERTAREA  "$(ILI1_CONVERTAREA)"\
  ILI1_CONVERTSURFACE  "$(ILI1_CONVERTSURFACE)"\
  ILI1_ENUMASITFCODE  "$(ILI1_ENUMASITFCODE)"\
+ CREATEFEATURETYPE4ENUM "$(CREATEFEATURETYPE4ENUM)"\
  TRACEMSGS  "$(TRACEMSGS)"
+
 
 IGNORE_ATTRIBUTES_WITH_PREFIX xtf_
 !KEEP_ATTRIBUTE autocad_elevation
@@ -54,7 +56,7 @@ SOURCE_PREAMBLE
 # The user input is stored in a macro, which is then used to define
 # the dataset to be read.
 
-GUI FILENAME SourceDataset INTERLIS_Files(*.xtf;*.xml;*.itf)|*.xtf;*.xml;*.itf|INTERLIS_2_Files(*.xtf;*.xml)|*.xtf;*.xml|INTERLIS_1_FILES(*.itf)|*.itf|All_Files|*.* Original INTERLIS 2 File:
+GUI FILENAME SourceDataset INTERLIS_Files(*.xtf;*.xml;*.itf;*.ili)|*.xtf;*.xml;*.itf;*.ili|INTERLIS_2_Files(*.xtf;*.xml)|*.xtf;*.xml|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_MODELS(*.ili)|*.ili|All_Files|*.* Original INTERLIS 2 File:
 END_SOURCE_PREAMBLE
 
 SOURCE_SETTINGS
@@ -77,6 +79,8 @@ DEFAULT_VALUE ILI1_CONVERTSURFACE ""
 GUI OPTIONAL FILENAME ILI1_CONVERTSURFACE FME_Mapping_Files(*.fmi)|*.fmi|All_Files|*.* Convert ILI SURFACE to FME Donut:
 DEFAULT_VALUE ILI1_ENUMASITFCODE "No"
 GUI CHOICE ILI1_ENUMASITFCODE Yes%No ITF Read enum values as code:
+DEFAULT_VALUE CREATEFEATURETYPE4ENUM "No"
+GUI CHOICE CREATEFEATURETYPE4ENUM No%SingleType%OneTypePerEnumDef Create FeatureTypes For Enumerations:
 DEFAULT_VALUE TRACEMSGS "No"
 GUI CHOICE TRACEMSGS Yes%No Enable trace messages:
 END_SOURCE_SETTINGS
@@ -92,7 +96,7 @@ DESTINATION_PREAMBLE
 # ============================================================================ 
 # The following GUI line prompts for a file to be used as the
 # the destination for the INTERLIS 2 data.
-GUI FILENAME DestDataset INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|All_Files|*.* Destination INTERLIS 2 File:
+GUI FILENAME DestDataset INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_GML_FILES(*.gml)|*.gml|All_Files|*.* Destination INTERLIS File:
 END_DESTINATION_PREAMBLE
 
 DESTINATION_SETTINGS
