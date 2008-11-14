@@ -92,7 +92,8 @@ public class Ili2Reader implements IFMEReader {
 	private String ili1ConvertArea=null;
 	private boolean ili1EnumAsItfCode=false;
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
-	private boolean checkUniqueOid=false; 
+	private boolean checkUniqueOid=false;
+	private boolean ili1RenumberTid=false;
 	public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		readerKeyword=keyword;
@@ -221,6 +222,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
 				i++;
 				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.ILI1_RENUMBERTID)){
+				i++;
+				ili1RenumberTid=FmeUtility.isTrue((String)args.get(i));
 			}else{
 				// skip this argument
 			}
@@ -254,10 +258,13 @@ public class Ili2Reader implements IFMEReader {
 					ili1EnumAsItfCode=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_UNIQUEOID)){
 					checkUniqueOid=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.ILI1_RENUMBERTID)){
+					ili1RenumberTid=FmeUtility.isTrue((String)ele.get(1));
 				}
 			}
 		}
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
+		EhiLogger.logState("ili1RenumberTid <"+ili1RenumberTid+">");
 		EhiLogger.logState("createLineTables <"+createLineTableFeatures+">");
 		EhiLogger.logState("skipPolygonBuilding <"+skipPolygonBuilding+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
@@ -499,6 +506,7 @@ public class Ili2Reader implements IFMEReader {
 					ioxReader=new ch.interlis.iom_j.itf.ItfReader(new java.io.File(xtfFile));
 					((ItfReader)ioxReader).setModel(iliTd);		
 					((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);		
+					((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
 					if(ili1AddDefVal){
 						ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
 					}

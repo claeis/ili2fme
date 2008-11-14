@@ -2,6 +2,7 @@ ili2fme 5.0.0 (2008-11-xx)
 ---------------------------
 - read enum values (see parameter CREATEFEATURETYPE4ENUM)
 - check uniqueness of TID/OIDs (see param CHECK_UNIQUEOID)
+- optional renumber TIDs read from ITF files to make them unique (see param ILI1_RENUMBERTID) 
 - write gml (3.2) according to iligml encoding spec
 - added *.ili to file selector
 - added *.gml to file selector

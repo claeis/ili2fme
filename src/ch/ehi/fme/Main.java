@@ -54,6 +54,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String ILI1_CONVERTSURFACE="ILI1_CONVERTSURFACE";
 	static public final String ILI1_ENUMASITFCODE="ILI1_ENUMASITFCODE";
 	static public final String CHECK_UNIQUEOID="CHECK_UNIQUEOID";
+	static public final String ILI1_RENUMBERTID="ILI1_RENUMBERTID"; 
 	static public final String XTFDIR_PLACEHOLDER="%XTF_DIR";
 	static public final String DATA_PLACEHOLDER="%DATA";
 	static public final String DEPRECATED_XTF_PLACEHOLDER="XTF";
