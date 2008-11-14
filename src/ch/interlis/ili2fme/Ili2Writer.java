@@ -71,6 +71,7 @@ public class Ili2Writer implements IFMEWriter {
 	private int formatMode=0;
 	private static final int MODE_XTF=1;
 	private static final int MODE_ITF=2;
+	private static final int MODE_GML=3;
 	private int  inheritanceMapping=InheritanceMapping.SUPERCLASS;
 	private boolean useLineTableFeatures=true;
 	private boolean doRichGeometry=true;
@@ -186,6 +187,10 @@ public class Ili2Writer implements IFMEWriter {
 		String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(new java.io.File(xtfFile)).toLowerCase();
 		if(xtfExt.equals("itf")){
 			formatMode=MODE_ITF;
+		}else if(xtfExt.equals("gml")){
+			formatMode=MODE_GML;
+		}else if(xtfExt.equals("ili")){
+			throw new IllegalArgumentException("generating of INTERLIS model not yet supported by ili2fme");
 		}else{
 			formatMode=MODE_XTF;
 		}
@@ -241,7 +246,7 @@ public class Ili2Writer implements IFMEWriter {
 			// compiler failed
 			throw new IllegalArgumentException("INTERLIS compiler failed");
 		}
-		if(formatMode==MODE_XTF){
+		if(formatMode==MODE_XTF || formatMode==MODE_GML){
 			fmeFeatureTypev=ModelUtility.getXtfTransferViewables(iliTd,inheritanceMapping);
 			tag2class=ch.interlis.ili2c.generator.XSDGenerator.getTagMap(iliTd);
 		}else{
@@ -290,11 +295,13 @@ public class Ili2Writer implements IFMEWriter {
 				}
 				if(formatMode==MODE_XTF){
 					ioxWriter=new ch.interlis.iom_j.xtf.XtfWriter(outputFile,iliTd);
+				}else if(formatMode==MODE_GML){
+						ioxWriter=new ch.interlis.iom_j.iligml.IligmlWriter(outputFile,iliTd);
 				}else{
 					ioxWriter=new ch.interlis.iom_j.itf.ItfWriter(outputFile,iliTd);
 				}
 				ioxWriter.write(new ch.interlis.iox_j.StartTransferEvent("ili2fme-"+Main.getVersion(),null,null));
-				if(formatMode==MODE_XTF){
+				if(formatMode==MODE_XTF || formatMode==MODE_GML){
 					// write each basket (feature collection)
 					writeXtfBuffers();
 				}else{
@@ -698,7 +705,7 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 		}
-		if(formatMode==MODE_XTF){
+		if(formatMode==MODE_XTF || formatMode==MODE_GML){
 			if(scanXtfBaskets){
 				scanXtfBaskets=false;
 				if(obj.attributeExists(Main.XTF_BASKET) || tag.equals(Main.XTF_DELETEOBJECT)){
@@ -751,7 +758,7 @@ public class Ili2Writer implements IFMEWriter {
 	private void mapBasket(IFMEFeature obj)
 	throws Exception 
 	{
-		if(formatMode==MODE_XTF){
+		if(formatMode==MODE_XTF  || formatMode==MODE_GML){
 			if(scanXtfBaskets){
 				// stop scanning for XTF_BASKETS/xtf_basket
 				scanXtfBaskets=false;
@@ -1011,7 +1018,7 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 		 }else if(type instanceof SurfaceOrAreaType){
-		 	if(formatMode==MODE_XTF){
+		 	if(formatMode==MODE_XTF  || formatMode==MODE_GML){
 				if(geomattr!=null && attrName.equals(geomattr)){
 					if(doRichGeometry){
 						IFMEGeometry fmeGeom=null;
