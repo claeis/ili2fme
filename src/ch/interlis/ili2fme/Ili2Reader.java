@@ -94,6 +94,8 @@ public class Ili2Reader implements IFMEReader {
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	private boolean checkUniqueOid=false;
 	private boolean ili1RenumberTid=false;
+	private GeometryConverter geomConv=null;
+	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		readerKeyword=keyword;
@@ -219,6 +221,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.CREATEFEATURETYPE4ENUM )){
 				i++;
 				createEnumTypes=CreateEnumFeatureTypes.valueOf((String)args.get(i));
+			}else if(arg.equals(Main.GEOMETRY_ENCODING )){
+				i++;
+				geometryEncoding=GeometryEncoding.valueOf((String)args.get(i));
 			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
 				i++;
 				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
@@ -254,6 +259,8 @@ public class Ili2Reader implements IFMEReader {
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CREATEFEATURETYPE4ENUM)){
 					createEnumTypes=CreateEnumFeatureTypes.valueOf((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.GEOMETRY_ENCODING)){
+					geometryEncoding=GeometryEncoding.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ENUMASITFCODE)){
 					ili1EnumAsItfCode=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_UNIQUEOID)){
@@ -264,6 +271,7 @@ public class Ili2Reader implements IFMEReader {
 			}
 		}
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
+		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("ili1RenumberTid <"+ili1RenumberTid+">");
 		EhiLogger.logState("createLineTables <"+createLineTableFeatures+">");
 		EhiLogger.logState("skipPolygonBuilding <"+skipPolygonBuilding+">");
@@ -394,6 +402,10 @@ public class Ili2Reader implements IFMEReader {
 		
 		if(createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF || createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
 			collectEnums(iliTd);
+		}
+		
+		if(geometryEncoding!=GeometryEncoding.OGC_HEXBIN){
+			geomConv=new GeometryConverter(session,geometryEncoding);
 		}
 
 		// setup mapping from xml-elementnames to types
@@ -794,15 +806,19 @@ public class Ili2Reader implements IFMEReader {
 			 IomObject value=iomObj.getattrobj(attrName,0);
 			 if(value!=null){
 				 if(attr!=geomattr){
-					 String wkb;
-					try {
-						wkb = Iox2jts.polyline2hexwkb(value,getP((PolylineType)type));
-					} catch (Iox2jtsException e) {
-						throw new DataException(e);
-					}
-					checkWkb(ret,prefix+attrName,wkb);
-					 //EhiLogger.debug(attrName+" "+wkb);
-					 ret.setStringAttribute(prefix+attrName, wkb);
+					 if(geomConv==null){
+						 String wkb;
+							try {
+								wkb = Iox2jts.polyline2hexwkb(value,getP((PolylineType)type));
+							} catch (Iox2jtsException e) {
+								throw new DataException(e);
+							}
+							checkWkb(ret,prefix+attrName,wkb);
+							 //EhiLogger.debug(attrName+" "+wkb);
+							 ret.setStringAttribute(prefix+attrName, wkb);
+					 }else{
+						 geomConv.polyline2FME(ret,prefix+attrName,value);
+					 }
 				 }else{
 					 ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_polyline");
 					 if(doRichGeometry){
@@ -825,25 +841,20 @@ public class Ili2Reader implements IFMEReader {
 			if(attr!=geomattr){
 				 IomObject value=iomObj.getattrobj(attrName,0);
 				 if(value!=null){
-					 String wkb;
-					try {
-			            com.vividsolutions.jts.geom.Geometry geom = Iox2jts.surface2JTS(value, getP((SurfaceType)type));
-			            if(!geom.isValid()){
-							String tid=null;
+					 if(geomConv==null){
+						 String wkb;
 							try {
-								tid = ret.getStringAttribute(Main.XTF_ID);
-							} catch (FMEException ex) {
-								EhiLogger.logError(ex);
+								wkb = Iox2jts.surface2hexwkb(value,getP((SurfaceType)type));
+							} catch (Iox2jtsException e) {
+								throw new DataException(e);
 							}
-							EhiLogger.logError(tid+ ":"+prefix+attrName+" invalid geometry");
-			            }
-						wkb = Iox2jts.surface2hexwkb(value,getP((SurfaceType)type));
-					} catch (Iox2jtsException e) {
-						throw new DataException(e);
-					}
- 					checkWkb(ret,prefix+attrName,wkb);
-					 //EhiLogger.debug(attrName+" "+wkb);
-					 ret.setStringAttribute(prefix+attrName, wkb);
+		 					checkWkb(ret,prefix+attrName,wkb);
+							 //EhiLogger.debug(attrName+" "+wkb);
+							 ret.setStringAttribute(prefix+attrName, wkb);
+						 
+					 }else{
+						 geomConv.surface2FME(ret,prefix+attrName,value);
+					 }
 				 }
 			 }else{
 				 // is itf? 
@@ -918,15 +929,19 @@ public class Ili2Reader implements IFMEReader {
 			if(attr!=geomattr){
 				 IomObject value=iomObj.getattrobj(attrName,0);
 				 if(value!=null){
-					 String wkb;
-					try {
-						wkb = Iox2jts.surface2hexwkb(value,getP((AreaType)type));
-					} catch (Iox2jtsException e) {
-						throw new DataException(e);
-					}
- 					checkWkb(ret,prefix+attrName,wkb);
-					 //EhiLogger.debug(attrName+" "+wkb);
-					 ret.setStringAttribute(prefix+attrName, wkb);
+					 if(geomConv==null){
+						 String wkb;
+							try {
+								wkb = Iox2jts.surface2hexwkb(value,getP((AreaType)type));
+							} catch (Iox2jtsException e) {
+								throw new DataException(e);
+							}
+		 					checkWkb(ret,prefix+attrName,wkb);
+							 //EhiLogger.debug(attrName+" "+wkb);
+							 ret.setStringAttribute(prefix+attrName, wkb);
+					 }else{
+						 geomConv.surface2FME(ret,prefix+attrName,value);
+					 }
 				 }
 			 }else{
 				 //ret.setStringAttribute("fme_geometry{0}", "xtf_area");
@@ -1020,15 +1035,19 @@ public class Ili2Reader implements IFMEReader {
 					throw new DataException("COORD expected for attribute "+attrName);
 				}
 				if(attr!=geomattr){
-					 String wkb;
-					try {
-						wkb = Iox2jts.coord2hexwkb(value);
-					} catch (Iox2jtsException e) {
-						throw new DataException(e);
+					if(geomConv==null){
+						 String wkb;
+							try {
+								wkb = Iox2jts.coord2hexwkb(value);
+							} catch (Iox2jtsException e) {
+								throw new DataException(e);
+							}
+		 					checkWkb(ret,prefix+attrName,wkb);
+							 //EhiLogger.debug(attrName+" "+wkb);
+							 ret.setStringAttribute(prefix+attrName, wkb);
+					}else{
+						 geomConv.coord2FME(ret,prefix+attrName,value);
 					}
- 					checkWkb(ret,prefix+attrName,wkb);
-					 //EhiLogger.debug(attrName+" "+wkb);
-					 ret.setStringAttribute(prefix+attrName, wkb);
 				}else{
 					 ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_coord");
 					 if(doRichGeometry){

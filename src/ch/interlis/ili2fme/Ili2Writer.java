@@ -26,6 +26,7 @@ import COM.safe.fme.pluginbuilder.IFMEWriter;
 import COM.safe.fmeobjects.IFMEFeature;
 import COM.safe.fmeobjects.IFMEFeatureVector;
 import COM.safe.fme.pluginbuilder.IFMEMappingFile;
+import COM.safe.fmeobjects.IFMECoordSysManager;
 import COM.safe.fmeobjects.IFMEFactoryPipeline;
 import COM.safe.fmeobjects.IFMEGeometry;
 import COM.safe.fmeobjects.IFMENull;
@@ -79,6 +80,8 @@ public class Ili2Writer implements IFMEWriter {
 	private boolean autoXtfBaskets=true;
 	private ArrayList modeldirv=null;
 	private HashSet modelsFromFME=null;
+	private String fme_coord_sys=null;
+	private String epsgCode=null;
 	private int maxTid=1; // only used if formatMode==MODE_ITF
 	public Ili2Writer(IFMESession session1,IFMEMappingFile mappingFile1,String writerTypename,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
@@ -166,6 +169,8 @@ public class Ili2Writer implements IFMEWriter {
 					useLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.FME_COORDINATE_SYSTEM)){
+					fme_coord_sys=(String)ele.get(1);	
 				}
 			}
 		}
@@ -193,6 +198,24 @@ public class Ili2Writer implements IFMEWriter {
 			throw new IllegalArgumentException("generating of INTERLIS model not yet supported by ili2fme");
 		}else{
 			formatMode=MODE_XTF;
+		}
+		if(formatMode==MODE_GML){
+			if(fme_coord_sys==null){
+				throw new IllegalArgumentException("Coordinate System required if writing GML");
+			}
+			IFMECoordSysManager crs_mgr=session.coordSysManager();
+			IFMEStringArray defv=session.createStringArray();
+			crs_mgr.getCoordSysParms(fme_coord_sys, defv);
+			int defc=defv.entries();
+			for(int defi=0;defi<defc;){
+				String param=defv.getElement(defi++);
+				String val=defv.getElement(defi++);
+				EhiLogger.debug("param <"+param+">, val <"+val+">");
+				if(param.equals("EPSG")){
+					epsgCode="urn:ogc:def:crs:EPSG::"+val;
+				}
+			}
+			EhiLogger.logState("default gml:srsName <"+epsgCode+">");
 		}
 
 		if(modeldir==null){

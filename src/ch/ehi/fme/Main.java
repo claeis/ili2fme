@@ -58,6 +58,8 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String XTFDIR_PLACEHOLDER="%XTF_DIR";
 	static public final String DATA_PLACEHOLDER="%DATA";
 	static public final String DEPRECATED_XTF_PLACEHOLDER="XTF";
+	static public final String FME_COORDINATE_SYSTEM="COORDINATE_SYSTEM";
+	static public final String GEOMETRY_ENCODING="GEOMETRY_ENCODING";
 	// format feature types
 	static public final String XTF_BASKETS="XTF_BASKETS";
 	static public final String XTF_DELETEOBJECT="XTF_DELETEOBJECT";
