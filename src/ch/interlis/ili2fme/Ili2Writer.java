@@ -84,6 +84,8 @@ public class Ili2Writer implements IFMEWriter {
 	private String epsgCode=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	private GeometryConverter geomConv=null;
+	private boolean checkUniqueOid=false;
+	private HashMap checkoids=null; // map<String tid,String info>
 	private int maxTid=1; // only used if formatMode==MODE_ITF
 	public Ili2Writer(IFMESession session1,IFMEMappingFile mappingFile1,String writerTypename,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
@@ -155,6 +157,9 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.USE_LINETABLES)){
 				i++;
 				useLineTableFeatures=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
+				i++;
+				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
 			}else{
 				// skip this argument
 			}
@@ -172,6 +177,8 @@ public class Ili2Writer implements IFMEWriter {
 					modeldir=(String)ele.get(1);	
 				}else if(val.equals(writerKeyword+"_"+Main.USE_LINETABLES)){
 					useLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.CHECK_UNIQUEOID)){
+					checkUniqueOid=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.GEOMETRY_ENCODING)){
@@ -186,6 +193,7 @@ public class Ili2Writer implements IFMEWriter {
 		}
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
+		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
 		EhiLogger.traceState("models <"+models+">");
 		
@@ -254,6 +262,10 @@ public class Ili2Writer implements IFMEWriter {
 
 		if(geometryEncoding!=GeometryEncoding.OGC_HEXBIN){
 			geomConv=new GeometryConverter(session,geometryEncoding);
+		}
+
+		if(checkUniqueOid){
+			checkoids=new HashMap();
 		}
 		
 		// setup output stream
@@ -729,6 +741,13 @@ public class Ili2Writer implements IFMEWriter {
 			if(obj.attributeExists(Main.XTF_ID)){
 				String tid=obj.getStringAttribute(Main.XTF_ID);
 				if(tid!=null && tid.length()>0){
+					if(checkoids!=null){
+						if(checkoids.containsKey(tid)){
+							EhiLogger.logError("Object "+tag+": duplicate oid "+tid+" (same as object "+checkoids.get(tid)+")");
+						}else{
+							checkoids.put(tid,tag);
+						}
+					}
 					try {
 						int tidInt=Integer.parseInt(tid);
 						if(tidInt>maxTid){
