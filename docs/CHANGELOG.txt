@@ -1,5 +1,6 @@
-ili2fme 5.0.0 (2008-11-xx) 
+ili2fme 5.0.0 (2008-11-18) (BETA) 
 ---------------------------
+!!! GML SUPPORT ADHERS TO ISO19136/GML 3.2 AND A DRAFT ILIGML SPEC !!!
 - read enum values (see parameter CREATEFEATURETYPE4ENUM)
 - check uniqueness of TID/OIDs (see param CHECK_UNIQUEOID)
 - optional renumber TIDs read from ITF files to make them unique (see param ILI1_RENUMBERTID) 

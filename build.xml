@@ -122,6 +122,7 @@
 	    	<patternset includes="ilimodels/*.ili"/>
 	    	<patternset includes="ili22models/*.ili"/>
 	    	<patternset includes="converter/*.fmi"/>
+	    	<patternset includes="iligml/**/*.xsd"/>
     	</zipfileset>
     	<zipfileset dir="." prefix="${ant.project.name}-${buildnr}">
 	    	<patternset includes="docs/LICENSE.*"/>
