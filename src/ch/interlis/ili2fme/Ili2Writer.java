@@ -82,6 +82,8 @@ public class Ili2Writer implements IFMEWriter {
 	private HashSet modelsFromFME=null;
 	private String fme_coord_sys=null;
 	private String epsgCode=null;
+	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
+	private GeometryConverter geomConv=null;
 	private int maxTid=1; // only used if formatMode==MODE_ITF
 	public Ili2Writer(IFMESession session1,IFMEMappingFile mappingFile1,String writerTypename,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
@@ -147,6 +149,9 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.INHERITANCE_MAPPING)){
 				i++;
 				inheritanceMapping=InheritanceMapping.valueOf((String)args.get(i));
+			}else if(arg.equals(Main.GEOMETRY_ENCODING)){
+				i++;
+				geometryEncoding=GeometryEncoding.valueOf((String)args.get(i));
 			}else if(arg.equals(Main.USE_LINETABLES)){
 				i++;
 				useLineTableFeatures=FmeUtility.isTrue((String)args.get(i));
@@ -169,6 +174,8 @@ public class Ili2Writer implements IFMEWriter {
 					useLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.GEOMETRY_ENCODING)){
+					geometryEncoding=GeometryEncoding.valueOf((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.FME_COORDINATE_SYSTEM)){
 					fme_coord_sys=(String)ele.get(1);	
 				}
@@ -177,6 +184,7 @@ public class Ili2Writer implements IFMEWriter {
 		if(models==null){
 			throw new IllegalArgumentException("model name not specified; set FME-Parameter Models");
 		}
+		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
 		EhiLogger.traceState("models <"+models+">");
@@ -244,6 +252,10 @@ public class Ili2Writer implements IFMEWriter {
 			setupModel(iliModelv, modeldirv);
 		}
 
+		if(geometryEncoding!=GeometryEncoding.OGC_HEXBIN){
+			geomConv=new GeometryConverter(session,geometryEncoding);
+		}
+		
 		// setup output stream
 		outputFile=null;
 		try{
@@ -1033,9 +1045,13 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}else{
 				if(obj.attributeExists(attrPrefix+attrName)){
-					String value=getStringAttribute(obj,attrPrefix+attrName);
-					if(value!=null && value.length()>0){
-						iomObj.addattrobj(attrName, Jts2iox.hexwkb2polyline(value));
+					if(geomConv==null){
+						String value=getStringAttribute(obj,attrPrefix+attrName);
+						if(value!=null && value.length()>0){
+							iomObj.addattrobj(attrName, Jts2iox.hexwkb2polyline(value));
+						}
+					}else{
+						 geomConv.FME2polyline(iomObj,attrName,obj,attrPrefix+attrName);
 					}
 				}else{
 				}
@@ -1066,9 +1082,13 @@ public class Ili2Writer implements IFMEWriter {
 					}
 				}else{
 					if(obj.attributeExists(attrPrefix+attrName)){
-						String value=getStringAttribute(obj,attrPrefix+attrName);
-						if(value!=null && value.length()>0){
-							iomObj.addattrobj(attrName, Jts2iox.hexwkb2surface(value));
+						if(geomConv==null){
+							String value=getStringAttribute(obj,attrPrefix+attrName);
+							if(value!=null && value.length()>0){
+								iomObj.addattrobj(attrName, Jts2iox.hexwkb2surface(value));
+							}
+						}else{
+							 geomConv.FME2surface(iomObj,attrName,obj,attrPrefix+attrName);
 						}
 					}else{
 					}
@@ -1152,9 +1172,13 @@ public class Ili2Writer implements IFMEWriter {
 				
 			}else{
 				if(obj.attributeExists(attrPrefix+attrName)){
-					String value=getStringAttribute(obj,attrPrefix+attrName);
-					if(value!=null && value.length()>0){
-						iomObj.addattrobj(attrName, Jts2iox.hexwkb2coord(value));
+					if(geomConv==null){
+						String value=getStringAttribute(obj,attrPrefix+attrName);
+						if(value!=null && value.length()>0){
+							iomObj.addattrobj(attrName, Jts2iox.hexwkb2coord(value));
+						}
+					}else{
+						 geomConv.FME2coord(iomObj,attrName,obj,attrPrefix+attrName);
 					}
 				}
 			}
@@ -1278,15 +1302,21 @@ public class Ili2Writer implements IFMEWriter {
 	}
 	public void startTransaction() throws Exception {
 		//For formats or systems which do not have the notion of a transaction then nothing needs to be done.
+		EhiLogger.debug("startTranscation");
 	}
 	public void commitTransaction() throws Exception {
 		//For formats or systems which do not have the notion of a transaction then nothing needs to be done.
+		EhiLogger.debug("commitTranscation");
 	}
 	public void rollbackTransaction() throws Exception {
 		//For formats or systems which do not have the notion of a transaction then nothing needs to be done.
+		EhiLogger.debug("rollbackTranscation");
 	}
 	private FmeLogListener listener=null;
 	private void cleanup(){
+		if(geomConv!=null){
+			geomConv.dispose();
+		}
 		// free buffers
 		if(featurebufferv!=null){
 			Iterator bufi=featurebufferv.values().iterator();

@@ -1925,6 +1925,9 @@ public class Ili2Reader implements IFMEReader {
 	private FmeLogListener listener=null;
 	private void cleanup(){
 		//EhiLogger.debug("cleanup");
+		if(geomConv!=null){
+			geomConv.dispose();
+		}
 		if(ioxReader!=null){
 			try{
 				ioxReader.close();
