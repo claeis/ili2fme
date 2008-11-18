@@ -607,7 +607,7 @@ public class Ili2Writer implements IFMEWriter {
 								}
 								Iterator attri =null;
 								String className = v.getScopedName(null);
-								if(useLineTableFeatures){
+								if(useLineTableFeatures && itfLineTableExists(v)){
 									// add helper tables of area attributes
 									attri = v.getAttributes();
 									while (attri.hasNext()) {
@@ -696,6 +696,59 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 		}
+	}
+	private boolean itfLineTableExists(Viewable v)
+	{
+		// helper tables of area attributes
+		Iterator attri = v.getAttributes();
+		while (attri.hasNext()) {
+			Object attrObj = attri.next();
+			if (attrObj instanceof AttributeDef) {
+				AttributeDef attr = (AttributeDef) attrObj;
+				Type type = Type.findReal(attr.getDomain());
+				if (type instanceof AreaType) {
+					String helperTableName =
+						v.getContainer().getScopedName(
+							null)
+							+ "."
+							+ v.getName()
+							+ "_"
+							+ attr.getName();
+					// area helper table
+					COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(helperTableName);
+					int featurec=featurev.entries();
+					if(featurec>0){
+						return true;
+					}
+				}
+			}
+		}
+		
+		// helper tables of surface attributes
+		attri = v.getAttributes();
+		while (attri.hasNext()) {
+			Object attrObj = attri.next();
+			if (attrObj instanceof AttributeDef) {
+				AttributeDef attr = (AttributeDef) attrObj;
+				Type type = Type.findReal(attr.getDomain());
+				if (type instanceof SurfaceType) {
+					String helperTableName =
+						v.getContainer().getScopedName(
+							null)
+							+ "."
+							+ v.getName()
+							+ "_"
+							+ attr.getName();
+					// surface helper table
+					COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(helperTableName);
+					int featurec=featurev.entries();
+					if(featurec>0){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 	public int id() {
 		// All Java writers return 0.

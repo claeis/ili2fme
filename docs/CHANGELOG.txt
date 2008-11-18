@@ -5,6 +5,7 @@ ili2fme 5.0.0 (2008-11-xx)
 - optional renumber TIDs read from ITF files to make them unique (see param ILI1_RENUMBERTID) 
 - selectable encoding for additional geometry attributes (see param GEOMETRY_ENCODING)
 - write gml (3.2) according to iligml encoding spec
+- if USE_LINETABLES=Yes but no line table features exist, auto-build line tables from main feature (same as if USE_LINETABLES=No) 
 - added *.ili to file selector
 - added *.gml to file selector
 
