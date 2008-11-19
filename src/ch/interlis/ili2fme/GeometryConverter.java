@@ -94,6 +94,11 @@ public class GeometryConverter {
 	throws DataException 
 	{
 		try {
+			if(mode==GeometryEncoding.FME_XML){
+				String val=src.getStringAttribute(srcAttr);
+				IFMEGeometry geom=((IFMEGeometryTools)session.geometryTools()).createGeometryFromXML(val);
+				return geom;
+			}
 			initPipe();
 			f.setFeatureType(DUMMY_TYPE);
 			if(mode==GeometryEncoding.FME_BIN){

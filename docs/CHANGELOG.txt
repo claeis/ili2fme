@@ -1,7 +1,8 @@
 ili2fme 5.0.1 (2008-11-xx) (BETA) 
 ---------------------------
 - bug: generate schema features of SURFACE helper table with "_itf_ref_$(MainTableName)"
-- auto-generate xtf_id if missing in linientable features
+- auto-generate xtf_id in linetable features (if xtf_id is missing)
+- writer supports now GEOMETRY_ENCODING=FMEXML
 
 ili2fme 5.0.0 (2008-11-18) (BETA) 
 ---------------------------
