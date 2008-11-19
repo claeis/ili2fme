@@ -373,17 +373,17 @@ public class Ili2Writer implements IFMEWriter {
 				ch.interlis.iox_j.StartBasketEvent basketEvent=(ch.interlis.iox_j.StartBasketEvent)basketv.get(basketId);
 				if(autoXtfBaskets){
 					// auto generate BID
-					basketEvent.setBid(Integer.toString(++maxTid));
+					basketEvent.setBid(newTid());
 				}
 				EhiLogger.logState(basketEvent.getType()+" "+basketEvent.getBid()+"...");
 				ioxWriter.write(basketEvent);
 				COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev;
-				writeBasket(basketId);
+				writeBasket(basketId,false);
 				ioxWriter.write(new ch.interlis.iox_j.EndBasketEvent());
 			}
 		}
 	}
-	private void writeBasket(String bufferKey) throws Exception, IoxException {
+	private void writeBasket(String bufferKey,boolean autoTid) throws Exception, IoxException {
 		//EhiLogger.debug("bufferKey "+bufferKey);
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(bufferKey);
 		int featurec=featurev.entries();
@@ -391,7 +391,7 @@ public class Ili2Writer implements IFMEWriter {
 		if(featurec>0){
 			for(int featurei=0;featurei<featurec;featurei++){
 				IFMEFeature feature=featurev.getAt(featurei);
-				IomObject iomObj=mapFeature(feature,null,null,null);
+				IomObject iomObj=mapFeature(feature,null,null,null,autoTid);
 				if(iomObj==null){
 					throw new IllegalStateException("iomObj==null with feature "+feature.toString());
 				}
@@ -452,7 +452,7 @@ public class Ili2Writer implements IFMEWriter {
 			IFMEFeature feature=session.createFeature();
 			while(lineTableBuilder.getOutputFeature(feature)){
 				// process feature
-				IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
+				IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
 				mapItfPolylineValueOfLineTable(feature, iomObj, wrapper, type, iomAttrName);
 				// add line attributes
 				//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
@@ -465,6 +465,9 @@ public class Ili2Writer implements IFMEWriter {
 			lineTableBuilder.dispose();
 		}
 		
+	}
+	private String newTid() {
+		return Integer.toString(++maxTid);
 	}
 	/** use FME features of SURFACE mainTable to build and write IOM objects of line table.
 	 */
@@ -494,7 +497,7 @@ public class Ili2Writer implements IFMEWriter {
 						IFMEDonut fmeDonut=(IFMEDonut)fmeGeom;
 						// shell
 						{
-							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
+							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
 
 							//add ref to main table
 							IomObject structvalue=iomObj.addattrobj(fkName,"REF");
@@ -514,7 +517,7 @@ public class Ili2Writer implements IFMEWriter {
 						// holes
 						int holec=fmeDonut.numInnerBoundaries();
 						for(int holei=0;holei<holec;holei++){
-							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
+							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
 
 							//add ref to main table
 							IomObject structvalue=iomObj.addattrobj(fkName,"REF");
@@ -531,7 +534,7 @@ public class Ili2Writer implements IFMEWriter {
 							ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
 						}
 					}else if(fmeGeom instanceof IFMESimpleArea){
-						IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,Integer.toString(++maxTid));	
+						IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
 
 						//add ref to main table
 						IomObject structvalue=iomObj.addattrobj(fkName,"REF");
@@ -625,14 +628,14 @@ public class Ili2Writer implements IFMEWriter {
 														+ attr.getName();
 												// area helper table
 												EhiLogger.logState(helperTableName+"...");
-												writeBasket(helperTableName);
+												writeBasket(helperTableName,true);
 											}
 										}
 									}
 									
 									// main table
 									EhiLogger.logState(className+"...");
-									writeBasket(className);
+									writeBasket(className,false);
 
 									// add helper tables of surface attributes
 									attri = v.getAttributes();
@@ -651,7 +654,7 @@ public class Ili2Writer implements IFMEWriter {
 														+ attr.getName();
 												// surface helper table
 												EhiLogger.logState(helperTableName+"...");
-												writeBasket(helperTableName);
+												writeBasket(helperTableName,true);
 											}
 										}
 									}
@@ -673,7 +676,7 @@ public class Ili2Writer implements IFMEWriter {
 									
 									// main table
 									EhiLogger.logState(className+"...");
-									writeBasket(className);
+									writeBasket(className,false);
 									
 									if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof SurfaceType){
 										// build line table from polygons/donuts
@@ -917,7 +920,7 @@ public class Ili2Writer implements IFMEWriter {
 		//EhiLogger.debug(attr);
 		return obj.getStringAttribute(attr);
 	}
-	private IomObject mapFeature(IFMEFeature obj,String fmeListAttrPrefix,IomObject iliStructParent,String iliStructAttrName)
+	private IomObject mapFeature(IFMEFeature obj,String fmeListAttrPrefix,IomObject iliStructParent,String iliStructAttrName,boolean autoTid)
 	throws Exception 
 	{
 		boolean isStructEle=fmeListAttrPrefix!=null;
@@ -967,16 +970,24 @@ public class Ili2Writer implements IFMEWriter {
 		}
 		IomObject iomObj=null;
 		if(!isStructEle){
+			String tid=null;
 			if(!obj.attributeExists(Main.XTF_ID)){
-				String err=fmeRecInfo+": missing mandatory attribute "+Main.XTF_ID;
-				EhiLogger.logError(err);
-				throw new Exception(err);
-			}
-			String tid=getStringAttribute(obj,Main.XTF_ID);
-			if(tid==null || tid.length()==0){
-				String err=fmeRecInfo+": missing mandatory attribute "+Main.XTF_ID;
-				EhiLogger.logError(err);
-				throw new Exception(err);
+				if(!autoTid){
+					String err=fmeRecInfo+": missing mandatory attribute "+Main.XTF_ID;
+					EhiLogger.logError(err);
+					throw new Exception(err);
+				}
+				tid=newTid();
+			}else{
+				tid=getStringAttribute(obj,Main.XTF_ID);
+				if(tid==null || tid.length()==0){
+					if(!autoTid){
+						String err=fmeRecInfo+": missing mandatory attribute "+Main.XTF_ID;
+						EhiLogger.logError(err);
+						throw new Exception(err);
+					}
+					tid=newTid();
+				}
 			}
 			//EhiLogger.debug("tag "+tag+", tid "+tid);
 			iomObj=new ch.interlis.iom_j.Iom_jObject(tag,tid);	
@@ -1087,7 +1098,7 @@ public class Ili2Writer implements IFMEWriter {
 			while(obj.attributeExists(prefix+"."+Main.XTF_CLASS)){
 				// struct element
 				//EhiLogger.debug("struct "+prefix);
-				mapFeature(obj,prefix,iomObj,attrName);						
+				mapFeature(obj,prefix,iomObj,attrName,false);						
 				elei++;
 				prefix=attrPrefix+attrName+"{"+Integer.toString(elei)+"}";
 			}

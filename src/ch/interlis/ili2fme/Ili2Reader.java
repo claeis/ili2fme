@@ -1474,8 +1474,9 @@ public class Ili2Reader implements IFMEReader {
 									ret.setFeatureType(featureType+"_LT");
 									ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
 									//add reference attr to main table
-									String mainTableName=wrapper.getGeomAttr4FME().getContainer().getName();
-									ret.setStringAttribute(mainTableName,Main.ID_TYPE);
+									//String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
+									String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
+									ret.setStringAttribute(fkName,Main.ID_TYPE);
 									// add line attrs
 									SurfaceType surfaceType=(SurfaceType)type;
 									Table lineAttrTable=surfaceType.getLineAttributeStructure();
