@@ -1,8 +1,11 @@
-ili2fme 5.0.1 (2008-11-xx) (BETA) 
+ili2fme 5.0.1 (2008-11-xx)
 ---------------------------
 - bug: generate schema features of SURFACE helper table with "_itf_ref_$(MainTableName)"
 - auto-generate xtf_id in linetable features (if xtf_id is missing)
 - writer supports now GEOMETRY_ENCODING=FMEXML
+- bug: failed to detect "//// " in itf
+- new default Reader.CHECK_UNIQUEOID=No
+- bug: superfluous IFMELine in IFMEPath if second segment is an arc
 
 ili2fme 5.0.0 (2008-11-18) (BETA) 
 ---------------------------

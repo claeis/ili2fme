@@ -72,7 +72,7 @@ public class Iox2fme {
 		}
 		return coord;
 	}
-	private static void addArc(IFMESession session,IFMEPath path,IomObject value)
+	private static void addArc(IFMESession session,IFMEPath path,IomObject startPt,IomObject value)
 	throws DataException
 	{
 		if(value!=null){
@@ -111,8 +111,7 @@ public class Iox2fme {
 			IFMEPoint endPoint=null;
 			IFMEArc arc=null;
 			try{
-				startPoint=tools.createPoint();
-				path.getEndPoint(startPoint);
+				startPoint=coord2FME(session, startPt);
 				arcPoint=tools.createPointXY(arcPt_re, arcPt_ho);
 				endPoint=tools.createPointXY(pt2_re, pt2_ho);
 				
@@ -151,8 +150,6 @@ public class Iox2fme {
 						}
 					}
 				}
-			}catch(FMEException ex){
-				throw new DataException("failed to add Arc",ex);
 			}finally{
 				if(startPoint!=null){
 					startPoint.dispose();
@@ -203,6 +200,7 @@ public class Iox2fme {
 		if(clipped){
 			throw new DataException("clipped polyline not supported");
 		}
+		IomObject arcStartPt=null;
 		for(int sequencei=0;sequencei<polylineObj.getattrvaluecount("sequence");sequencei++){
 			if(clipped){
 				//out.startElement(tags::get_CLIPPED(),0,0);
@@ -213,25 +211,30 @@ public class Iox2fme {
 				}
 			}
 			IomObject sequence=polylineObj.getattrobj("sequence",sequencei);
-			for(int segmenti=0;segmenti<sequence.getattrvaluecount("segment");segmenti++){
+			int segmentc=sequence.getattrvaluecount("segment");
+			for(int segmenti=0;segmenti<segmentc;segmenti++){
 				IomObject segment=sequence.getattrobj("segment",segmenti);
 				//EhiLogger.debug("segmenttag "+segment.getobjecttag());
 				if(segment.getobjecttag().equals("COORD")){
 					// COORD
-					IFMEPoint point=null;
-					try{
-						point=coord2FME(session,segment);
-						ret.extendToPoint(point);
-					}finally{
-						if(point!=null){
-							point.dispose();
-							point=null;
+					// first point and then an arc?
+					if(sequencei==0 && segmenti==0 &&  segmentc>1 && !sequence.getattrobj("segment",segmenti+1).getobjecttag().equals("COORD")){
+						// skip point now (add it as start of arc)
+					}else{
+						IFMEPoint point=null;
+						try{
+							point=coord2FME(session,segment);
+							ret.extendToPoint(point);
+						}finally{
+							if(point!=null){
+								point.dispose();
+								point=null;
+							}
 						}
 					}
 				}else if(segment.getobjecttag().equals("ARC")){
 					// ARC
-					
-					addArc(session,ret,segment);
+					addArc(session,ret,arcStartPt,segment);
 				}else{
 					// custum line form
 					throw new DataException("custom line form not supported");
@@ -239,7 +242,7 @@ public class Iox2fme {
 					//writeAttrs(out,segment);
 					//out.endElement(/*segment*/);
 				}
-
+				arcStartPt=segment;
 			}
 			if(clipped){
 				//out.endElement(/*CLIPPED*/);
