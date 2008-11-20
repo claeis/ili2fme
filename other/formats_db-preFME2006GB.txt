@@ -1,2 +1,0 @@
-CH.EHI.FME.MAIN|INTERLIS (ili2fme)|FILE|BOTH|YES|NO|INTERLIS 2 Files(*.xtf;*.xml)%*.xtf;*xml%INTERLIS 1 Files(*.itf)%*.itf%All Files%*.*
-

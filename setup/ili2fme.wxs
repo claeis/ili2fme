@@ -72,11 +72,9 @@
               </Component>
             </Directory>
             <Directory Id="iligml_DIR" Name="iligml">
-		    <Directory Id="iligml_1_0_0_DIR" Name="1.0.0">
-		      <Component Id="iligml_1.0.0.xsd" Guid="61E8E7F8-915E-4517-A0DB-E132D1D6E67C">
-			<File Id="iligml.xsd" Name="iligml.xsd" Source="$(var.basedir)\other\iligml\1.0.0\iligml.xsd" DiskId="1" />
+		      <Component Id="iligml.xsd" Guid="61E8E7F8-915E-4517-A0DB-E132D1D6E67C">
+			<File Id="iligml.xsd" Name="iligml.xsd" Source="$(var.basedir)\other\iligml\iligml.xsd" DiskId="1" />
 		      </Component>
-		    </Directory>
             </Directory>
           </Directory>
         </Directory>
@@ -90,7 +88,7 @@
       <ComponentRef Id="interlis2.db" />
       <ComponentRef Id="ch.ehi.fme.Main.fmf" />
       <ComponentRef Id="docs" />
-      <ComponentRef Id="iligml_1.0.0.xsd" />
+      <ComponentRef Id="iligml.xsd" />
     </Feature>
     <Upgrade Id="698C5BA1-6885-466F-93E0-28AB0749B063">
       <UpgradeVersion Maximum="$(var.version)" Property="OLDPRODUCTFOUND" MigrateFeatures="yes" />

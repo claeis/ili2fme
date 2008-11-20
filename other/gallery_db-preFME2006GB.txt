@@ -1,2 +1,0 @@
-*|CH.EHI.FME.MAIN||Automated INTERLIS 2 Translation
-

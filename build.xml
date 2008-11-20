@@ -110,11 +110,6 @@
     	<zipfileset dir="${basedir}/other" prefix="${ant.project.name}-${buildnr}/${fme}/metafile/">
 	    	<patternset includes="ch.ehi.fme.Main.fmf"/>
     	</zipfileset>
-    	<zipfileset dir="${basedir}/other" prefix="${ant.project.name}-${buildnr}/deprecated/">
-		<patternset includes="ch.ehi.fme.Main-preFME2007.fmf"/>
-	    	<patternset includes="formats_db-preFME2006GB.txt"/>
-	    	<patternset includes="gallery_db-preFME2006GB.txt"/>
-    	</zipfileset>
     	<zipfileset dir="${basedir}/other" prefix="${ant.project.name}-${buildnr}/${fme}/formatsinfo/">
 	    	<patternset includes="interlis2.db"/>
     	</zipfileset>
@@ -139,6 +134,7 @@
 	    	<patternset includes="build.xml"/>
 	    	<patternset includes="lib/*" excludes="lib/*.dll,lib/iom_java.jar"/>
 	    	<patternset includes="other/**"/>
+	    	<patternset includes="setup/**"/>
 	    	<patternset includes="src/**" excludes="**/CVS/*,**/bak~/*,**/*.cejava"/>
 		<patternset includes="resources/de/**/*.properties"/>
 		<patternset includes="resources/fr/**/*.properties"/>

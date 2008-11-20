@@ -1,5 +1,6 @@
-ili2fme 5.0.1 (2008-11-xx)
+ili2fme 5.0.1 (2008-11-20)
 ---------------------------
+!!! GML SUPPORT ADHERS TO ISO19136/GML 3.2 AND A DRAFT ILIGML SPEC !!!
 - bug: generate schema features of SURFACE helper table with "_itf_ref_$(MainTableName)"
 - auto-generate xtf_id in linetable features (if xtf_id is missing)
 - writer supports now GEOMETRY_ENCODING=FMEXML
