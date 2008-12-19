@@ -485,79 +485,115 @@ public class Ili2Writer implements IFMEWriter {
 			Type type = attr.getDomainResolvingAliases();
 			
 			for(int featurei=0;featurei<featurec;featurei++){
-				IFMEFeature feature=featurev.getAt(featurei);
+				IFMEFeature feature=null;
 				
 				// process feature
-				
-				boolean is3D=3==((CoordType)((SurfaceOrAreaType)type).getControlPointDomain().getType()).getDimensions().length;
-				if(doRichGeometry){
-					IFMEGeometry fmeGeom=null;
-					fmeGeom=feature.getGeometry();
-					if(fmeGeom instanceof IFMEDonut){
-						IFMEDonut fmeDonut=(IFMEDonut)fmeGeom;
-						// shell
-						{
-							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
+				try{
+					feature=featurev.getAt(featurei);
+					boolean is3D=3==((CoordType)((SurfaceOrAreaType)type).getControlPointDomain().getType()).getDimensions().length;
+					if(doRichGeometry){
+						IFMEGeometry fmeGeom=null;
+						try{
+							fmeGeom=feature.getGeometry();
+							if(fmeGeom instanceof IFMEDonut){
+								IFMEDonut fmeDonut=(IFMEDonut)fmeGeom;
+								// shell
+								{
+									IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
 
-							//add ref to main table
-							IomObject structvalue=iomObj.addattrobj(fkName,"REF");
-							structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
-							
-							IFMECurve shell=null;
-							shell=fmeDonut.getOuterBoundaryAsCurve();
-							IomObject polyline=Fme2iox.FME2polyline(session,shell);
-							iomObj.addattrobj(iomAttrName,polyline);
-							
-							// add line attributes
-							//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
-							//addItfLineAttributes(iomObj, shell, wrapper, surfaceType);
-							ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+									//add ref to main table
+									IomObject structvalue=iomObj.addattrobj(fkName,"REF");
+									structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
+									
+									IFMECurve shell=null;
+									try{
+										shell=fmeDonut.getOuterBoundaryAsCurve();
+										IomObject polyline=Fme2iox.FME2polyline(session,shell);
+										iomObj.addattrobj(iomAttrName,polyline);
+									}finally{
+										if(shell!=null){
+											shell.dispose();
+											shell=null;
+										}
+									}
+									
+									// add line attributes
+									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
+									//addItfLineAttributes(iomObj, shell, wrapper, surfaceType);
+									ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+								}
+								
+								// holes
+								int holec=fmeDonut.numInnerBoundaries();
+								for(int holei=0;holei<holec;holei++){
+									IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
+
+									//add ref to main table
+									IomObject structvalue=iomObj.addattrobj(fkName,"REF");
+									structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
+									
+									IFMECurve hole=null;
+									try{
+										hole=fmeDonut.getInnerBoundaryAsCurveAt(holei);
+										IomObject polyline=Fme2iox.FME2polyline(session,hole);
+										iomObj.addattrobj(iomAttrName,polyline);
+									}finally{
+										if(hole!=null){
+											hole.dispose();
+											hole=null;
+										}
+									}
+									
+									// add line attributes
+									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
+									//addItfLineAttributes(iomObj, hole, wrapper, surfaceType);
+									ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+								}
+							}else if(fmeGeom instanceof IFMESimpleArea){
+								IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
+
+								//add ref to main table
+								IomObject structvalue=iomObj.addattrobj(fkName,"REF");
+								structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
+								IFMECurve shell=null;
+								try{
+									shell=((IFMESimpleArea)fmeGeom).getBoundaryAsCurve();
+									IomObject polyline=Fme2iox.FME2polyline(session,shell);
+									iomObj.addattrobj(iomAttrName,polyline);
+								}finally{
+									if(shell!=null){
+										shell.dispose();
+										shell=null;
+									}
+								}
+								
+								// add line attributes
+								//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
+								//addItfLineAttributes(iomObj, fmeGeom, wrapper, surfaceType);
+								ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+							}else if(fmeGeom instanceof IFMENull){
+								// skip it
+							}else{
+								feature.performFunction("@Log()");
+								throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+							}
+						}finally{
+							if(fmeGeom!=null){
+								fmeGeom.dispose();
+								fmeGeom=null;
+							}
 						}
-						
-						// holes
-						int holec=fmeDonut.numInnerBoundaries();
-						for(int holei=0;holei<holec;holei++){
-							IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
-
-							//add ref to main table
-							IomObject structvalue=iomObj.addattrobj(fkName,"REF");
-							structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
-							
-							IFMECurve hole=null;
-							hole=fmeDonut.getInnerBoundaryAsCurveAt(holei);
-							IomObject polyline=Fme2iox.FME2polyline(session,hole);
-							iomObj.addattrobj(iomAttrName,polyline);
-							
-							// add line attributes
-							//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
-							//addItfLineAttributes(iomObj, hole, wrapper, surfaceType);
-							ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
-						}
-					}else if(fmeGeom instanceof IFMESimpleArea){
-						IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
-
-						//add ref to main table
-						IomObject structvalue=iomObj.addattrobj(fkName,"REF");
-						structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
-						IomObject polyline=Fme2iox.FME2polyline(session,((IFMESimpleArea)fmeGeom).getBoundaryAsCurve());
-						iomObj.addattrobj(iomAttrName,polyline);
-						
-						// add line attributes
-						//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
-						//addItfLineAttributes(iomObj, fmeGeom, wrapper, surfaceType);
-						ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
-					}else if(fmeGeom instanceof IFMENull){
-						// skip it
 					}else{
-						feature.performFunction("@Log()");
-						throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
+						throw new java.lang.IllegalStateException("use RichGeometry");
+						//obj.getDonutParts(bndries);
+						// write parts as polyline
 					}
-				}else{
-					throw new java.lang.IllegalStateException("use RichGeometry");
-					//obj.getDonutParts(bndries);
-					// write parts as polyline
+				}finally{
+					if(feature!=null){
+						feature.dispose();
+						feature=null;
+					}
 				}
-				feature.dispose();
 			}
 						
 		}
@@ -1284,8 +1320,17 @@ public class Ili2Writer implements IFMEWriter {
 					IomObject polyline=Fme2iox.FME2polyline(session,(IFMECurve)fmeGeom);
 					iomObj.addattrobj(iomAttrName,polyline);
 				}else if(fmeGeom instanceof IFMESimpleArea){
-					IomObject polyline=Fme2iox.FME2polyline(session,((IFMESimpleArea)fmeGeom).getBoundaryAsCurve());
-					iomObj.addattrobj(iomAttrName,polyline);
+					IFMECurve shell=null;
+					try{
+						shell=((IFMESimpleArea)fmeGeom).getBoundaryAsCurve();
+						IomObject polyline=Fme2iox.FME2polyline(session,shell);
+						iomObj.addattrobj(iomAttrName,polyline);
+					}finally{
+						if(shell!=null){
+							shell.dispose();
+							shell=null;
+						}
+					}
 				}else{
 					obj.performFunction("@Log()");
 					throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());

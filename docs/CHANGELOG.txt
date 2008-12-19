@@ -1,3 +1,7 @@
+ili2fme 5.0.2 (2008-12-xx)
+---------------------------
+- bug itf-writer: fixed memory leak in SURFACE/AREA converter
+
 ili2fme 5.0.1 (2008-11-20)
 ---------------------------
 !!! GML SUPPORT ADHERS TO ISO19136/GML 3.2 AND A DRAFT ILIGML SPEC !!!
