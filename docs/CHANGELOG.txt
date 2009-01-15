@@ -1,6 +1,7 @@
-ili2fme 5.0.2 (2008-12-xx)
+ili2fme 5.0.2 (2008-12-19)
 ---------------------------
 - bug itf-writer: fixed memory leak in SURFACE/AREA converter
+- bug itf-writer: write empty non OPTIONAL tables
 
 ili2fme 5.0.1 (2008-11-20)
 ---------------------------
