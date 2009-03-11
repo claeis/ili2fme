@@ -1,3 +1,9 @@
+ili2fme 5.1.0 (2009-03-11)
+---------------------------
+- changed ATTR_TYPE_MAP of xtf_char from fme_char to fme_varchar as requested by safe
+- ili2c-4.1.1
+- itf: read/write AREA centroid as 2D even if domain of control points is 3D 
+
 ili2fme 5.0.2 (2008-12-19)
 ---------------------------
 - bug itf-writer: fixed memory leak in SURFACE/AREA converter
