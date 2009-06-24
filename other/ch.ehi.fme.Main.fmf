@@ -172,7 +172,7 @@ GEOM_MAP xtf_area             fme_ellipse          \
 GEOM_MAP xtf_area fme_rectangle
 GEOM_MAP xtf_area fme_rounded_rectangle 
 
-ATTR_TYPE_MAP  xtf_char(width)             fme_varchar(width)            \
+ATTR_TYPE_MAP  xtf_char(width)             fme_char(width)            \
                xtf_number(width,decimal)   fme_decimal(width,decimal) 
 
 GENERICIZE_GEOMTYPE_ATTR_NAME xtf_geomtype
