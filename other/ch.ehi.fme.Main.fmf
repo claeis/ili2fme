@@ -159,15 +159,7 @@ GEOM_MAP xtf_coord        fme_text
 GEOM_MAP xtf_polyline     fme_line
 GEOM_MAP xtf_surface      fme_polygon
 GEOM_MAP xtf_area         fme_polygon
-
-!for fme_arc we will stroke it AND store it in a polyline
-GEOM_MAP xtf_polyline         fme_arc              \
-         XTF_PAX              fme_primary_axis     \
-         XTF_SAX              fme_secondary_axis   \
-         XTF_ROT              fme_rotation         \
-         XTF_STAN             fme_start_angle      \
-         XTF_SWAN             fme_sweep_angle      \
-         @Arc(&XTF_PAX,&XTF_SAX,0,&XTF_ROT, &XTF_STAN, &XTF_SWAN)
+GEOM_MAP xtf_arc          fme_arc
          
 !for fme_ellipse we will stroke it AND store in an area
 GEOM_MAP xtf_area             fme_ellipse          \
