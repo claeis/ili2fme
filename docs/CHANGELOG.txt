@@ -1,3 +1,9 @@
+ili2fme 5.2.0 (2009-03-xx)
+---------------------------
+- changed ATTR_TYPE_MAP of xtf_char from fme_varchar backto fme_char due to fme2009 incompatibility
+- bug writer: single arcs were stroked
+- bug itf-reader: accept tab (not only space) after tag
+
 ili2fme 5.1.0 (2009-03-11)
 ---------------------------
 - changed ATTR_TYPE_MAP of xtf_char from fme_char to fme_varchar as requested by safe
