@@ -301,6 +301,7 @@ public class Ili2Reader implements IFMEReader {
 			//modeldir=mappingFile.fetchString(readerKeyword+"_"+Ili2fme.MODEL_DIR);
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ili22models").getAbsolutePath();
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ilimodels").getAbsolutePath()+";"+modeldir;
+			modeldir="http://models.interlis.ch/;"+modeldir;
 			modeldir=new java.io.File(xtfFile).getParentFile().getAbsolutePath()+";"+modeldir;
 		}else{
 			int startPos=modeldir.indexOf(Main.XTFDIR_PLACEHOLDER);
@@ -310,7 +311,7 @@ public class Ili2Reader implements IFMEReader {
 				modeldir=buf.toString();
 			}
 		}
-		EhiLogger.traceState("modeldir <"+modeldir+">");
+		EhiLogger.logState("modeldir <"+modeldir+">");
 		
 		String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(new java.io.File(xtfFile)).toLowerCase();
 		if(xtfExt.equals("itf")){
@@ -321,16 +322,24 @@ public class Ili2Reader implements IFMEReader {
 			formatMode=MODE_XTF;
 		}
 		if(xtfExt.equals("ili")){
-			ArrayList modeldirv=new ArrayList();
-			modeldirv=new ArrayList(java.util.Arrays.asList(modeldir.split(";")));
 			ArrayList iliFilev=new ArrayList();
 			iliFilev.add(xtfFile);
 			xtfFile=null;
 			// compile models
-			iliTd=ch.interlis.ili2c.Main.compileIliFiles(iliFilev,modeldirv,null);
-			if(iliTd==null){
-				// compiler failed
-				throw new IllegalArgumentException("INTERLIS compiler failed");
+			{
+				// create repository manager
+				ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
+				// set list of repositories to search
+				manager.setRepositories(modeldir.split(";"));
+				// get complete list of required ili-files
+				ch.interlis.ili2c.config.Configuration config=manager.getConfigWithFiles(iliFilev);
+				ch.interlis.ili2c.Ili2c.logIliFiles(config);
+				// compile models
+				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
+				if(iliTd==null){
+					// compiler failed
+					throw new IllegalArgumentException("INTERLIS compiler failed");
+				}
 			}
 			// INTERLIS 1?
 			if(iliTd.getIli1Format()!=null){
@@ -370,24 +379,40 @@ public class Ili2Reader implements IFMEReader {
 			String model[]=be.getType().split("\\.");
 			EhiLogger.logState("model from xtf <"+model[0]+">");
 			iliModelv.add(model[0]);
-			ArrayList modeldirv=new ArrayList();
-			modeldirv=new ArrayList(java.util.Arrays.asList(modeldir.split(";")));
 			// compile models
-			iliTd=ch.interlis.ili2c.Main.compileIliModels(iliModelv,modeldirv,null);
-			if(iliTd==null){
-				// compiler failed
-				throw new IllegalArgumentException("INTERLIS compiler failed");
+			{
+				// create repository manager
+				ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
+				// set list of repositories to search
+				manager.setRepositories(modeldir.split(";"));
+				// get complete list of required ili-files
+				ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
+				ch.interlis.ili2c.Ili2c.logIliFiles(config);
+				// compile models
+				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
+				if(iliTd==null){
+					// compiler failed
+					throw new IllegalArgumentException("INTERLIS compiler failed");
+				}
 			}
 		}else{
-			ArrayList modeldirv=new ArrayList();
-			modeldirv=new ArrayList(java.util.Arrays.asList(modeldir.split(";")));
 			// parse string
 			iliModelv=new ArrayList(java.util.Arrays.asList(models.split(";")));
 			// compile models
-			iliTd=ch.interlis.ili2c.Main.compileIliModels(iliModelv,modeldirv,null);
-			if(iliTd==null){
-				// compiler failed
-				return;
+			{
+				// create repository manager
+				ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
+				// set list of repositories to search
+				manager.setRepositories(modeldir.split(";"));
+				// get complete list of required ili-files
+				ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
+				ch.interlis.ili2c.Ili2c.logIliFiles(config);
+				// compile models
+				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
+				if(iliTd==null){
+					// compiler failed
+					return;
+				}
 			}
 		}
 		

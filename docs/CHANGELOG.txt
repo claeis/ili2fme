@@ -1,6 +1,8 @@
-ili2fme 5.2.0 (2009-03-xx)
+ili2fme 5.2.0 (2009-12-09)
 ---------------------------
-- changed ATTR_TYPE_MAP of xtf_char from fme_varchar backto fme_char due to fme2009 incompatibility
+- added model repository support
+- ili2c-4.3.0
+- bug interlis2.db: out of sync with metafile; SOURCE_SETTINGS or DESTINATION_SETTINGS should be set to YES
 - bug writer: single arcs were stroked
 - bug itf-reader: accept tab (not only space) after tag
 

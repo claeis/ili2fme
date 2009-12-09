@@ -237,6 +237,7 @@ public class Ili2Writer implements IFMEWriter {
 		if(modeldir==null){
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ili22models").getAbsolutePath();
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ilimodels").getAbsolutePath()+";"+modeldir;
+			modeldir="http://models.interlis.ch/;"+modeldir;
 			modeldir=new java.io.File(xtfFile).getParentFile().getAbsolutePath()+";"+modeldir;
 		}else{
 			int startPos=modeldir.indexOf(Main.XTFDIR_PLACEHOLDER);
@@ -246,7 +247,7 @@ public class Ili2Writer implements IFMEWriter {
 				modeldir=buf.toString();
 			}
 		}
-		EhiLogger.traceState("modeldir <"+modeldir+">");
+		EhiLogger.logState("modeldir <"+modeldir+">");
 
 		modeldirv=new ArrayList(java.util.Arrays.asList(modeldir.split(";")));
 		ArrayList iliModelv=null;
@@ -287,8 +288,17 @@ public class Ili2Writer implements IFMEWriter {
 
 	}
 	private void setupModel(ArrayList iliModelv, ArrayList modeldirv) 
+	throws ch.interlis.ili2c.Ili2cException
 	{
-		iliTd=ch.interlis.ili2c.Main.compileIliModels(iliModelv,modeldirv,null);
+		// create repository manager
+		ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
+		// set list of repositories to search
+		manager.setRepositories((String[])modeldirv.toArray(new String[0]));
+		// get complete list of required ili-files
+		ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
+		ch.interlis.ili2c.Ili2c.logIliFiles(config);
+		// compile models
+		iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
 		if(iliTd==null){
 			// compiler failed
 			throw new IllegalArgumentException("INTERLIS compiler failed");
