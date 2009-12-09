@@ -1,2 +1,2 @@
-CH.EHI.FME.MAIN|Swiss INTERLIS (ili2fme)|FILE|BOTH|BOTH|NO|INTERLIS 2 Files(*.xtf;*.xml)%*.xtf;*.xml%INTERLIS 1 Files(*.itf)%*.itf%INTERLIS GML Files(*.gml)%*.gml%INTERLIS Models(*.ili)%*.ili%All Files%*.*|VECTOR|NO|NO|NO|YES
+CH.EHI.FME.MAIN|Swiss INTERLIS (ili2fme)|FILE|BOTH|BOTH|NO|INTERLIS 2 Files(*.xtf;*.xml)%*.xtf;*.xml%INTERLIS 1 Files(*.itf)%*.itf%INTERLIS GML Files(*.gml)%*.gml%INTERLIS Models(*.ili)%*.ili%All Files%*.*|VECTOR|NO|YES|YES|YES
 
