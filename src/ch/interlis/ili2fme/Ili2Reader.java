@@ -335,6 +335,7 @@ public class Ili2Reader implements IFMEReader {
 				manager.setRepositories(modeldir.split(";"));
 				// get complete list of required ili-files
 				ch.interlis.ili2c.config.Configuration config=manager.getConfigWithFiles(iliFilev);
+				config.setGenerateWarnings(false);
 				ch.interlis.ili2c.Ili2c.logIliFiles(config);
 				// compile models
 				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
@@ -390,6 +391,7 @@ public class Ili2Reader implements IFMEReader {
 				// get complete list of required ili-files
 				ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
 				ch.interlis.ili2c.Ili2c.logIliFiles(config);
+				config.setGenerateWarnings(false);
 				// compile models
 				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
 				if(iliTd==null){
@@ -409,6 +411,7 @@ public class Ili2Reader implements IFMEReader {
 				// get complete list of required ili-files
 				ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
 				ch.interlis.ili2c.Ili2c.logIliFiles(config);
+				config.setGenerateWarnings(false);
 				// compile models
 				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
 				if(iliTd==null){
@@ -1638,7 +1641,7 @@ public class Ili2Reader implements IFMEReader {
 			 rootClass=structClass;
 			}
 			// EhiLogger.debug(attr.getScopedName(null)+", "+rootClass.getScopedName(null));
-			mapFeatureType(null,ret,(ViewableWrapper)transferViewables.get(rootClass.getScopedName(null)),attr.getName()+"{}.");						
+			mapFeatureType(null,ret,(ViewableWrapper)transferViewables.get(rootClass.getScopedName(null)),attrNamePrefix+attr.getName()+"{}.");						
 		}else{
 			// TODO set attribute type
 			ret.setStringAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");

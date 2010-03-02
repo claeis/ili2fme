@@ -299,6 +299,7 @@ public class Ili2Writer implements IFMEWriter {
 		// get complete list of required ili-files
 		ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
 		ch.interlis.ili2c.Ili2c.logIliFiles(config);
+		config.setGenerateWarnings(false);
 		// compile models
 		iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
 		if(iliTd==null){
