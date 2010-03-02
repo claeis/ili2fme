@@ -29,7 +29,8 @@ import java.util.*;
 public class FmeLogListener implements LogListener {
 	IFMELogFile out=null;
 	private boolean errors=false;
-	public void logEvent(LogEvent event){
+	private int initCount=0;
+	synchronized public void logEvent(LogEvent event){
 		int fmeKind;
 		switch(event.getEventKind()){
 			case LogEvent.ERROR:
@@ -54,5 +55,14 @@ public class FmeLogListener implements LogListener {
 	 */
 	public boolean hasSeenErrors(){
 		return errors;
+	}
+	public void incrCount(){
+		initCount++;
+	}
+	public void decrCount(){
+		initCount--;
+	}
+	public int getCount(){
+		return initCount;
 	}
 }

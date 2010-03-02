@@ -161,37 +161,55 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		  }
 		  return version;
 	}
-	private static FmeLogListener listener=null;
-	//private static ch.ehi.basics.logging.FileListener listener2=null;
-	private static int logInitCount=0;
+	private static final boolean doFMELog=true;
+	private static final boolean doFileLog=true;
+	private static java.util.HashMap fmeListeners=new java.util.HashMap();
+	private static ch.ehi.basics.logging.FileListener fileListener=null;
+	private static int logFileCount=0;
 	public static FmeLogListener setupLogging(IFMELogFile logFile)
 	{
-		if(logInitCount==0){
-			if(listener==null){
-				listener=new FmeLogListener(logFile);
-				EhiLogger.getInstance().addListener(listener);
-				//listener2=new ch.ehi.basics.logging.FileListener(new java.io.File("c:/tmp/ili2fme.log"));
-				//EhiLogger.getInstance().addListener(listener2);
-				EhiLogger.getInstance().removeListener(ch.ehi.basics.logging.StdListener.getInstance());
-				//EhiLogger.getInstance().setTraceFilter(false);
+		FmeLogListener fmeListener=null;
+		if(doFMELog){
+			fmeListener=(FmeLogListener)fmeListeners.get(logFile);
+			if(fmeListener==null){
+				fmeListener=new FmeLogListener(logFile);
+				fmeListeners.put(logFile,fmeListener);
+				EhiLogger.getInstance().addListener(fmeListener);
 			}
+			fmeListener.incrCount();
 		}
-		logInitCount++;
-		return listener;
+		if(logFileCount==0){
+			if(doFileLog){
+				fileListener=new ch.ehi.basics.logging.FileListener(new java.io.File("c:/tmp/ili2fme.log"));
+				EhiLogger.getInstance().addListener(fileListener);
+			}
+			EhiLogger.getInstance().removeListener(ch.ehi.basics.logging.StdListener.getInstance());
+			//EhiLogger.getInstance().setTraceFilter(false);
+		}
+		logFileCount++;
+		return fmeListener;
 		
 	}
-	public static void endLogging(){
-		logInitCount--;
-		if(logInitCount==0){
-			if(listener!=null){
-				EhiLogger.getInstance().addListener(ch.ehi.basics.logging.StdListener.getInstance());
-				EhiLogger.getInstance().removeListener(listener);
-				listener=null;
+	public static void endLogging(FmeLogListener fmeListener){
+		if(fmeListener!=null){
+			if(doFMELog){
+				fmeListener.decrCount();
+				if(fmeListener.getCount()==0){
+					EhiLogger.getInstance().removeListener(fmeListener);
+				}
 			}
-			//if(listener2!=null){
-			//	EhiLogger.getInstance().removeListener(listener2);
-			//	listener2=null;
-			//}
+			fmeListener=null;
+		}
+		logFileCount--;
+		if(logFileCount==0){
+			EhiLogger.getInstance().addListener(ch.ehi.basics.logging.StdListener.getInstance());
+			if(fileListener!=null){
+				if(doFileLog){
+					EhiLogger.getInstance().removeListener(fileListener);
+					fileListener.close();
+					fileListener=null;
+				}
+			}
 		}
 	}
 }

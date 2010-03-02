@@ -87,17 +87,19 @@ public class Ili2Writer implements IFMEWriter {
 	private boolean checkUniqueOid=false;
 	private HashMap checkoids=null; // map<String tid,String info>
 	private int maxTid=1; // only used if formatMode==MODE_ITF
+	private IFMELogFile fmeLog=null;
 	public Ili2Writer(IFMESession session1,IFMEMappingFile mappingFile1,String writerTypename,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		writerKeyword=keyword;
 		session=session1;
 		this.writerTypename=writerTypename;
-		listener=Main.setupLogging(log);
+		fmeLog=log;
 	}
 	// Open up the writer and pass it the destination directory to which files will
 	// be written (1st parameter) and a string array which may contain additional
 	// dataset parameters (2nd parameter).
 	public void open(ArrayList args) throws Exception {
+		listener=Main.setupLogging(fmeLog);
 		try{
 			myopen(args);
 		}catch(Exception ex)
@@ -1486,7 +1488,7 @@ public class Ili2Writer implements IFMEWriter {
 			outputFile=null;
 		}
 		if(listener!=null){
-			Main.endLogging();
+			Main.endLogging(listener);
 			listener=null;
 		}
 	}

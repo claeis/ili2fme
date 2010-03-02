@@ -96,13 +96,15 @@ public class Ili2Reader implements IFMEReader {
 	private boolean ili1RenumberTid=false;
 	private GeometryConverter geomConv=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
+	private IFMELogFile fmeLog=null;
 	public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		readerKeyword=keyword;
 		session=session1;
-		listener=Main.setupLogging(log);
+		fmeLog=log;
 	}
 	public void open(ArrayList args) throws Exception {
+		listener=Main.setupLogging(fmeLog);
 		try{
 			myopen(args);
 		}catch(Exception ex)
@@ -1963,7 +1965,7 @@ public class Ili2Reader implements IFMEReader {
 			ioxReader=null;
 		}
 		if(listener!=null){
-			Main.endLogging();
+			Main.endLogging(listener);
 			listener=null;
 		}
 	}
