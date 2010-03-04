@@ -1,0 +1,349 @@
+# script established by jko, INSER 2008
+# all rights reserved by Kanton Thurgau, Amt für Geoinformation, CH-8510 Frauenfeld
+# aims to remove holes by dissolving them to the first neighbor found
+# based on ili2fme-script to convert INTERLIS 1 AREA attributes to FME polygons/donuts
+# use filename as value to ili2fme parameter ILI1_CONVERTAREA
+#
+# when used, ili2fme defines/passes the following macros
+# MACRO lineTableName name of FME feature type with polylines on input
+# MACRO mainTableName name of main FME feature type on input (point) and output (polygon/donut) 
+# MACRO maxOverlaps max overlaps as defined by datatype of attribute in INTERLIS model
+
+##split points
+
+FACTORY_DEF * TeeFactory                                                                           \
+	INPUT FEATURE_TYPE $(mainTableName)                                                            \
+	OUTPUT FEATURE_TYPE $(mainTableName)_1                                                         \
+	OUTPUT FEATURE_TYPE $(mainTableName)_2 
+
+##intersect lines
+
+##first a selfintersection
+
+FACTORY_DEF * IntersectionFactory                                                                  \
+	INPUT FEATURE_TYPE $(lineTableName)                                                            \
+  SELF_INTERSECTION_ONLY                                                                           \
+	OUTPUT SEGMENT  FEATURE_TYPE $(lineTableName)_F1_SELF_INTERSECTED
+
+##standard intersection  
+  
+FACTORY_DEF * IntersectionFactory                                                                  \
+	INPUT FEATURE_TYPE $(lineTableName)_F1_SELF_INTERSECTED                                        \
+	OUTPUT SEGMENT  FEATURE_TYPE $(lineTableName)_F1_SEG_1
+
+##second intersection (workaround)
+
+FACTORY_DEF * IntersectionFactory                                                                  \
+	INPUT FEATURE_TYPE $(lineTableName)_F1_SEG_1                                                   \
+	OUTPUT SEGMENT  FEATURE_TYPE $(lineTableName)_F1_SEG
+  
+  
+##build polygons
+
+FACTORY_DEF * PolygonFactory                                                                       \
+	INPUT FEATURE_TYPE $(lineTableName)_F1_SEG                                                     \
+	END_NODED                                                                                      \
+	OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F2_POLY                                           \
+	OUTPUT LINE FEATURE_TYPE $(lineTableName)_POLY_ERROR
+
+##create donuts
+
+FACTORY_DEF * DonutFactory                                                                         \
+	INPUT FEATURE_TYPE $(lineTableName)_F2_POLY                                                    \
+	DROP_HOLES no                                                                                  \
+	TAG_HOLES no                                                                                   \
+	OUTPUT DONUT FEATURE_TYPE $(lineTableName)_F3_DONUT                                            \
+    @Geometry(TO_ATTRIBUTE_BINARY,_geometryStroker)                                                \
+	OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F3_DONUT                                          \
+    @Geometry(TO_ATTRIBUTE_BINARY,_geometryStroker)                                                \
+	OUTPUT POINT FEATURE_TYPE $(lineTableName)_F3_POINT_ERROR                                      \
+	OUTPUT LINE FEATURE_TYPE $(lineTableName)_F3_LINE_ERROR 
+
+##stroke for overlay  (because of bug in overlayer which does not work when point lying ON ARC)
+
+FACTORY_DEF * TeeFactory                                                                           \
+   FACTORY_NAME GeometryExtractor                                                                  \
+   INPUT  FEATURE_TYPE $(lineTableName)_F3_DONUT                                                   \
+   OUTPUT FEATURE_TYPE $(lineTableName)_F3_DONUT_STROKED                                           \
+        @Arc(100)
+
+  
+##overlay with points
+      
+FACTORY_DEF * OverlayFactory                                                                       \
+	INPUT POLYGON FEATURE_TYPE $(lineTableName)_F3_DONUT_STROKED                                   \
+	INPUT POINT   FEATURE_TYPE $(mainTableName)_1                                                  \
+	OVERLAP_COUNT_ATTRIBUTE _overlaps                                                              \
+  OUTPUT POLYGON FEATURE_TYPE $(mainTableName)_F4_OVERLAY @Transform(CH.EHI.FME.MAIN,FME_GENERIC)  \
+	 @CopyAttributes(_ptid,xtf_id)                                                                 \
+	 @SupplyAttributes(ENCODED,_predicate,****1****)                                               \
+	 @Geometry(FROM_ATTRIBUTE_BINARY,_geometryStroker)
+   
+##supply attribute for spatialtester
+
+##keep those with 0 or 1 overlaps
+
+Lookup AttributeFilter_AttributeFilterLut                                                          \
+  0 ok                                                                                             \
+  1 ok                                                                                             \
+  "" notok                                                                                         \
+  ENCODED
+
+FACTORY_DEF * TestFactory                                                                          \
+	INPUT  FEATURE_TYPE $(mainTableName)_F4_OVERLAY                                                \
+	TEST @Lookup(AttributeFilter_AttributeFilterLut,_overlaps,ENCODED_ATTR) == "ok"                \
+	OUTPUT PASSED FEATURE_TYPE $(mainTableName)_F5_OK                                              \
+	OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F5_TOOMANYPOINTS
+
+FACTORY_DEF * TestFactory                                                                          \
+	INPUT  FEATURE_TYPE $(mainTableName)_F5_OK                                                     \
+	TEST &_overlaps = "0"                                                                          \
+	OUTPUT PASSED FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS                                     \
+	OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F6_ONE_OVERLAP
+
+##break the overlaps into two parallel streams
+
+FACTORY_DEF * TeeFactory                                                                           \
+  INPUT FEATURE_TYPE $(mainTableName)_F6_ONE_OVERLAP                                               \
+  OUTPUT FEATURE_TYPE $(mainTableName)_F6_ONE_OVERLAP_1                                            \
+  OUTPUT FEATURE_TYPE $(mainTableName)_F6_ONE_OVERLAP_2                
+
+##only keep NO_OVERLAPS if their AREA is small (10 x $maxOverlaps) and store geometry into attribute _geometry
+
+FACTORY_DEF * TestFactory                                                                          \
+  INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS                                              \
+  TEST @Area() < @Evaluate($(maxOverlaps)*10)                                                      \
+  OUTPUT PASSED FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL                                 \
+  @Geometry(TO_ATTRIBUTE_BINARY,_geometry)                                                         \
+  hole_id @Count()                                                                                 \
+  OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_BIG                                   \
+    _area @Area()                                                                                  \
+    _maxOv @Evaluate($(maxOverlaps)*10)
+    
+
+##coerce them to lines
+
+FACTORY_DEF * TestFactory                                                                          \
+   INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL                                       \ 
+   TEST @GeometryType() == fme_donut                                                               \
+   TEST @GeometryType() == fme_aggregate                                                           \
+   TEST @GeometryType() == fme_undefined                                                           \
+   BOOLEAN_OPERATOR OR                                                                             \
+   OUTPUT PASSED FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES                          \
+   OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES                          \
+        @GeometryType(fme_line)
+
+##split pahts
+
+FACTORY_DEF * DeaggregateFactory                                                                   \
+   FACTORY_NAME PathSplitter                                                                       \
+   INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES                                 \
+   SET_FME_TYPE Yes                                                                                \
+   PATH_SPLIT_MODE                                                                                 \
+   PART_NUMBER_FIELD _segment_number                                                               \
+   OUTPUT SEGMENT FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT                   \
+   OUTPUT NON_PATH FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT
+
+##calculate lengths of split paths
+
+FACTORY_DEF * TeeFactory                                                                           \
+   FACTORY_NAME LengthCalculator                                                                   \
+   INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT                           \
+   OUTPUT FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS              \
+        _length @Length(2,1)
+
+##snip them down to their mid part
+
+Tcl2 proc DistanceSnipper_fixIndex {numIndex} {                                                    \
+    if {$numIndex < 0} {                                                                           \
+        return "end";                                                                              \
+    } else {                                                                                       \
+        return $numIndex;                                                                          \
+    }                                                                                              \
+}
+
+FACTORY_DEF * TeeFactory                                                                           \
+   FACTORY_NAME DistanceSnipper                                                                    \
+   INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS                         \
+   OUTPUT FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED                 \
+        @Snip(@Tcl2("DistanceSnipper_fixIndex 49"),@Tcl2("DistanceSnipper_fixIndex 51"),PERCENTAGE,2D)        \
+        @Arc(100)
+
+##get their neighbors
+        
+FACTORY_DEF * ProximityFactory                                                                     \
+   FACTORY_NAME NeighborFinder                                                                     \
+   INPUT BASE FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED  \
+   INPUT CANDIDATE FEATURE_TYPE $(mainTableName)_F6_ONE_OVERLAP_1                                  \
+   SPATIAL_MATCH CLOSEST 0.01                                                                      \
+   DISTANCE_ATTR _distance                                                                         \
+   OUTPUT MATCHED FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS    \
+       @RenameAttributes(_angle,angle,_candidate_angle,candidate_angle,_candidate_label_angle,candidate_label_angle,_closest_candidate_x,closest_candidate_x,_closest_candidate_y,closest_candidate_y,_closest_base_x,closest_base_x,_closest_base_y,closest_base_y)
+
+##aggregate them to sort the list
+
+DEFAULT_MACRO Aggregator_BREAK_ATTR
+
+FACTORY_DEF * AggregateFactory                                         \
+   FACTORY_NAME Aggregator                                             \
+   INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS                          \
+   GROUP_BY hole_id                                                    \
+   BREAK_BEFORE_FIELD_CHANGE hole_id                                   \
+   LIST_NAME agg_list{}                                                \
+   ACCUMULATE_ATTRIBUTES Yes                                           \
+   OUTPUT AGGREGATE FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS_AGGREGATED
+
+##sort the list to get the one with the longest length first (curved boundary is longer than the straight one
+
+
+Tcl2 set ListSorterRenamedAttrPrefix ________
+
+Tcl2 proc ListSorter_sort {} {                                         \
+   global ListSorterRenamedAttrPrefix;                                 \
+   regsub \"{}.*$\" {agg_list{}._length} \"\{\" listBase;              \
+   regsub \"{}.*$\" {agg_list{}._length} \"\" listName;                \
+   set listBaseLen [string length $listBase];                          \
+   set listNameLen [expr $listBaseLen - 1];                            \
+   set listValueExtension [string replace {agg_list{}._length} 0 $listBaseLen {}]; \
+   set COMMENT {                                                       \
+   =    For each attribute "listattr{<index>}.count" and all related attributes \
+   =    "listattr{<index>}<extension>", create a list of the form      \
+   =       {$listattr{<index>}.count <index>}                          \
+   =    and append the list to toSort, and keep a list of the extensions \
+   =    for each index in the associative array listExtensions(<index>). \
+   =    While iterating over the attributes, rename all such attributes to \
+   =    "________listattr{<index>}<extension>" to                      \
+   =    keep them out of the way, and to make them easier to clean up later. \
+   =                                                                   \
+   =    Note that we're manually pulling out the index and extension, instead \
+   =    of using regular expressions, as it is much more efficient     \
+   };                                                                  \
+   set toSort {};                                                      \
+   foreach attr [FME_AttributeNames] {                                 \
+      set attrStart [string range $attr 0 $listNameLen];               \
+      if { $attrStart == $listBase } {                                 \
+         set braceEnd [string first \} $attr $listBaseLen];            \
+         set index [string range $attr $listBaseLen [expr $braceEnd - 1]]; \
+         set extension [string range $attr [expr $braceEnd + 1] end];  \
+         lappend listExtensions($index) $extension;                    \
+         if { $extension == $listValueExtension } {                    \
+            lappend toSort [list [FME_GetAttribute $attr] $index]      \
+         };                                                            \
+         FME_RenameAttribute "$ListSorterRenamedAttrPrefix$attr" $attr; \
+         set renamedAttrs($ListSorterRenamedAttrPrefix$attr) 1;        \
+      }                                                                \
+   };                                                                  \
+   set COMMENT {                                                       \
+   =    Sort the {$listattr{<index>} <index>} by index 0 (attr value)  \
+   };                                                                  \
+   set sortedList [lsort -real -decreasing -index 0 $toSort];          \
+   set destIndex 0;                                                    \
+   set COMMENT {                                                       \
+   =    For each list within sortedList, iterate over the list, renaming \
+   =    "________listattr{<index>}<extension>" to                      \
+   =    "listattr{<newIndex>}<extension>"                              \
+   };                                                                  \
+   foreach pair $sortedList {                                          \
+      set elementNum [lindex $pair 1];                                 \
+      set newAttrBase "$listName\{$destIndex\}";                       \
+      set oldAttrBase "$listName\{$elementNum\}";                      \
+      foreach extension $listExtensions($elementNum) {                 \
+         FME_RenameAttribute "$newAttrBase$extension" "$ListSorterRenamedAttrPrefix$oldAttrBase$extension"; \
+         unset renamedAttrs($ListSorterRenamedAttrPrefix$oldAttrBase$extension); \
+      };                                                               \
+      incr destIndex                                                   \
+   };                                                                  \
+   set COMMENT {                                                       \
+   =    If any attributes were renamed to their temporary names above, and they \
+   =    did not contain the structure extension on which we were sorting, they \
+   =    will still exist on the feature, and must be cleaned up.       \
+   };                                                                  \
+   foreach remainingAttr [array names renamedAttrs] {                  \
+      FME_UnsetAttribute $remainingAttr                                \
+   };                                                                  \
+}
+
+FACTORY_DEF * TeeFactory                                               \
+   FACTORY_NAME ListSorter                                             \
+   INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS_AGGREGATED                            \
+   OUTPUT FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS_AGGREGATED_SORTED                               \
+        @Tcl2("ListSorter_sort")   
+
+##get the first list element down to the feature to know the neighbours id and get the geometry back
+
+Tcl2 proc ListIndexer_indexer {index} {                                \
+   regsub \"{}\" {agg_list{}} \"{$index}\" listWithIndex;              \
+   regsub \"{}\" {agg_list{}} {} listBase;                             \
+   set complexListExp "$listWithIndex\.";                              \
+   set prefixLength [expr [string length $complexListExp]-1];          \
+   foreach attr [FME_AttributeNames] {                                 \
+     if {$attr == $listWithIndex} {                                    \
+       lappend attrsToCopy $listBase $attr;                            \
+     } elseif {[string first $complexListExp $attr] == 0} {            \
+       set newAttr [string replace $attr 0 $prefixLength];             \
+       lappend attrsToCopy $newAttr $attr;                             \
+     };                                                                \
+   };                                                                  \
+   if {[info exists attrsToCopy] && [llength $attrsToCopy] > 0} {      \
+     eval FME_Execute CopyAttributes $attrsToCopy;                     \
+   };                                                                  \
+}
+
+FACTORY_DEF * TeeFactory                                               \
+   FACTORY_NAME ListIndexer                                            \
+   INPUT  FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS_AGGREGATED_SORTED                               \
+   OUTPUT FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS_AGGREGATED_SORTED_INDEXED                       \
+        @Tcl2("ListIndexer_indexer 0")        \
+        @Geometry(FROM_ATTRIBUTE_BINARY,_geometry)
+        
+
+##route the ones with one overlap and the ones with the newly calculated neighbors together
+
+FACTORY_DEF * TeeFactory                                                                       \
+  INPUT FEATURE_TYPE $(mainTableName)_F6_NO_OVERLAPS_SMALL_LINES_SPLIT_WITH_LENGHTS_SNIPPED_GOT_NEIGHBORS_AGGREGATED_SORTED_INDEXED                          \
+  OUTPUT FEATURE_TYPE $(mainTableName)_F8
+
+FACTORY_DEF * TeeFactory                                                                         \
+	INPUT FEATURE_TYPE $(mainTableName)_F6_ONE_OVERLAP_2                                         \
+	OUTPUT FEATURE_TYPE $(mainTableName)_F8
+
+## dissolve all features that have the same point_id
+
+FACTORY_DEF * PolygonDissolveFactory                                                             \
+	GROUP_BY _ptid                                                                               \
+	INPUT  FEATURE_TYPE $(mainTableName)_F8                                                      \
+	NON_OVERLAPPING_INPUT Yes                                                                    \
+	OUTPUT POLYGON FEATURE_TYPE $(mainTableName)_F9_DISSOLVED                                    \
+    @Geometry(TO_ATTRIBUTE_BINARY,_geometryStroker)  
+    
+FACTORY_DEF * TeeFactory                                                                         \
+	INPUT  FEATURE_TYPE $(mainTableName)_F9_DISSOLVED                                            \
+	OUTPUT FEATURE_TYPE $(mainTableName)_F9_DISSOLVED_STROKED                                    \
+    @Arc(100)
+
+
+
+##get the fields back by redoing an overlay :(
+
+FACTORY_DEF * OverlayFactory                                                                     \
+	INPUT POLYGON FEATURE_TYPE $(mainTableName)_F9_DISSOLVED_STROKED                             \
+	INPUT POINT   FEATURE_TYPE $(mainTableName)_2                                                \
+	OUTPUT POLYGON FEATURE_TYPE $(mainTableName)_F10 @Transform(CH.EHI.FME.MAIN,FME_GENERIC)     \
+            @Geometry(FROM_ATTRIBUTE_BINARY,_geometryStroker)
+
+
+
+##there can stay some sliver polgons that we can eliminate here
+
+FACTORY_DEF * TestFactory                                                                      \
+  INPUT  FEATURE_TYPE $(mainTableName)_F10                                                     \
+  TEST @Area() < @Evaluate(0.001)                                                              \
+  OUTPUT PASSED FEATURE_TYPE $(mainTableName)_F11_SLIVER_POLYGONS                              \
+  OUTPUT FAILED FEATURE_TYPE $(mainTableName)_F11 @Transform(FME_GENERIC,CH.EHI.FME.MAIN)
+
+
+
+##tidy up and route the features back
+FACTORY_DEF * TeeFactory                                                                       \
+  INPUT FEATURE_TYPE $(mainTableName)_F11                                                      \
+  OUTPUT FEATURE_TYPE $(mainTableName) @RemoveAttributes(_predicate, _overlaps, _ptid,_geometry,_geometryStroker,_length)                              

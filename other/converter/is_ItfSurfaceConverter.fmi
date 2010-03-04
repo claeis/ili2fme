@@ -1,0 +1,61 @@
+#
+# sample converter to convert from INTERLIS 1 SURFACE attributes to FME polygons/donuts
+# use filename as value to ili2fme parameter ILI1_CONVERTSURFACE
+#
+# when used, ili2fme defines/passes the following macros
+# MACRO lineTableName name of FME feature type with polylines on input
+# MACRO mainTableName name of main FME feature type on input (no geometry) and output (polygon/donut) 
+# MACRO maxOverlaps max overlaps as defined by datatype of attribute in INTERLIS model (undefined if no OVERLAPS in attribute definition)
+# MACRO mainTableRef name of reference attribute in feature type $(lineTableName)
+
+FACTORY_DEF * IntersectionFactory \
+ INPUT FEATURE_TYPE $(lineTableName)  @Transform(ch.ehi.fme.Main,FME_GENERIC)\
+ OVERLAP_COUNT_ATTRIBUTE _segments \
+ SELF_INTERSECTION_ONLY yes\
+ OUTPUT SEGMENT FEATURE_TYPE $(lineTableName)_F1_SEG
+
+ 
+##do a real intersect
+
+FACTORY_DEF * IntersectionFactory                                      \
+   FACTORY_NAME Intersector_ALL                                        \
+   INPUT FEATURE_TYPE $(lineTableName)_F1_SEG                          \
+   GROUP_BY $(mainTableRef)                                            \
+   SEPARATE_COLLINEAR_SEGMENTS No                                      \
+   IGNORE_NODE_HEIGHTS YES                                             \
+   OUTPUT SEGMENT FEATURE_TYPE $(lineTableName)_F2_SEG 
+ 
+FACTORY_DEF * PolygonFactory \
+ INPUT FEATURE_TYPE $(lineTableName)_F2_SEG\
+ END_NODED\
+ GROUP_BY $(mainTableRef)\
+ OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F3_POLY \
+ OUTPUT LINE FEATURE_TYPE $(lineTableName)_F3_POLY_ERROR 
+ 
+
+FACTORY_DEF * DonutFactory \
+ INPUT FEATURE_TYPE $(lineTableName)_F3_POLY \
+ DROP_HOLES yes\
+ GROUP_BY $(mainTableRef)\
+ OUTPUT DONUT FEATURE_TYPE $(lineTableName)_F5_POLY \
+ OUTPUT POLYGON FEATURE_TYPE $(lineTableName)_F5_POLY
+ 
+FACTORY_DEF * TestFactory \
+ INPUT FEATURE_TYPE $(lineTableName)_F5_POLY \
+ TEST @Area() > 1 \
+ OUTPUT PASSED FEATURE_TYPE $(lineTableName)_F5_POLY_FILTERED 
+ 
+ #OUTPUT FAILED FEATURE_TYPE $(lineTableName)_DANGLES
+ 
+FACTORY_DEF * ReferenceFactory\
+ INPUT REFERENCEE FEATURE_TYPE $(lineTableName)_F5_POLY_FILTERED \
+ INPUT REFERENCER FEATURE_TYPE $(mainTableName)  @Transform(ch.ehi.fme.Main,FME_GENERIC)\
+ REFERENCER_FIELDS xtf_id\
+ REFERENCEE_FIELDS $(mainTableRef)\
+ REFERENCE_INFO GEOM_BUILD_POLYS\
+ PROCESS_DUPLICATE_REFERENCEES NO\
+ OUTPUT COMPLETE FEATURE_TYPE $(mainTableName)  @Transform(FME_GENERIC,ch.ehi.fme.Main)\
+ OUTPUT INCOMPLETE FEATURE_TYPE $(mainTableName)  @Transform(FME_GENERIC,ch.ehi.fme.Main)\
+ OUTPUT UNREFERENCED FEATURE_TYPE $(lineTableName)_REF_ERROR\
+ OUTPUT DUPLICATE_REFERENCEE FEATURE_TYPE $(lineTableName)_DUP_ERROR
+
