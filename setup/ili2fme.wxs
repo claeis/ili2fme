@@ -50,6 +50,10 @@
                 <File Id="sampleItfAreaConverter.fmi" Name="sampleItfAreaConverter.fmi" Source="$(var.basedir)\other\converter\sampleItfAreaConverter.fmi" DiskId="1" />
                 <File Id="sampleItfSurfaceConverter.fmi" Name="sampleItfSurfaceConverter.fmi" Source="$(var.basedir)\other\converter\sampleItfSurfaceConverter.fmi" DiskId="1" />
               </Component>
+              <Component Id="is_ItfAreaConverter.fmi" Guid="705D0368-0F87-42d0-8494-5AEF7C54B2D2">
+                <File Id="is_ItfAreaConverter.fmi" Name="is_ItfAreaConverter.fmi" Source="$(var.basedir)\other\converter\is_ItfAreaConverter.fmi" DiskId="1" />
+                <File Id="is_ItfSurfaceConverter.fmi" Name="is_ItfSurfaceConverter.fmi" Source="$(var.basedir)\other\converter\is_ItfSurfaceConverter.fmi" DiskId="1" />
+              </Component>
             </Directory>
             <Directory Id="docs_DIR" Name="docs">
               <Component Id="docs" Guid="FBA37959-A097-471f-9BC9-AABE65477DB0">
@@ -83,6 +87,7 @@
     <Feature Id="MainFeature" Title="MainFeature" Description="Description" Display="expand" Level="1" ConfigurableDirectory="FME_HOME">
       <ComponentRef Id="ili2c.jar" />
       <ComponentRef Id="sampleItfAreaConverter.fmi" />
+      <ComponentRef Id="is_ItfAreaConverter.fmi" />
       <ComponentRef Id="standardmodels22" />
       <ComponentRef Id="standardmodels" />
       <ComponentRef Id="interlis2.db" />

@@ -5,6 +5,7 @@ Features
 - writes INTERLIS 2 transfer files
 - reads INTERLIS 1 transfer files
 - writes INTERLIS 1 transfer files
+- writes GML transfer files (ILIGML profile)
 
 Homepage
 http://www.eisenhutinformatik.ch/interlis/ili2fme/
@@ -21,7 +22,7 @@ Some libraries used by ili2fme are licensed under a library specific license (LI
 System Requirements
 For the current version of ili2fme, you will need a JRE (Java Runtime Environment) installed on your system, version 1.4.1 or later.
 The JRE (Java Runtime Environment) can be downloaded for free from the Website http://www.java.com/.
-ili2fme was tested with FME 2008 (20080121 - Build 5164).
+ili2fme was tested with FME 2009 (build 5676) and FME 2010 (build 6192).
 
 
 Installing ili2fme
