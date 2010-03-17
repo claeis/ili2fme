@@ -756,7 +756,8 @@ public class Ili2Reader implements IFMEReader {
 						 if(structvalue!=null){
 							if (roleOwner.getAttributes().hasNext()
 								|| roleOwner.getLightweightAssociations().iterator().hasNext()) {
-								 // TODO add association attributes
+								 // add association attributes
+								mapFeature(ret,structvalue,prefix+roleName+"{0}.");
 							}
 							 String refoid=structvalue.getobjectrefoid();
 							 long orderPos=structvalue.getobjectreforderpos();
@@ -771,17 +772,19 @@ public class Ili2Reader implements IFMEReader {
 						 }
 					}
 				}else{
-				 IomObject structvalue=iomObj.getattrobj(roleName,0);
-				 String refoid=structvalue.getobjectrefoid();
-				 long orderPos=structvalue.getobjectreforderpos();
-				 if(orderPos!=0){
-					// refoid,orderPos
-					ret.setStringAttribute(prefix+roleName, refoid);
-					ret.setStringAttribute(prefix+roleName+"."+Main.ORDERPOS, Long.toString(orderPos));
-				 }else{
-					// refoid
-					ret.setStringAttribute(prefix+roleName, refoid);
-				 }
+					if(!((AssociationDef)role.getContainer()).isLightweight()){
+						 IomObject structvalue=iomObj.getattrobj(roleName,0);
+						 String refoid=structvalue.getobjectrefoid();
+						 long orderPos=structvalue.getobjectreforderpos();
+						 if(orderPos!=0){
+							// refoid,orderPos
+							ret.setStringAttribute(prefix+roleName, refoid);
+							ret.setStringAttribute(prefix+roleName+"."+Main.ORDERPOS, Long.toString(orderPos));
+						 }else{
+							// refoid
+							ret.setStringAttribute(prefix+roleName, refoid);
+						 }
+					}
 				}
 			}
 		}
@@ -1450,6 +1453,10 @@ public class Ili2Reader implements IFMEReader {
 					// skip structures
 					continue;
 				}
+				if((v instanceof AssociationDef) && ((AssociationDef)v).isLightweight()){
+					// skip embedded assocs
+					continue;
+				}
 				ViewableWrapper wrapper=(ViewableWrapper)transferViewables.get(iliQName);
 				// FME feature type already seen?
 				if(seenFmeTypes.contains(wrapper)){
@@ -1617,6 +1624,17 @@ public class Ili2Reader implements IFMEReader {
 			}else if(attro.obj instanceof RoleDef){
 				RoleDef role=(RoleDef)attro.obj;
 				ret.setStringAttribute(attrNamePrefix+role.getName(),Main.ID_TYPE);
+				if(attro.embedded){
+					AssociationDef assocClass=(AssociationDef)role.getContainer();
+					if(assocClass.getAttributes().hasNext() || assocClass.getLightweightAssociations().iterator().hasNext()){
+						Viewable rootAssocClass=ModelUtility.getRoot(assocClass);
+						if(rootAssocClass==null){
+						 rootAssocClass=assocClass;
+						}
+						// EhiLogger.debug(attr.getScopedName(null)+", "+rootClass.getScopedName(null));
+						mapFeatureType(null,ret,(ViewableWrapper)transferViewables.get(rootAssocClass.getScopedName(null)),attrNamePrefix+role.getName()+"{}.");						
+					}
+				}
 			}
 		}
 	}

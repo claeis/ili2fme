@@ -228,7 +228,7 @@ public class Ili2Writer implements IFMEWriter {
 			for(int defi=0;defi<defc;){
 				String param=defv.getElement(defi++);
 				String val=defv.getElement(defi++);
-				EhiLogger.debug("param <"+param+">, val <"+val+">");
+				//EhiLogger.debug("param <"+param+">, val <"+val+">");
 				if(param.equals("EPSG")){
 					epsgCode="urn:ogc:def:crs:EPSG::"+val;
 				}
@@ -1104,29 +1104,42 @@ public class Ili2Writer implements IFMEWriter {
 				if(prop.embedded){
 					AssociationDef roleOwner = (AssociationDef) role.getContainer();
 					if(roleOwner.getDerivedFrom()==null){
-						// not just a link?
-						if (roleOwner.getAttributes().hasNext()
-							|| roleOwner.getLightweightAssociations().iterator().hasNext()) {
-							 // TODO add association attributes
-						}
 						if(obj.attributeExists(roleName)){
-							String refoid=getStringAttribute(obj,roleName);
-							IomObject structvalue=iomObj.addattrobj(roleName,"REF");
-							 structvalue.setobjectrefoid(refoid);
-							 if(role.isOrdered()){
-								long orderPos=obj.getIntAttribute(roleName+"."+Main.ORDERPOS);
-								structvalue.setobjectreforderpos(orderPos);
-							 }
+							IomObject structvalue=null;
+								// not just a link?
+								if (roleOwner.getAttributes().hasNext()
+									|| roleOwner.getLightweightAssociations().iterator().hasNext()) {
+									 // add association attributes
+									String prefix=attrPrefix+roleName+"{0}";
+									if(obj.attributeExists(prefix+"."+Main.XTF_CLASS)){
+										// struct element
+										//EhiLogger.debug("struct "+prefix);
+										structvalue=mapFeature(obj,prefix,iomObj,roleName,false);						
+									}
+									
+								}
+								if(structvalue==null){
+									// just a link
+									structvalue=iomObj.addattrobj(roleName,"REF");
+								}
+								String refoid=getStringAttribute(obj,roleName);
+								 structvalue.setobjectrefoid(refoid);
+								 if(role.isOrdered()){
+									long orderPos=obj.getIntAttribute(roleName+"."+Main.ORDERPOS);
+									structvalue.setobjectreforderpos(orderPos);
+								 }
 						}
 					}
 				}else{
-					String refoid=getStringAttribute(obj,roleName);
-					IomObject structvalue=iomObj.addattrobj(roleName,"REF");
-					 structvalue.setobjectrefoid(refoid);
-					 if(role.isOrdered()){
-						long orderPos=obj.getIntAttribute(roleName+"."+Main.ORDERPOS);
-						structvalue.setobjectreforderpos(orderPos);
-					 }
+					if(!((AssociationDef)role.getContainer()).isLightweight()){
+						String refoid=getStringAttribute(obj,roleName);
+						IomObject structvalue=iomObj.addattrobj(roleName,"REF");
+						 structvalue.setobjectrefoid(refoid);
+						 if(role.isOrdered()){
+							long orderPos=obj.getIntAttribute(roleName+"."+Main.ORDERPOS);
+							structvalue.setobjectreforderpos(orderPos);
+						 }
+					}
 				}
 			}
 		}
@@ -1443,15 +1456,15 @@ public class Ili2Writer implements IFMEWriter {
 	}
 	public void startTransaction() throws Exception {
 		//For formats or systems which do not have the notion of a transaction then nothing needs to be done.
-		EhiLogger.debug("startTranscation");
+		//EhiLogger.debug("startTranscation");
 	}
 	public void commitTransaction() throws Exception {
 		//For formats or systems which do not have the notion of a transaction then nothing needs to be done.
-		EhiLogger.debug("commitTranscation");
+		//EhiLogger.debug("commitTranscation");
 	}
 	public void rollbackTransaction() throws Exception {
 		//For formats or systems which do not have the notion of a transaction then nothing needs to be done.
-		EhiLogger.debug("rollbackTranscation");
+		//EhiLogger.debug("rollbackTranscation");
 	}
 	private FmeLogListener listener=null;
 	private void cleanup(){

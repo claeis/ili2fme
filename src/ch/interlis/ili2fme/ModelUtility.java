@@ -183,14 +183,19 @@ public class ModelUtility {
 		while(vi.hasNext()){
 			Viewable v=(Viewable)vi.next();
 			//EhiLogger.debug("leaveclass <"+v+">");
+			// is it a CLASS defined in model INTERLIS? 
 			if((v instanceof Table) && ((Table)v).isIdentifiable() && v.getContainerOrSame(Model.class)==td.INTERLIS){
-				// skip it
+				// skip it; use in any case sub-class strategy
 				continue;
 			}
 			Viewable root=null;
 			if(inheritanceMappingStrategy==InheritanceMapping.SUBCLASS){
+				// is v a STRUCTURE?
 				if(isStructure(v)){
-					// STRUCTURE
+					// use in any case a super-class strategy
+					root=getRoot(v);
+				}else if(isEmbeddedAssocWithAttrs(v)){
+					// use in any case a super-class strategy
 					root=getRoot(v);
 				}else{
 					// CLASS or ASSOCIATION
@@ -234,7 +239,7 @@ public class ModelUtility {
 			}
 			ViewableWrapper wrapper=new ViewableWrapper(v.getScopedName(null),v);
 			wrapper.setAttrv(attrv);
-			boolean isStruct=isStructure(v);
+			boolean isEncodedAsStruct=isStructure(v) || isEmbeddedAssocWithAttrs(v);
 			for(int i=0;i<attrv.size();i++){
 				ViewableTransferElement attro=(ViewableTransferElement)attrv.get(i);
 				if(attro.obj instanceof AttributeDef){
@@ -243,7 +248,7 @@ public class ModelUtility {
 					if (type instanceof PolylineType 
 						|| type instanceof SurfaceOrAreaType
 						|| type instanceof CoordType){
-						if(!isStruct){
+						if(!isEncodedAsStruct){
 							wrapper.setGeomAttr4FME(attr);
 							break;
 						}
@@ -289,6 +294,20 @@ public class ModelUtility {
 		if(assoc.isLightweight() && 
 			!assoc.getAttributes().hasNext()
 			&& !assoc.getLightweightAssociations().iterator().hasNext()
+			) {
+			return true;
+		}
+		return false;
+	}
+	public static boolean isEmbeddedAssocWithAttrs(Viewable v) {
+		if(!(v instanceof AssociationDef)){
+			return false;
+		}
+		AssociationDef assoc=(AssociationDef)v;
+		// embedded and attributes/embedded links?
+		if(assoc.isLightweight() && 
+			(assoc.getAttributes().hasNext()
+			|| assoc.getLightweightAssociations().iterator().hasNext())
 			) {
 			return true;
 		}

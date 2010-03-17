@@ -1,8 +1,9 @@
-ili2fme 5.2.1 (2010-03-xx)
+ili2fme 5.2.1 (2010-03-17)
 ---------------------------
 - suppress ili2c warnings
 - added scripts to remove overlaps (contributed by Kt TG)
 - bug: schema reader declares nested list attributes incorrectly
+- bug: support reading/writing of embedded associations with attributes
 - bug: EXCEPTION_ACCESS_VIOLATION in FME2010 with dataset fanout 
 
 ili2fme 5.2.0 (2009-12-09)
