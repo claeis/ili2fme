@@ -1,3 +1,7 @@
+ili2fme 5.2.x (2010-03-xx)
+---------------------------
+- bug: superfluous log output to c:/tmp/ili2fme.log
+
 ili2fme 5.2.1 (2010-03-17)
 ---------------------------
 - suppress ili2c warnings

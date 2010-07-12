@@ -162,7 +162,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		  return version;
 	}
 	private static final boolean doFMELog=true;
-	private static final boolean doFileLog=true;
+	private static final boolean doFileLog=false;
 	private static java.util.HashMap fmeListeners=new java.util.HashMap();
 	private static ch.ehi.basics.logging.FileListener fileListener=null;
 	private static int logFileCount=0;
