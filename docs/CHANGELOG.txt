@@ -1,5 +1,6 @@
-ili2fme 5.2.x (2010-03-xx)
+ili2fme 5.2.2 (2010-08-13)
 ---------------------------
+- bug: coord1D read/written as fme_point; changed to ordinary fme attribute
 - bug: superfluous log output to c:/tmp/ili2fme.log
 
 ili2fme 5.2.1 (2010-03-17)

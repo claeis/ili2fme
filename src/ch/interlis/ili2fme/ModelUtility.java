@@ -248,7 +248,9 @@ public class ModelUtility {
 					if (type instanceof PolylineType 
 						|| type instanceof SurfaceOrAreaType
 						|| type instanceof CoordType){
-						if(!isEncodedAsStruct){
+						if((type instanceof CoordType) && ((CoordType)type).getDimensions().length==1){
+							// encode 1d coord as fme attribute and not as fme-geom
+						}else if(!isEncodedAsStruct){
 							wrapper.setGeomAttr4FME(attr);
 							break;
 						}

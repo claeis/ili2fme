@@ -1068,18 +1068,25 @@ public class Ili2Reader implements IFMEReader {
 					throw new DataException("COORD expected for attribute "+attrName);
 				}
 				if(attr!=geomattr){
-					if(geomConv==null){
-						 String wkb;
-							try {
-								wkb = Iox2jts.coord2hexwkb(value);
-							} catch (Iox2jtsException e) {
-								throw new DataException(e);
-							}
-		 					checkWkb(ret,prefix+attrName,wkb);
-							 //EhiLogger.debug(attrName+" "+wkb);
-							 ret.setStringAttribute(prefix+attrName, wkb);
+					if(((CoordType)type).getDimensions().length==1){
+						String c1=value.getattrvalue("C1");
+						 if(c1!=null){
+							 ret.setStringAttribute(prefix+attrName, c1);
+						 }
 					}else{
-						 geomConv.coord2FME(ret,prefix+attrName,value);
+						if(geomConv==null){
+							 String wkb;
+								try {
+									wkb = Iox2jts.coord2hexwkb(value);
+								} catch (Iox2jtsException e) {
+									throw new DataException(e);
+								}
+			 					checkWkb(ret,prefix+attrName,wkb);
+								 //EhiLogger.debug(attrName+" "+wkb);
+								 ret.setStringAttribute(prefix+attrName, wkb);
+						}else{
+							 geomConv.coord2FME(ret,prefix+attrName,value);
+						}
 					}
 				}else{
 					 ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_coord");
@@ -1646,11 +1653,16 @@ public class Ili2Reader implements IFMEReader {
 		if (type instanceof PolylineType 
 			|| type instanceof SurfaceOrAreaType
 			|| type instanceof CoordType){
-				if(geomAttr==attr){
-					// process it as FME geometry
-					// don't add it as a FME attribute
+				if((type instanceof CoordType) && ((CoordType)type).getDimensions().length==1){
+					// TODO set attribute type
+					ret.setStringAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");
 				}else{
-					ret.setStringAttribute(attrNamePrefix+attr.getName(),"xtf_char(254)");
+					if(geomAttr==attr){
+						// process it as FME geometry
+						// don't add it as a FME attribute
+					}else{
+						ret.setStringAttribute(attrNamePrefix+attr.getName(),"xtf_char(254)");
+					}
 				}
 		}else if(type instanceof CompositionType){
 			Viewable structClass=((CompositionType)type).getComponentType();

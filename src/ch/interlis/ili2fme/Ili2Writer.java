@@ -1317,13 +1317,21 @@ public class Ili2Writer implements IFMEWriter {
 				
 			}else{
 				if(obj.attributeExists(attrPrefix+attrName)){
-					if(geomConv==null){
-						String value=getStringAttribute(obj,attrPrefix+attrName);
-						if(value!=null && value.length()>0){
-							iomObj.addattrobj(attrName, Jts2iox.hexwkb2coord(value));
+					if((type instanceof CoordType) && ((CoordType)type).getDimensions().length==1){
+						String c1=getStringAttribute(obj,attrPrefix+attrName);
+						if(c1!=null && c1.length()>0){
+							IomObject coord=iomObj.addattrobj(attrName,"COORD");
+							coord.setattrvalue("C1",c1);
 						}
 					}else{
-						 geomConv.FME2coord(iomObj,attrName,obj,attrPrefix+attrName);
+						if(geomConv==null){
+							String value=getStringAttribute(obj,attrPrefix+attrName);
+							if(value!=null && value.length()>0){
+								iomObj.addattrobj(attrName, Jts2iox.hexwkb2coord(value));
+							}
+						}else{
+							 geomConv.FME2coord(iomObj,attrName,obj,attrPrefix+attrName);
+						}
 					}
 				}
 			}
