@@ -1,3 +1,7 @@
+ili2fme 5.2.3 (2010-10-xx)
+---------------------------
+- itf reader: skip/ignore missing 3rd value of a coord
+
 ili2fme 5.2.2 (2010-08-13)
 ---------------------------
 - bug: coord1D read/written as fme_point; changed to ordinary fme attribute

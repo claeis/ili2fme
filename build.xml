@@ -31,7 +31,7 @@
         <pathelement location="lib/ili2c.jar"/>
         <pathelement location="lib/jts-1.8.jar"/>
         <pathelement location="lib/pluginbuilder.jar"/>
-        <pathelement location="lib/iox.jar"/>
+        <pathelement location="lib/iox-ili.jar"/>
         <pathelement location="lib/iox-api.jar"/>
       </classpath>
     	<src path="${src}" />
@@ -51,7 +51,7 @@
         <pathelement location="lib/ili2c.jar"/>
         <pathelement location="lib/jts-1.8.jar"/>
         <pathelement location="lib/pluginbuilder.jar"/>
-        <pathelement location="lib/iox.jar"/>
+        <pathelement location="lib/iox-ili.jar"/>
         <pathelement location="lib/iox-api.jar"/>
       </classpath>
     </javadoc>
@@ -73,7 +73,7 @@
     	<fileset dir="${src}" includes="**/*.gif"/>
     	<fileset dir="${src}" includes="**/*.jpg"/>
     	<fileset dir="${src}" includes="**/*.png"/>
-        <zipfileset src="lib/iox.jar"/>
+        <zipfileset src="lib/iox-ili.jar"/>
         <zipfileset src="lib/iox-api.jar"/>
     </jar>
   </target>
