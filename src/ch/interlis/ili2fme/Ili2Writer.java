@@ -139,6 +139,8 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 		}
+		String httpProxyHost=null;
+		String httpProxyPort=null;
 		String models=null;
 		String modeldir=null;
 		for(int i=0;i<args.size();i++){
@@ -162,6 +164,12 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
 				i++;
 				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.HTTP_PROXYHOST)){
+				i++;
+				httpProxyHost=(String)args.get(i);
+			}else if(arg.equals(Main.HTTP_PROXYPORT)){
+				i++;
+				httpProxyPort=(String)args.get(i);
 			}else{
 				// skip this argument
 			}
@@ -187,12 +195,28 @@ public class Ili2Writer implements IFMEWriter {
 					geometryEncoding=GeometryEncoding.valueOf((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.FME_COORDINATE_SYSTEM)){
 					fme_coord_sys=(String)ele.get(1);	
+				}else if(val.equals(writerKeyword+"_"+Main.HTTP_PROXYHOST)){
+					httpProxyHost=StringUtility.purge((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.HTTP_PROXYPORT)){
+					httpProxyPort=StringUtility.purge((String)ele.get(1));
 				}
 			}
 		}
 		if(models==null){
 			throw new IllegalArgumentException("model name not specified; set FME-Parameter Models");
 		}
+
+		if(httpProxyHost!=null){
+			EhiLogger.logState("httpProxyHost <"+httpProxyHost+">");
+			System.setProperty("http.proxyHost", httpProxyHost);
+			if(httpProxyPort!=null){
+				EhiLogger.logState("httpProxyPort <"+httpProxyPort+">");
+				System.setProperty("http.proxyPort", httpProxyPort);
+			}
+		}else{
+			System.setProperty("java.net.useSystemProxies", "true");
+		}
+		
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");

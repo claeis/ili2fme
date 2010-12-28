@@ -188,6 +188,8 @@ public class Ili2Reader implements IFMEReader {
 			//EhiLogger.debug("fetch models <"+models+">");
 		}
 		EhiLogger.traceState("readerKeyword <"+readerKeyword+">");
+		String httpProxyHost=null;
+		String httpProxyPort=null;
 		String models=null;
 		String modeldir=null;
 		for(int i=0;i<args.size();i++){
@@ -232,6 +234,12 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.ILI1_RENUMBERTID)){
 				i++;
 				ili1RenumberTid=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.HTTP_PROXYHOST)){
+				i++;
+				httpProxyHost=(String)args.get(i);
+			}else if(arg.equals(Main.HTTP_PROXYPORT)){
+				i++;
+				httpProxyPort=(String)args.get(i);
 			}else{
 				// skip this argument
 			}
@@ -269,9 +277,25 @@ public class Ili2Reader implements IFMEReader {
 					checkUniqueOid=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_RENUMBERTID)){
 					ili1RenumberTid=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.HTTP_PROXYHOST)){
+					httpProxyHost=StringUtility.purge((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.HTTP_PROXYPORT)){
+					httpProxyPort=StringUtility.purge((String)ele.get(1));
 				}
 			}
 		}
+
+		if(httpProxyHost!=null){
+			EhiLogger.logState("httpProxyHost <"+httpProxyHost+">");
+			System.setProperty("http.proxyHost", httpProxyHost);
+			if(httpProxyPort!=null){
+				EhiLogger.logState("httpProxyPort <"+httpProxyPort+">");
+				System.setProperty("http.proxyPort", httpProxyPort);
+			}
+		}else{
+			System.setProperty("java.net.useSystemProxies", "true");
+		}
+		
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("ili1RenumberTid <"+ili1RenumberTid+">");
