@@ -84,6 +84,8 @@ public class Ili2Writer implements IFMEWriter {
 	private String epsgCode=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	private GeometryConverter geomConv=null;
+	private boolean checkAttrType=false;
+	private boolean checkAttrMultiplicity=false;
 	private boolean checkUniqueOid=false;
 	private HashMap checkoids=null; // map<String tid,String info>
 	private int maxTid=1; // only used if formatMode==MODE_ITF
@@ -164,6 +166,12 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
 				i++;
 				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.CHECK_ATTRTYPE)){
+				i++;
+				checkAttrType=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.CHECK_ATTRMULTIPLICITY)){
+				i++;
+				checkAttrMultiplicity=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.HTTP_PROXYHOST)){
 				i++;
 				httpProxyHost=(String)args.get(i);
@@ -189,6 +197,10 @@ public class Ili2Writer implements IFMEWriter {
 					useLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.CHECK_UNIQUEOID)){
 					checkUniqueOid=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.CHECK_ATTRTYPE)){
+					checkAttrType=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.CHECK_ATTRMULTIPLICITY)){
+					checkAttrMultiplicity=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.GEOMETRY_ENCODING)){
@@ -220,6 +232,8 @@ public class Ili2Writer implements IFMEWriter {
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
+		EhiLogger.logState("checkAttrType <"+checkAttrType+">");
+		EhiLogger.logState("checkAttrMultiplicity <"+checkAttrMultiplicity+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
 		EhiLogger.traceState("models <"+models+">");
 		

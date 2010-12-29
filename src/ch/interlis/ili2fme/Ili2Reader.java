@@ -93,10 +93,15 @@ public class Ili2Reader implements IFMEReader {
 	private boolean ili1EnumAsItfCode=false;
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	private boolean checkUniqueOid=false;
+	private boolean ili1CheckConvert=false;
+	private boolean checkAttrType=false;
+	private boolean checkAttrMultiplicity=false;
 	private boolean ili1RenumberTid=false;
 	private GeometryConverter geomConv=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	private IFMELogFile fmeLog=null;
+	private static final String ERR_FEATURETYPE_PREFIX="ERR.";
+	private static final String ERRMSG_ATTRIBUTE="msg";
 	public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		readerKeyword=keyword;
@@ -216,6 +221,15 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.ILI1_CONVERTSURFACE)){
 				i++;
 				ili1ConvertSurface=(String)args.get(i);
+			}else if(arg.equals(Main.ILI1_CHECKCONVERT)){
+				i++;
+				ili1CheckConvert=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.CHECK_ATTRTYPE)){
+				i++;
+				checkAttrType=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.CHECK_ATTRMULTIPLICITY)){
+				i++;
+				checkAttrMultiplicity=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.ILI1_ENUMASITFCODE)){
 				i++;
 				ili1EnumAsItfCode=FmeUtility.isTrue((String)args.get(i));
@@ -265,6 +279,12 @@ public class Ili2Reader implements IFMEReader {
 					ili1ConvertArea=StringUtility.purge((String)ele.get(1));	
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_CONVERTSURFACE)){
 					ili1ConvertSurface=StringUtility.purge((String)ele.get(1));	
+				}else if(val.equals(readerKeyword+"_"+Main.ILI1_CHECKCONVERT)){
+					ili1CheckConvert=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.CHECK_ATTRTYPE)){
+					checkAttrType=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.CHECK_ATTRMULTIPLICITY)){
+					checkAttrMultiplicity=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CREATEFEATURETYPE4ENUM)){
@@ -297,6 +317,8 @@ public class Ili2Reader implements IFMEReader {
 		}
 		
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
+		EhiLogger.logState("checkAttrType <"+checkAttrType+">");
+		EhiLogger.logState("checkAttrMultiplicity <"+checkAttrMultiplicity+">");
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("ili1RenumberTid <"+ili1RenumberTid+">");
 		EhiLogger.logState("createLineTables <"+createLineTableFeatures+">");
@@ -307,6 +329,7 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("ili1EnumAsItfCode <"+ili1EnumAsItfCode+">");
 		EhiLogger.logState("ili1ConvertArea <"+(ili1ConvertArea!=null?ili1ConvertArea:"")+">");
 		EhiLogger.logState("ili1ConvertSurface <"+(ili1ConvertSurface!=null?ili1ConvertSurface:"")+">");
+		EhiLogger.logState("ili1CheckConvert <"+ili1CheckConvert+">");
 		
 		if(models==null){
 			//models=mappingFile.fetchString(readerKeyword+"_"+Ili2fme.MODELS);
@@ -524,12 +547,12 @@ public class Ili2Reader implements IFMEReader {
 	public IFMEFeature read(IFMEFeature ret) 
 		throws Exception 
 	{
-		try{
+		//try{
 			return myread(ret);
-		}catch(Throwable ex){
-			EhiLogger.logError(ex);
-		}
-		return null;
+		//}catch(Throwable ex){
+		//	EhiLogger.logError(ex);
+		//}
+		//return null;
 	}
 	HashMap checkoids=null; // new HashMap();
 	private IFMEFeature myread(IFMEFeature ret) 
@@ -543,137 +566,157 @@ public class Ili2Reader implements IFMEReader {
 			// no features, just schema features!
 			return null;
 		}
-		try{
-			if(createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF || createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
-				IFMEFeature enumEle=processEnums(ret);
-				if(enumEle!=null){
-					return enumEle;
-				}
+		if(createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF || createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+			IFMEFeature enumEle=processEnums(ret);
+			if(enumEle!=null){
+				return enumEle;
 			}
-			if(doPipeline){
-				Iterator surfaceBuilderi=surfaceBuilders.values().iterator();
+		}
+		if(doPipeline){
+			Iterator surfaceBuilderi=surfaceBuilders.keySet().iterator();
+			while(surfaceBuilderi.hasNext()){
+				//EhiLogger.debug("check pipeline for output");
+				AttributeDef attr=(AttributeDef)surfaceBuilderi.next();
+				IFMEFactoryPipeline surfaceBuilder=(IFMEFactoryPipeline)surfaceBuilders.get(attr);
+				boolean eop=surfaceBuilder.getOutputFeature(ret);					
+				if(eop){
+					//EhiLogger.debug("return feature from pipeline");
+					if(ili1CheckConvert){
+						checkConvertedFeature(ret,attr);
+					}
+					return ret;
+				}
+				//EhiLogger.debug("end of pipeline; remove it");
+				surfaceBuilderi.remove();
+			}
+		}
+		// if first call?
+		if(ioxReader==null){
+			if(formatMode==MODE_XTF){
+				ioxReader=new ch.interlis.iom_j.xtf.XtfReader(new java.io.File(xtfFile));
+			}else if(formatMode==MODE_ITF){
+				ioxReader=new ch.interlis.iom_j.itf.ItfReader(new java.io.File(xtfFile));
+				((ItfReader)ioxReader).setModel(iliTd);		
+				((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);		
+				((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
+				if(ili1AddDefVal){
+					ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
+				}
+			}else{
+				throw new IllegalStateException("unexpected formatMode");
+			}
+		}
+		IoxEvent event;
+		while(true){
+			event=ioxReader.read();
+			//EhiLogger.debug("event "+event.getClass().getName());
+			if(event instanceof ObjectEvent){
+				ObjectEvent oe=(ObjectEvent)event;
+				IomObject iomObj=oe.getIomObject();
+				if(checkoids!=null){
+					String oid=iomObj.getobjectoid();
+					if(checkoids.containsKey(oid)){
+						EhiLogger.logError(iomObj.getobjecttag()+" at line "+iomObj.getobjectline()+": duplicate oid "+oid+" (same as at line "+((Integer)checkoids.get(oid)).toString()+")");
+					}else{
+						checkoids.put(oid, new Integer(iomObj.getobjectline()));
+					}
+				}
+				//EhiLogger.debug("iomObj "+iomObj.toString());
+				// translate object
+				try{
+					//EhiLogger.debug("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid());
+					ret=mapFeature(ret,iomObj,null);
+					// feature feed into pipeline
+					if(ret==null){
+						// create a new one
+						ret=session.createFeature();
+						// read next object from transferfile
+						continue;
+					}
+				}catch(DataException ex){
+					EhiLogger.logError("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid()+" skipped; "+ch.interlis.iom_j.Iom_jObject.dumpObject(iomObj),ex);
+					ret.dispose();
+					ret=session.createFeature();
+					continue;
+					//return null;
+				}catch(java.lang.Exception ex){
+					EhiLogger.logError("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid()+" "+ch.interlis.iom_j.Iom_jObject.dumpObject(iomObj),ex);
+					return null;
+				}
+				return ret;
+			}else if(event instanceof StartBasketEvent){
+				StartBasketEvent be=(StartBasketEvent)event;
+				currentBid=be.getBid();
+				doPipeline=false;
+				surfaceBuilders=new HashMap();
+				// map basket (to a feature! to get metainfo about basket)
+				EhiLogger.logState(be.getType()+" "+currentBid+"...");
+				mapBasket(ret,be);
+				return ret;
+			}else if(event instanceof EndBasketEvent){
+				currentBid=null;
+				// flush pipelines
+				Iterator surfaceBuilderi=surfaceBuilders.keySet().iterator();
+				while(surfaceBuilderi.hasNext()){
+					AttributeDef attr=(AttributeDef)surfaceBuilderi.next();
+					IFMEFactoryPipeline surfaceBuilder=(IFMEFactoryPipeline)surfaceBuilders.get(attr);
+					try{
+						EhiLogger.traceState("flush polygon building pipeline "+attr.getScopedName(null));
+						surfaceBuilder.allDone();
+					}catch(Exception ex){
+						String attrQName=attr.getContainer().getScopedName(null)+"."+attr.getName();
+						EhiLogger.logError("failed to build polygons for "+attrQName,ex);
+						// remove pipeline
+						surfaceBuilderi.remove();
+					}
+				}
+				// check pipelines for output
+				surfaceBuilderi=surfaceBuilders.keySet().iterator();
 				while(surfaceBuilderi.hasNext()){
 					//EhiLogger.debug("check pipeline for output");
-					IFMEFactoryPipeline surfaceBuilder=(IFMEFactoryPipeline)surfaceBuilderi.next();
+					AttributeDef attr=(AttributeDef)surfaceBuilderi.next();
+					IFMEFactoryPipeline surfaceBuilder=(IFMEFactoryPipeline)surfaceBuilders.get(attr);
 					boolean eop=surfaceBuilder.getOutputFeature(ret);					
+					// is not end of pipeline?
 					if(eop){
 						//EhiLogger.debug("return feature from pipeline");
+						if(ili1CheckConvert){
+							checkConvertedFeature(ret,attr);
+						}
+						doPipeline=true;
 						return ret;
 					}
 					//EhiLogger.debug("end of pipeline; remove it");
 					surfaceBuilderi.remove();
 				}
-			}
-			// if first call?
-			if(ioxReader==null){
-				if(formatMode==MODE_XTF){
-					ioxReader=new ch.interlis.iom_j.xtf.XtfReader(new java.io.File(xtfFile));
-				}else if(formatMode==MODE_ITF){
-					ioxReader=new ch.interlis.iom_j.itf.ItfReader(new java.io.File(xtfFile));
-					((ItfReader)ioxReader).setModel(iliTd);		
-					((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);		
-					((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
-					if(ili1AddDefVal){
-						ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
-					}
-				}else{
-					throw new IllegalStateException("unexpected formatMode");
+			}else if(event instanceof EndTransferEvent){
+				// end of file reached
+				ioxReader.close();
+				ioxReader=null;
+				if(listener.hasSeenErrors()){
+					throw new Exception("INTERLIS 2 reader failed");
 				}
+				return null;
+			}else{
+				// ignore other events
 			}
-			IoxEvent event;
-			while(true){
-				event=ioxReader.read();
-				//EhiLogger.debug("event "+event.getClass().getName());
-				if(event instanceof ObjectEvent){
-					ObjectEvent oe=(ObjectEvent)event;
-					IomObject iomObj=oe.getIomObject();
-					if(checkoids!=null){
-						String oid=iomObj.getobjectoid();
-						if(checkoids.containsKey(oid)){
-							EhiLogger.logError(iomObj.getobjecttag()+" at line "+iomObj.getobjectline()+": duplicate oid "+oid+" (same as at line "+((Integer)checkoids.get(oid)).toString()+")");
-						}else{
-							checkoids.put(oid, new Integer(iomObj.getobjectline()));
+		}
+	}
+	private void checkConvertedFeature(IFMEFeature ret,AttributeDef attr){
+		String featureType=ret.getFeatureType();
+		if(featureType.startsWith(ERR_FEATURETYPE_PREFIX)){
+			String errmsg=featureType;
+			if(ret.attributeExists(ERRMSG_ATTRIBUTE)){
+					try {
+						String msg=ret.getStringAttribute(ERRMSG_ATTRIBUTE);
+						if(msg!=null && msg.length()>0){
+							errmsg=msg;
 						}
+					} catch (FMEException ex) {
+						EhiLogger.logError(ex);
 					}
-					//EhiLogger.debug("iomObj "+iomObj.toString());
-					// translate object
-					try{
-						//EhiLogger.debug("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid());
-						ret=mapFeature(ret,iomObj,null);
-						// feature feed into pipeline
-						if(ret==null){
-							// create a new one
-							ret=session.createFeature();
-							// read next object from transferfile
-							continue;
-						}
-					}catch(DataException ex){
-						EhiLogger.logError("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid()+" skipped; "+ch.interlis.iom_j.Iom_jObject.dumpObject(iomObj),ex);
-						ret.dispose();
-						ret=session.createFeature();
-						continue;
-						//return null;
-					}catch(java.lang.Exception ex){
-						EhiLogger.logError("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid()+" "+ch.interlis.iom_j.Iom_jObject.dumpObject(iomObj),ex);
-						return null;
-					}
-					return ret;
-				}else if(event instanceof StartBasketEvent){
-					StartBasketEvent be=(StartBasketEvent)event;
-					currentBid=be.getBid();
-					doPipeline=false;
-					surfaceBuilders=new HashMap();
-					// map basket (to a feature! to get metainfo about basket)
-					EhiLogger.logState(be.getType()+" "+currentBid+"...");
-					mapBasket(ret,be);
-					return ret;
-				}else if(event instanceof EndBasketEvent){
-					currentBid=null;
-					// flush pipelines
-					Iterator surfaceBuilderi=surfaceBuilders.keySet().iterator();
-					while(surfaceBuilderi.hasNext()){
-						AttributeDef attr=(AttributeDef)surfaceBuilderi.next();
-						IFMEFactoryPipeline surfaceBuilder=(IFMEFactoryPipeline)surfaceBuilders.get(attr);
-						try{
-							EhiLogger.traceState("flush polygon building pipeline "+attr.getScopedName(null));
-							surfaceBuilder.allDone();
-						}catch(Exception ex){
-							String attrQName=attr.getContainer().getScopedName(null)+"."+attr.getName();
-							EhiLogger.logError("failed to build polygons for "+attrQName,ex);
-							// remove pipeline
-							surfaceBuilderi.remove();
-						}
-					}
-					// check pipelines for output
-					surfaceBuilderi=surfaceBuilders.values().iterator();
-					while(surfaceBuilderi.hasNext()){
-						//EhiLogger.debug("check pipeline for output");
-						IFMEFactoryPipeline surfaceBuilder=(IFMEFactoryPipeline)surfaceBuilderi.next();
-						boolean eop=surfaceBuilder.getOutputFeature(ret);					
-						// is not end of pipeline?
-						if(eop){
-							//EhiLogger.debug("return feature from pipeline");
-							doPipeline=true;
-							return ret;
-						}
-						//EhiLogger.debug("end of pipeline; remove it");
-						surfaceBuilderi.remove();
-					}
-				}else if(event instanceof EndTransferEvent){
-					// end of file reached
-					ioxReader.close();
-					ioxReader=null;
-					if(listener.hasSeenErrors()){
-						throw new Exception("INTERLIS 2 reader failed");
-					}
-					return null;
-				}else{
-					// ignore other events
-				}
 			}
-		}catch(Exception ex){
-			EhiLogger.logError(ex);
-			throw ex;
+			EhiLogger.logError("polygon building error: "+attr.toString()+", "+errmsg);
 		}
 	}
 	private void mapBasket(IFMEFeature ret,StartBasketEvent be)
@@ -1225,7 +1268,7 @@ public class Ili2Reader implements IFMEReader {
 						+" INPUT FEATURE_TYPE "+lineTableName+"_F1_SEG"
 						+" END_NODED "
 						+" OUTPUT POLYGON FEATURE_TYPE "+lineTableName+"_F2_POLY "
-						+" OUTPUT LINE FEATURE_TYPE "+lineTableName+"_POLY_ERROR"
+						+" OUTPUT LINE FEATURE_TYPE ERR."+lineTableName+"_POLY_ERROR"
 						; 
 					EhiLogger.traceState("factory "+factory);
 					surfaceBuilder.addFactory(factory," ");
@@ -1236,8 +1279,8 @@ public class Ili2Reader implements IFMEReader {
 						+" TAG_HOLES no"
 						+" OUTPUT DONUT FEATURE_TYPE "+lineTableName+"_F3_DONUT"
 						+" OUTPUT POLYGON FEATURE_TYPE "+lineTableName+"_F3_DONUT"
-						+" OUTPUT POINT FEATURE_TYPE "+lineTableName+"_F3_POINT_ERROR"
-						+" OUTPUT LINE FEATURE_TYPE "+lineTableName+"_F3_LINE_ERROR"
+						+" OUTPUT POINT FEATURE_TYPE ERR."+lineTableName+"_F3_POINT_ERROR"
+						+" OUTPUT LINE FEATURE_TYPE ERR."+lineTableName+"_F3_LINE_ERROR"
 						; 
 					EhiLogger.traceState("factory "+factory);
 					surfaceBuilder.addFactory(factory," ");
@@ -1256,7 +1299,7 @@ public class Ili2Reader implements IFMEReader {
 							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F4_OVERLAY"
 							 +" TEST @Lookup(Lut,_overlaps,ENCODED_ATTR) == ok"
 							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F5_OK"
-							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F5_TOOMANYPOINTS"
+							 +" OUTPUT FAILED FEATURE_TYPE ERR."+mainTableName+"_F5_TOOMANYPOINTS"
 							 ;
 							EhiLogger.traceState("factory "+factory);
 							surfaceBuilder.addFactory(factory," ");
@@ -1264,7 +1307,7 @@ public class Ili2Reader implements IFMEReader {
 							factory="FACTORY_DEF * TestFactory"
 							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F5_OK"
 							 +" TEST &_overlaps = 0"
-							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F6_NO_OVERLAPS"
+							 +" OUTPUT PASSED FEATURE_TYPE ERR."+mainTableName+"_F6_NO_OVERLAPS"
 							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+" @RemoveAttributes(_overlaps) @Transform(FME_GENERIC,"+Main.ILI2FME_FORMAT_NAME+")"
 							 ;
 							EhiLogger.traceState("factory "+factory);
@@ -1273,7 +1316,7 @@ public class Ili2Reader implements IFMEReader {
 						factory="FACTORY_DEF * TestFactory"
 							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F4_OVERLAY"
 							 +" TEST &_overlaps = 0"
-							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+"_F5_NO_OVERLAPS"
+							 +" OUTPUT PASSED FEATURE_TYPE ERR."+mainTableName+"_F5_NO_OVERLAPS"
 							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F5_MANYPOINTS"
 							 ;
 							EhiLogger.traceState("factory "+factory);
@@ -1283,7 +1326,7 @@ public class Ili2Reader implements IFMEReader {
 							 +" INPUT  FEATURE_TYPE "+mainTableName+"_F5_MANYPOINTS"
 							 +" TEST &_overlaps = 1"
 							 +" OUTPUT PASSED FEATURE_TYPE "+mainTableName+" @RemoveAttributes(_overlaps) @Transform(FME_GENERIC,"+Main.ILI2FME_FORMAT_NAME+")"
-							 +" OUTPUT FAILED FEATURE_TYPE "+mainTableName+"_F6_TOOMANYPOINTS"
+							 +" OUTPUT FAILED FEATURE_TYPE ERR."+mainTableName+"_F6_TOOMANYPOINTS"
 							 ;
 							EhiLogger.traceState("factory "+factory);
 							surfaceBuilder.addFactory(factory," ");
@@ -1338,7 +1381,7 @@ public class Ili2Reader implements IFMEReader {
 						+" END_NODED"
 						+" GROUP_BY "+mainTableRef
 						+" OUTPUT POLYGON FEATURE_TYPE "+lineTableName+"_F2_POLY"
-						+" OUTPUT LINE FEATURE_TYPE "+lineTableName+"_F2_POLY_ERROR" 
+						+" OUTPUT LINE FEATURE_TYPE ERR."+lineTableName+"_F2_POLY_ERROR" 
 						; 
 
 					EhiLogger.traceState("factory "+factory);
@@ -1363,8 +1406,8 @@ public class Ili2Reader implements IFMEReader {
 						+" PROCESS_DUPLICATE_REFERENCEES NO"
 						+" OUTPUT COMPLETE FEATURE_TYPE "+mainTableName+"  @Transform(FME_GENERIC,"+Main.ILI2FME_FORMAT_NAME+")"
 						+" OUTPUT INCOMPLETE FEATURE_TYPE "+mainTableName+"  @Transform(FME_GENERIC,"+Main.ILI2FME_FORMAT_NAME+")"
-						+" OUTPUT UNREFERENCED FEATURE_TYPE "+lineTableName+"_REF_ERROR"
-						+" OUTPUT DUPLICATE_REFERENCEE FEATURE_TYPE "+lineTableName+"_DUP_ERROR"
+						+" OUTPUT UNREFERENCED FEATURE_TYPE ERR."+lineTableName+"_REF_ERROR @SupplyAttributes(ENCODED,"+ERRMSG_ATTRIBUTE+",dangling<space>reference)"
+						+" OUTPUT DUPLICATE_REFERENCEE FEATURE_TYPE ERR."+lineTableName+"_DUP_ERROR"
 						; 
 					EhiLogger.traceState("factory "+factory);
 					surfaceBuilder.addFactory(factory," ");
@@ -1407,213 +1450,208 @@ public class Ili2Reader implements IFMEReader {
 		}
 	}
 	public IFMEFeature myreadSchema(IFMEFeature ret) throws Exception {
-		try{
-			// ili2c failed?
-			if(iliTd==null){
-				return null;
-			}
-			if(pendingSchemaFeature!=null){
-				ret.dispose();
-				ret=pendingSchemaFeature;
-				pendingSchemaFeature=null;
-				return ret;
-			}
-			// first call?
-			if(transferViewablei==null){
-				// create XTF_BASKETS class
-				if(formatFeatureTypeIdx==0){
-					ret.setFeatureType(Main.XTF_BASKETS);
-					ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-					ret.setStringAttribute(Main.XTF_TOPIC,getIliQNameType());
-					ret.setStringAttribute(Main.XTF_ID,Main.ID_TYPE);
-					ret.setStringAttribute(Main.XTF_STARTSTATE,Main.STATE_TYPE);
-					ret.setStringAttribute(Main.XTF_ENDSTATE,Main.STATE_TYPE);
-					ret.setStringAttribute(Main.XTF_CONSISTENCY,Main.CONSISTENCY_TYPE);
-					formatFeatureTypeIdx++;
-					return ret;	
-				}
-				if(formatFeatureTypeIdx==1){
-					ret.setFeatureType(Main.XTF_DELETEOBJECT);
-					ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-					ret.setStringAttribute(Main.XTF_ID,Main.ID_TYPE);
-					ret.setStringAttribute(Main.XTF_BASKET,Main.ID_TYPE);
-					formatFeatureTypeIdx++;
-					return ret;	
-				}
-				if(formatFeatureTypeIdx==2 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
-					ret.setFeatureType(Main.XTF_ENUMS);
-					ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-					ret.setStringAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
-					ret.setStringAttribute(Main.XTF_ENUMBASE,Main.ILINAME_TYPE);
-					ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
-					ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
-					ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
-					formatFeatureTypeIdx++;
-					return ret;	
-				}
-				if(formatFeatureTypeIdx>=2 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
-					if(formatFeatureTypeIdx==2){
-						enumDefi=enumDefs.iterator();
-					}
-					if(enumDefi!=null){
-						if(enumDefi.hasNext()){
-							Object enumDef=enumDefi.next();
-							String enumTypeName = mapEnumDefName(enumDef);
-							ret.setFeatureType(enumTypeName);
-							ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-							ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
-							ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
-							ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
-							formatFeatureTypeIdx++;
-							return ret;	
-						}else{
-							enumDefi=null;
-						}
-					}
-				}
-				// init class iterator
-				transferViewablei=transferViewables.keySet().iterator();
-				seenFmeTypes=new HashSet();
-			}
-			// more classes?
-			while(transferViewablei.hasNext()){
-				String iliQName=(String)transferViewablei.next();
-				//EhiLogger.debug("iliQName "+iliQName);
-				Element v=(Element)tag2class.get(iliQName);
-				if((v instanceof Table) && !((Table)v).isIdentifiable()){
-					// skip structures
-					continue;
-				}
-				if((v instanceof AssociationDef) && ((AssociationDef)v).isLightweight()){
-					// skip embedded assocs
-					continue;
-				}
-				ViewableWrapper wrapper=(ViewableWrapper)transferViewables.get(iliQName);
-				// FME feature type already seen?
-				if(seenFmeTypes.contains(wrapper)){
-					// skip already seen FME feature type
-					continue;
-				}
-				AttributeDef geomattr=wrapper.getGeomAttr4FME();
-				mapFeatureType(geomattr,ret,wrapper,null);						
-				if(geomattr==null){
-					ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-				}else{
-					Type type=geomattr.getDomainResolvingAliases();
-					if(formatMode==MODE_XTF){
-						if (type instanceof PolylineType){
-							ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
-						}else if(type instanceof SurfaceType){
-							ret.setStringAttribute("fme_geometry{0}", "xtf_surface");
-						}else if(type instanceof AreaType){
-							ret.setStringAttribute("fme_geometry{0}", "xtf_area");
-						}else if(type instanceof CoordType){
-							ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
-						}else{
-							throw new IllegalStateException("!(type instanceof geomType)");
-						}
-					}else if(formatMode==MODE_ITF){
-						if (type instanceof PolylineType){
-							ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
-						}else if(type instanceof SurfaceType){
-							// is main table?
-							if(!wrapper.isHelper()){
-								// main table
-								ret.setStringAttribute("fme_geometry{0}", "xtf_surface");
-								if(createLineTableFeatures){
-									if(!skipPolygonBuilding){
-										// add main table (MT) feature type
-										pendingSchemaFeature=session.createFeature();
-										ret.clone(pendingSchemaFeature);
-										pendingSchemaFeature.setStringAttribute("fme_geometry{0}", "xtf_none");
-										String featureType=ret.getFeatureType();
-										pendingSchemaFeature.setFeatureType(featureType+"_MT");
-									}else{
-										// change feature type that represents the main table
-										ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-										String featureType=ret.getFeatureType();
-										ret.setFeatureType(featureType+"_MT");
-									}
-								}
-							}else{
-								// helper table
-								if(createLineTableFeatures){
-									String featureType=ret.getFeatureType();
-									ret.setFeatureType(featureType+"_LT");
-									ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
-									//add reference attr to main table
-									//String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
-									String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
-									ret.setStringAttribute(fkName,Main.ID_TYPE);
-									// add line attrs
-									SurfaceType surfaceType=(SurfaceType)type;
-									Table lineAttrTable=surfaceType.getLineAttributeStructure();
-									if(lineAttrTable!=null){
-									    Iterator attri = lineAttrTable.getAttributes ();
-									    while(attri.hasNext()){
-									    	AttributeDef attr=(AttributeDef)attri.next();
-											mapAttributeDef(null, ret, attr, null);
-									    }
-									}
-								}else{
-									continue; //skip it
-								}
-							}
-						}else if(type instanceof AreaType){
-							// if main table?
-							if(!wrapper.isHelper()){
-								ret.setStringAttribute("fme_geometry{0}", "xtf_area");
-								if(createLineTableFeatures){
-									if(!skipPolygonBuilding){
-										// add main table (MT) feature type
-										pendingSchemaFeature=session.createFeature();
-										ret.clone(pendingSchemaFeature);
-										pendingSchemaFeature.setStringAttribute("fme_geometry{0}", "xtf_coord");
-										String featureType=ret.getFeatureType();
-										pendingSchemaFeature.setFeatureType(featureType+"_MT");
-									}else{
-										// change feature type that represents the main table
-										ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
-										String featureType=ret.getFeatureType();
-										ret.setFeatureType(featureType+"_MT");
-									}
-								}
-							}else{
-								// helper table
-								if(createLineTableFeatures){
-									ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
-									String featureType=ret.getFeatureType();
-									ret.setFeatureType(featureType+"_LT");
-									// add line attrs
-									AreaType areaType=(AreaType)type;
-									Table lineAttrTable=areaType.getLineAttributeStructure();
-									if(lineAttrTable!=null){
-									    Iterator attri = lineAttrTable.getAttributes ();
-									    while(attri.hasNext()){
-									    	AttributeDef attr=(AttributeDef)attri.next();
-											mapAttributeDef(null, ret, attr, null);
-									    }
-									}
-								}else{
-									continue; //skip it
-								}
-							}
-						}else if(type instanceof CoordType){
-							ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
-						}else{
-							throw new IllegalStateException("!(type instanceof geomType)");
-						}
-					}
-				}
-				seenFmeTypes.add(wrapper);
-				return ret;
-			}
-			transferViewablei=null;
+		// ili2c failed?
+		if(iliTd==null){
 			return null;
-		}catch(Exception ex){
-			EhiLogger.logError(ex);
-			throw ex;
 		}
+		if(pendingSchemaFeature!=null){
+			ret.dispose();
+			ret=pendingSchemaFeature;
+			pendingSchemaFeature=null;
+			return ret;
+		}
+		// first call?
+		if(transferViewablei==null){
+			// create XTF_BASKETS class
+			if(formatFeatureTypeIdx==0){
+				ret.setFeatureType(Main.XTF_BASKETS);
+				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+				ret.setStringAttribute(Main.XTF_TOPIC,getIliQNameType());
+				ret.setStringAttribute(Main.XTF_ID,Main.ID_TYPE);
+				ret.setStringAttribute(Main.XTF_STARTSTATE,Main.STATE_TYPE);
+				ret.setStringAttribute(Main.XTF_ENDSTATE,Main.STATE_TYPE);
+				ret.setStringAttribute(Main.XTF_CONSISTENCY,Main.CONSISTENCY_TYPE);
+				formatFeatureTypeIdx++;
+				return ret;	
+			}
+			if(formatFeatureTypeIdx==1){
+				ret.setFeatureType(Main.XTF_DELETEOBJECT);
+				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+				ret.setStringAttribute(Main.XTF_ID,Main.ID_TYPE);
+				ret.setStringAttribute(Main.XTF_BASKET,Main.ID_TYPE);
+				formatFeatureTypeIdx++;
+				return ret;	
+			}
+			if(formatFeatureTypeIdx==2 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+				ret.setFeatureType(Main.XTF_ENUMS);
+				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+				ret.setStringAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
+				ret.setStringAttribute(Main.XTF_ENUMBASE,Main.ILINAME_TYPE);
+				ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
+				ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
+				ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+				formatFeatureTypeIdx++;
+				return ret;	
+			}
+			if(formatFeatureTypeIdx>=2 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
+				if(formatFeatureTypeIdx==2){
+					enumDefi=enumDefs.iterator();
+				}
+				if(enumDefi!=null){
+					if(enumDefi.hasNext()){
+						Object enumDef=enumDefi.next();
+						String enumTypeName = mapEnumDefName(enumDef);
+						ret.setFeatureType(enumTypeName);
+						ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+						ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
+						ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
+						ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+						formatFeatureTypeIdx++;
+						return ret;	
+					}else{
+						enumDefi=null;
+					}
+				}
+			}
+			// init class iterator
+			transferViewablei=transferViewables.keySet().iterator();
+			seenFmeTypes=new HashSet();
+		}
+		// more classes?
+		while(transferViewablei.hasNext()){
+			String iliQName=(String)transferViewablei.next();
+			//EhiLogger.debug("iliQName "+iliQName);
+			Element v=(Element)tag2class.get(iliQName);
+			if((v instanceof Table) && !((Table)v).isIdentifiable()){
+				// skip structures
+				continue;
+			}
+			if((v instanceof AssociationDef) && ((AssociationDef)v).isLightweight()){
+				// skip embedded assocs
+				continue;
+			}
+			ViewableWrapper wrapper=(ViewableWrapper)transferViewables.get(iliQName);
+			// FME feature type already seen?
+			if(seenFmeTypes.contains(wrapper)){
+				// skip already seen FME feature type
+				continue;
+			}
+			AttributeDef geomattr=wrapper.getGeomAttr4FME();
+			mapFeatureType(geomattr,ret,wrapper,null);						
+			if(geomattr==null){
+				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+			}else{
+				Type type=geomattr.getDomainResolvingAliases();
+				if(formatMode==MODE_XTF){
+					if (type instanceof PolylineType){
+						ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+					}else if(type instanceof SurfaceType){
+						ret.setStringAttribute("fme_geometry{0}", "xtf_surface");
+					}else if(type instanceof AreaType){
+						ret.setStringAttribute("fme_geometry{0}", "xtf_area");
+					}else if(type instanceof CoordType){
+						ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
+					}else{
+						throw new IllegalStateException("!(type instanceof geomType)");
+					}
+				}else if(formatMode==MODE_ITF){
+					if (type instanceof PolylineType){
+						ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+					}else if(type instanceof SurfaceType){
+						// is main table?
+						if(!wrapper.isHelper()){
+							// main table
+							ret.setStringAttribute("fme_geometry{0}", "xtf_surface");
+							if(createLineTableFeatures){
+								if(!skipPolygonBuilding){
+									// add main table (MT) feature type
+									pendingSchemaFeature=session.createFeature();
+									ret.clone(pendingSchemaFeature);
+									pendingSchemaFeature.setStringAttribute("fme_geometry{0}", "xtf_none");
+									String featureType=ret.getFeatureType();
+									pendingSchemaFeature.setFeatureType(featureType+"_MT");
+								}else{
+									// change feature type that represents the main table
+									ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+									String featureType=ret.getFeatureType();
+									ret.setFeatureType(featureType+"_MT");
+								}
+							}
+						}else{
+							// helper table
+							if(createLineTableFeatures){
+								String featureType=ret.getFeatureType();
+								ret.setFeatureType(featureType+"_LT");
+								ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+								//add reference attr to main table
+								//String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
+								String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
+								ret.setStringAttribute(fkName,Main.ID_TYPE);
+								// add line attrs
+								SurfaceType surfaceType=(SurfaceType)type;
+								Table lineAttrTable=surfaceType.getLineAttributeStructure();
+								if(lineAttrTable!=null){
+								    Iterator attri = lineAttrTable.getAttributes ();
+								    while(attri.hasNext()){
+								    	AttributeDef attr=(AttributeDef)attri.next();
+										mapAttributeDef(null, ret, attr, null);
+								    }
+								}
+							}else{
+								continue; //skip it
+							}
+						}
+					}else if(type instanceof AreaType){
+						// if main table?
+						if(!wrapper.isHelper()){
+							ret.setStringAttribute("fme_geometry{0}", "xtf_area");
+							if(createLineTableFeatures){
+								if(!skipPolygonBuilding){
+									// add main table (MT) feature type
+									pendingSchemaFeature=session.createFeature();
+									ret.clone(pendingSchemaFeature);
+									pendingSchemaFeature.setStringAttribute("fme_geometry{0}", "xtf_coord");
+									String featureType=ret.getFeatureType();
+									pendingSchemaFeature.setFeatureType(featureType+"_MT");
+								}else{
+									// change feature type that represents the main table
+									ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
+									String featureType=ret.getFeatureType();
+									ret.setFeatureType(featureType+"_MT");
+								}
+							}
+						}else{
+							// helper table
+							if(createLineTableFeatures){
+								ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+								String featureType=ret.getFeatureType();
+								ret.setFeatureType(featureType+"_LT");
+								// add line attrs
+								AreaType areaType=(AreaType)type;
+								Table lineAttrTable=areaType.getLineAttributeStructure();
+								if(lineAttrTable!=null){
+								    Iterator attri = lineAttrTable.getAttributes ();
+								    while(attri.hasNext()){
+								    	AttributeDef attr=(AttributeDef)attri.next();
+										mapAttributeDef(null, ret, attr, null);
+								    }
+								}
+							}else{
+								continue; //skip it
+							}
+						}
+					}else if(type instanceof CoordType){
+						ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
+					}else{
+						throw new IllegalStateException("!(type instanceof geomType)");
+					}
+				}
+			}
+			seenFmeTypes.add(wrapper);
+			return ret;
+		}
+		transferViewablei=null;
+		return null;
 	}
 	private String mapEnumDefName(Object enumDef) {
 		String enumTypeName=null;

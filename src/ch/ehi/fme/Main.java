@@ -52,8 +52,11 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String ILI1_ADDDEFVAL="ILI1_ADDDEFVAL";
 	static public final String ILI1_CONVERTAREA="ILI1_CONVERTAREA";
 	static public final String ILI1_CONVERTSURFACE="ILI1_CONVERTSURFACE";
+	static public final String ILI1_CHECKCONVERT="ILI1_CHECKCONVERT";
 	static public final String ILI1_ENUMASITFCODE="ILI1_ENUMASITFCODE";
 	static public final String CHECK_UNIQUEOID="CHECK_UNIQUEOID";
+	static public final String CHECK_ATTRTYPE="CHECK_ATTRTYPE";
+	static public final String CHECK_ATTRMULTIPLICITY="CHECK_ATTRMULTIPLICITY";
 	static public final String ILI1_RENUMBERTID="ILI1_RENUMBERTID"; 
 	static public final String XTFDIR_PLACEHOLDER="%XTF_DIR";
 	static public final String DATA_PLACEHOLDER="%DATA";
@@ -193,6 +196,10 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		
 	}
 	public static void endLogging(FmeLogListener fmeListener){
+		logFileCount--;
+		if(logFileCount==0){
+			EhiLogger.getInstance().addListener(ch.ehi.basics.logging.StdListener.getInstance());
+		}
 		if(fmeListener!=null){
 			if(doFMELog){
 				fmeListener.decrCount();
@@ -202,9 +209,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 			}
 			fmeListener=null;
 		}
-		logFileCount--;
 		if(logFileCount==0){
-			EhiLogger.getInstance().addListener(ch.ehi.basics.logging.StdListener.getInstance());
 			if(fileListener!=null){
 				if(doFileLog){
 					EhiLogger.getInstance().removeListener(fileListener);
