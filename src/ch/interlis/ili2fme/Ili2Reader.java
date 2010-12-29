@@ -101,7 +101,7 @@ public class Ili2Reader implements IFMEReader {
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	private IFMELogFile fmeLog=null;
 	private static final String ERR_FEATURETYPE_PREFIX="ERR.";
-	private static final String ERRMSG_ATTRIBUTE="msg";
+	private static final String ERRMSG_ATTRIBUTE="_errmsg";
 	public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		readerKeyword=keyword;
