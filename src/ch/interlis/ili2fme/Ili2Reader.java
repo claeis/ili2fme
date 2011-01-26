@@ -547,12 +547,12 @@ public class Ili2Reader implements IFMEReader {
 	public IFMEFeature read(IFMEFeature ret) 
 		throws Exception 
 	{
-		//try{
+		try{
 			return myread(ret);
-		//}catch(Throwable ex){
-		//	EhiLogger.logError(ex);
-		//}
-		//return null;
+		}catch(Error ex){
+			EhiLogger.logError(ex);
+			throw new Exception(ex);
+		}
 	}
 	HashMap checkoids=null; // new HashMap();
 	private IFMEFeature myread(IFMEFeature ret) 
