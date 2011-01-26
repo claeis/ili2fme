@@ -1,3 +1,8 @@
+ili2fme 5.3.2 (2011-01-26)
+---------------------------
+- java.lang.NoSuchMethodError: ch.interlis.ili2c.metamodel.Constant$Numeric.getValue()D
+- iox-ili-1.5.4
+
 ili2fme 5.3.1 (2011-01-17)
 ---------------------------
 - ili2c-4.3.4

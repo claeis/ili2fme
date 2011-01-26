@@ -89,7 +89,7 @@
 
   <target depends="init,buildnr" name="msi">
   	<exec dir="${basedir}" executable="${wix_candle}">
-		<arg line="-dversion=${buildnr} -dbasedir=${basedir} -out build\wix\ili2fme.wixobj setup\ili2fme.wxs"/>
+		<arg line="-dversion=${buildnr.versionMajor}.${buildnr.versionMinor}.${buildnr.versionMicro} -dbasedir=${basedir} -out build\wix\ili2fme.wixobj setup\ili2fme.wxs"/>
   	</exec>
   	<exec dir="${basedir}" executable="${wix_light}">
 		<arg line="-b setup -pdbout build\wix\ili2fme.wixpdb -out dist\ili2fme-${buildnr}.msi build\wix\ili2fme.wixobj"/>
