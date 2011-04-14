@@ -228,7 +228,8 @@ public class Ili2Writer implements IFMEWriter {
 		}else{
 			System.setProperty("java.net.useSystemProxies", "true");
 		}
-		
+		EhiLogger.logState("maxHeapSize "+Runtime.getRuntime().maxMemory());
+
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");

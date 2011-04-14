@@ -117,6 +117,9 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		}catch(Exception ex){
 			logFile.logMessageString("createReader() "+ex.getMessage(),IFMELogFile.FME_ERROR);
 			throw ex;
+		}catch(Throwable ex){
+			logFile.logMessageString("createReader() "+ex.getMessage(),IFMELogFile.FME_ERROR);
+			throw new Exception(ex);
 		}
 		return ret;
 	}
@@ -139,6 +142,9 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		}catch(Exception ex){
 			logFile.logMessageString("createWriter()"+ex.getMessage(),IFMELogFile.FME_ERROR);
 			throw ex;
+		}catch(Throwable ex){
+			logFile.logMessageString("createWriter() "+ex.getMessage(),IFMELogFile.FME_ERROR);
+			throw new Exception(ex);
 		}
 		return ret;
 	}

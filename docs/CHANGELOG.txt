@@ -1,3 +1,9 @@
+ili2fme 5.3.3 (2011-04-14)
+---------------------------
+- bug: Attribute URI missing in OIDSPACE
+- bug: no error message if createReader() throws a Throwable
+- iox-ili-1.5.5
+
 ili2fme 5.3.2 (2011-01-26)
 ---------------------------
 - java.lang.NoSuchMethodError: ch.interlis.ili2c.metamodel.Constant$Numeric.getValue()D
