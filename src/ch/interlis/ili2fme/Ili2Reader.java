@@ -158,7 +158,7 @@ public class Ili2Reader implements IFMEReader {
 			session.getSettings("FME_GEOMETRY_HANDLING",settings);
 
 			int entc=settings.entries();
-			if(entc==1){
+			if(entc>=1){ // FME2011 FME Data Inspector provides multiple entries
 				String fmeUseRichGeometry=settings.getElement(0);
 				if(fmeUseRichGeometry.equals("Enhanced")){
 					doRichGeometry=true;

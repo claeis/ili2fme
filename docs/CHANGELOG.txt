@@ -1,3 +1,7 @@
+ili2fme 5.3.4 (2011-xx-xx)
+---------------------------
+- FME2011 FME Data Inspector provides multiple FME_GEOMETRY_HANDLING entries
+
 ili2fme 5.3.3 (2011-04-14)
 ---------------------------
 - bug: Attribute URI missing in OIDSPACE
