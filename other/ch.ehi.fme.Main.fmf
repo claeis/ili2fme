@@ -39,6 +39,7 @@ IGNORE_ATTRIBUTES_WITH_PREFIX xtf_
 !KEEP_ATTRIBUTE autocad_elevation
 
 FORMAT_NAME ch.ehi.fme.Main
+FORMAT_TYPE JAVA
 
 !------------------------------------------------------------------------
 ! If not using workbench, add the keyword definitions. Keyword 
