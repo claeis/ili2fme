@@ -1,6 +1,9 @@
-ili2fme 5.3.4 (2011-xx-xx)
+ili2fme 5.4.0 (2011-07-27)
 ---------------------------
 - FME2011 FME Data Inspector provides multiple FME_GEOMETRY_HANDLING entries
+- added FORMAT_TYPE JAVA to metafile as requested by SAFE
+- added TOPICS_FILTER to filter reading by qualified ili topic name; seperate multiple names by semicolon
+- completed GUI GROUP Parameters:
 
 ili2fme 5.3.3 (2011-04-14)
 ---------------------------

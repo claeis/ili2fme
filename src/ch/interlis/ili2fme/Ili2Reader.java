@@ -75,6 +75,8 @@ public class Ili2Reader implements IFMEReader {
 	private Iterator transferViewablei=null;
 	private HashSet seenFmeTypes=null;  // set<ViewableWrapper>
 	private IFMEFeature pendingSchemaFeature=null;
+	private boolean skipBasket=false;
+	private HashSet topicFilterv=null;
 	private int formatFeatureTypeIdx=0;
 	private String xtfFile=null; // null if ili-file given
 	private IoxReader ioxReader=null;
@@ -197,6 +199,7 @@ public class Ili2Reader implements IFMEReader {
 		String httpProxyPort=null;
 		String models=null;
 		String modeldir=null;
+		String topicsFilter=null;
 		for(int i=0;i<args.size();i++){
 			String arg=(String)args.get(i);
 			EhiLogger.traceState("arg["+Integer.toString(i)+"] "+arg);
@@ -206,6 +209,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.MODEL_DIR)){
 				i++;
 				modeldir=(String)args.get(i);
+			}else if(arg.equals(Main.TOPICS_FILTER)){
+				i++;
+				topicsFilter=(String)args.get(i);
 			}else if(arg.equals(Main.CREATE_LINETABLES)){
 				i++;
 				createLineTableFeatures=FmeUtility.isTrue((String)args.get(i));
@@ -269,6 +275,8 @@ public class Ili2Reader implements IFMEReader {
 					models=(String)ele.get(1);	
 				}else if(val.equals(readerKeyword+"_"+Main.MODEL_DIR)){
 					modeldir=(String)ele.get(1);	
+				}else if(val.equals(readerKeyword+"_"+Main.TOPICS_FILTER)){
+					topicsFilter=(String)ele.get(1);	
 				}else if(val.equals(readerKeyword+"_"+Main.CREATE_LINETABLES)){
 					createLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.SKIP_POLYGONBUILDING)){
@@ -336,6 +344,21 @@ public class Ili2Reader implements IFMEReader {
 			models=Main.DATA_PLACEHOLDER;
 		}
 		EhiLogger.traceState("models <"+models+">");
+		
+		EhiLogger.traceState("topicsFilter <"+(topicsFilter!=null?topicsFilter:"")+">");
+		if(topicsFilter!=null){
+			String topicFilter[]=topicsFilter.split(";");
+			for(int i=0;i<topicFilter.length;i++){
+				topicFilter[i]=ch.ehi.basics.tools.StringUtility.purge(topicFilter[i]);
+				if(topicFilter[i]!=null){
+					if(topicFilterv==null){
+						topicFilterv=new HashSet();
+					}
+					EhiLogger.logState("topicFilter <"+topicFilter[i]+">");
+					topicFilterv.add(topicFilter[i]);
+				}
+			}
+		}
 		
 		xtfFile=(String)args.get(0);
 		if(xtfFile.length()>=2 && xtfFile.charAt(0)=='/' && xtfFile.charAt(1)=='/'){
@@ -610,7 +633,7 @@ public class Ili2Reader implements IFMEReader {
 		while(true){
 			event=ioxReader.read();
 			//EhiLogger.debug("event "+event.getClass().getName());
-			if(event instanceof ObjectEvent){
+			if(!skipBasket && (event instanceof ObjectEvent)){
 				ObjectEvent oe=(ObjectEvent)event;
 				IomObject iomObj=oe.getIomObject();
 				if(checkoids!=null){
@@ -650,11 +673,20 @@ public class Ili2Reader implements IFMEReader {
 				doPipeline=false;
 				surfaceBuilders=new HashMap();
 				// map basket (to a feature! to get metainfo about basket)
-				EhiLogger.logState(be.getType()+" "+currentBid+"...");
+				String topic=be.getType();
+				EhiLogger.logState(topic+" "+currentBid+"...");
+				if(topicFilterv!=null && !topicFilterv.contains(topic)){
+					skipBasket=true;
+					continue;
+				}
 				mapBasket(ret,be);
 				return ret;
 			}else if(event instanceof EndBasketEvent){
 				currentBid=null;
+				if(skipBasket){
+					skipBasket=false;
+					continue;
+				}
 				// flush pipelines
 				Iterator surfaceBuilderi=surfaceBuilders.keySet().iterator();
 				while(surfaceBuilderi.hasNext()){
