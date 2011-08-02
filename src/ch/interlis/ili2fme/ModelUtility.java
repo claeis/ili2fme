@@ -153,8 +153,7 @@ public class ModelUtility {
 					Object obj = iter.next();
 					if(obj instanceof Viewable){
 						Viewable v=(Viewable)obj;
-						if(v.isAbstract() 
-								|| isDerivedAssoc(v) 
+						if(isDerivedAssoc(v) 
 								|| isPureRefAssoc(v) 
 								|| isTransientView(v)){
 							continue;
@@ -165,8 +164,7 @@ public class ModelUtility {
 				  }
 				}else if(tObj instanceof Viewable){
 					  Viewable v=(Viewable)tObj;
-						if(v.isAbstract() 
-								|| isDerivedAssoc(v) 
+						if(isDerivedAssoc(v) 
 								|| isPureRefAssoc(v) 
 								|| isTransientView(v)){
 							continue;
@@ -199,6 +197,9 @@ public class ModelUtility {
 					root=getRoot(v);
 				}else{
 					// CLASS or ASSOCIATION
+					if(v.isAbstract()){
+						continue;
+					}
 					root=null;
 				}
 			}else{
