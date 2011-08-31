@@ -279,12 +279,12 @@ public class Ili2Writer implements IFMEWriter {
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ili22models").getAbsolutePath();
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ilimodels").getAbsolutePath()+";"+modeldir;
 			modeldir="http://models.interlis.ch/;"+modeldir;
-			modeldir=new java.io.File(xtfFile).getParentFile().getAbsolutePath()+";"+modeldir;
+			modeldir=new java.io.File(xtfFile).getAbsoluteFile().getParent()+";"+modeldir;
 		}else{
 			int startPos=modeldir.indexOf(Main.XTFDIR_PLACEHOLDER);
 			if(startPos>-1){
 				StringBuffer buf=new StringBuffer(modeldir);
-				buf.replace(startPos,startPos+Main.XTFDIR_PLACEHOLDER.length(),new java.io.File(xtfFile).getParentFile().getAbsolutePath());
+				buf.replace(startPos,startPos+Main.XTFDIR_PLACEHOLDER.length(),new java.io.File(xtfFile).getAbsoluteFile().getParent());
 				modeldir=buf.toString();
 			}
 		}
@@ -314,7 +314,7 @@ public class Ili2Writer implements IFMEWriter {
 		outputFile=null;
 		try{
 			java.io.File outfile=new java.io.File(xtfFile);
-			java.io.File outdir=outfile.getParentFile();
+			java.io.File outdir=outfile.getAbsoluteFile().getParentFile();
 			if(!outdir.exists()){
 				if(!outdir.mkdirs()){
 					throw new java.io.IOException("failed to create directory "+outdir.getAbsolutePath());

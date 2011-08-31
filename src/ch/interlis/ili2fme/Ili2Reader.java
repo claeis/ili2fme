@@ -374,12 +374,12 @@ public class Ili2Reader implements IFMEReader {
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ili22models").getAbsolutePath();
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ilimodels").getAbsolutePath()+";"+modeldir;
 			modeldir="http://models.interlis.ch/;"+modeldir;
-			modeldir=new java.io.File(xtfFile).getParentFile().getAbsolutePath()+";"+modeldir;
+			modeldir=new java.io.File(xtfFile).getAbsoluteFile().getParent()+";"+modeldir;
 		}else{
 			int startPos=modeldir.indexOf(Main.XTFDIR_PLACEHOLDER);
 			if(startPos>-1){
 				StringBuffer buf=new StringBuffer(modeldir);
-				buf.replace(startPos,startPos+Main.XTFDIR_PLACEHOLDER.length(),new java.io.File(xtfFile).getParentFile().getAbsolutePath());
+				buf.replace(startPos,startPos+Main.XTFDIR_PLACEHOLDER.length(),new java.io.File(xtfFile).getAbsoluteFile().getParent());
 				modeldir=buf.toString();
 			}
 		}

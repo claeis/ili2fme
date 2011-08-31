@@ -1,3 +1,7 @@
+ili2fme 5.4.2 (2011-08-xx)
+---------------------------
+- fixed: NullPointerException if filename without path
+
 ili2fme 5.4.1 (2011-08-03)
 ---------------------------
 - ili2c-4.3.7
