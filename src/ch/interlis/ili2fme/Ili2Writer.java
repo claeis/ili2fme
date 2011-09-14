@@ -877,6 +877,11 @@ public class Ili2Writer implements IFMEWriter {
 			tag=obj.getFeatureType();
 		}
 		if(!tag.equals(Main.XTF_DELETEOBJECT)){
+			// check that tag is a qualified interlis name (contains at least one '.')
+			if(tag.indexOf('.')==-1){
+				String err=fmeRecInfo+": qualified INTERLIS name expected instead of <"+tag+">";
+				throw new ConfigException(err);
+			}
 			String iliModel=tag.substring(0,tag.indexOf('.'));
 			if(!modelsFromFME.contains(iliModel)){
 				modelsFromFME.add(iliModel);
