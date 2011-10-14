@@ -429,7 +429,6 @@ public class Ili2Writer implements IFMEWriter {
 				}
 				EhiLogger.logState(basketEvent.getType()+" "+basketEvent.getBid()+"...");
 				ioxWriter.write(basketEvent);
-				COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev;
 				writeBasket(basketId,false);
 				ioxWriter.write(new ch.interlis.iox_j.EndBasketEvent());
 			}
@@ -443,11 +442,16 @@ public class Ili2Writer implements IFMEWriter {
 		if(featurec>0){
 			for(int featurei=0;featurei<featurec;featurei++){
 				IFMEFeature feature=featurev.getAt(featurei);
-				IomObject iomObj=mapFeature(feature,null,null,null,autoTid);
-				if(iomObj==null){
-					throw new IllegalStateException("iomObj==null with feature "+feature.toString());
+				try {
+					IomObject iomObj = mapFeature(feature,null,null,null,autoTid);
+					if(iomObj==null){
+						throw new DataException("iomObj==null with feature "+feature.toString());
+					}
+					ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+				} catch (DataException e) {
+					feature.performFunction("@Log()");
+					EhiLogger.logError(e);
 				}
-				ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
 				feature.dispose();
 			}
 		}

@@ -1,5 +1,6 @@
 ili2fme 5.4.2 (2011-08-xx)
 ---------------------------
+- log feature if geometry conversion error
 - fixed: NullPointerException if filename without path
 - check that xtf_class is a qualified interlis name (contains at least one '.')
 
