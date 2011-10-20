@@ -1206,6 +1206,11 @@ public class Ili2Reader implements IFMEReader {
 					 }
 				}
 			 }
+		 }else if(type instanceof ReferenceType){
+				IomObject structvalue=iomObj.getattrobj(attrName,0);
+				String refoid=structvalue.getobjectrefoid();
+				ret.setStringAttribute(prefix+attrName,refoid);
+			 
 		}else{
 		 String value=iomObj.getattrvalue(attrName);
 		 if(value!=null){

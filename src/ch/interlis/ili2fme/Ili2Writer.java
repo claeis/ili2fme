@@ -1212,6 +1212,15 @@ public class Ili2Writer implements IFMEWriter {
 				elei++;
 				prefix=attrPrefix+attrName+"{"+Integer.toString(elei)+"}";
 			}
+		}else if(type instanceof ReferenceType){
+			if(obj.attributeExists(attrPrefix+attrName)){
+				String refoid=getStringAttribute(obj,attrPrefix+attrName);
+				if(refoid!=null && refoid.length()>0){
+					IomObject	structvalue=iomObj.addattrobj(attrName,"REF");
+					structvalue.setobjectrefoid(refoid);
+				}
+			}
+			
 		}else if (type instanceof PolylineType){
 			if(geomattr!=null && attrName.equals(geomattr)){
 				boolean is3D=3==((CoordType)((PolylineType)type).getControlPointDomain().getType()).getDimensions().length;
