@@ -1,4 +1,8 @@
-ili2fme 5.4.2 (2011-11-20)
+ili2fme 5.4.3 (2011-11-01)
+---------------------------
+- fixed Reader: NullPointerException if UNDEFINED reference attr
+
+ili2fme 5.4.2 (2011-10-20)
 ---------------------------
 - log feature if geometry conversion error
 - fixed: NullPointerException if filename without path
