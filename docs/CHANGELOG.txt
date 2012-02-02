@@ -3,6 +3,7 @@ ili2fme 5.5.0 (2012-02-02)
 - upgraded to jre 1.6.0
 - ili2c-4.4.3
 - fixed Writer: no TID on instances where ASSOCATION is without OID property
+- fixed Reader: keep ordering of attributes in schema features 
 
 ili2fme 5.4.3 (2011-11-01)
 ---------------------------
