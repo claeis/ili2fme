@@ -1503,31 +1503,31 @@ public class Ili2Reader implements IFMEReader {
 			// create XTF_BASKETS class
 			if(formatFeatureTypeIdx==0){
 				ret.setFeatureType(Main.XTF_BASKETS);
-				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-				ret.setStringAttribute(Main.XTF_TOPIC,getIliQNameType());
-				ret.setStringAttribute(Main.XTF_ID,Main.ID_TYPE);
-				ret.setStringAttribute(Main.XTF_STARTSTATE,Main.STATE_TYPE);
-				ret.setStringAttribute(Main.XTF_ENDSTATE,Main.STATE_TYPE);
-				ret.setStringAttribute(Main.XTF_CONSISTENCY,Main.CONSISTENCY_TYPE);
+				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
+				ret.setSequencedAttribute(Main.XTF_TOPIC,getIliQNameType());
+				ret.setSequencedAttribute(Main.XTF_ID,Main.ID_TYPE);
+				ret.setSequencedAttribute(Main.XTF_STARTSTATE,Main.STATE_TYPE);
+				ret.setSequencedAttribute(Main.XTF_ENDSTATE,Main.STATE_TYPE);
+				ret.setSequencedAttribute(Main.XTF_CONSISTENCY,Main.CONSISTENCY_TYPE);
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
 			if(formatFeatureTypeIdx==1){
 				ret.setFeatureType(Main.XTF_DELETEOBJECT);
-				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-				ret.setStringAttribute(Main.XTF_ID,Main.ID_TYPE);
-				ret.setStringAttribute(Main.XTF_BASKET,Main.ID_TYPE);
+				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
+				ret.setSequencedAttribute(Main.XTF_ID,Main.ID_TYPE);
+				ret.setSequencedAttribute(Main.XTF_BASKET,Main.ID_TYPE);
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
 			if(formatFeatureTypeIdx==2 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
 				ret.setFeatureType(Main.XTF_ENUMS);
-				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-				ret.setStringAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
-				ret.setStringAttribute(Main.XTF_ENUMBASE,Main.ILINAME_TYPE);
-				ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
-				ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
-				ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
+				ret.setSequencedAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
+				ret.setSequencedAttribute(Main.XTF_ENUMBASE,Main.ILINAME_TYPE);
+				ret.setSequencedAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
+				ret.setSequencedAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
+				ret.setSequencedAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
@@ -1540,10 +1540,10 @@ public class Ili2Reader implements IFMEReader {
 						Object enumDef=enumDefi.next();
 						String enumTypeName = mapEnumDefName(enumDef);
 						ret.setFeatureType(enumTypeName);
-						ret.setStringAttribute("fme_geometry{0}", "xtf_none");
-						ret.setStringAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
-						ret.setStringAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
-						ret.setStringAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
+						ret.setSequencedAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
+						ret.setSequencedAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
+						ret.setSequencedAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
 						formatFeatureTypeIdx++;
 						return ret;	
 					}else{
@@ -1577,40 +1577,40 @@ public class Ili2Reader implements IFMEReader {
 			AttributeDef geomattr=wrapper.getGeomAttr4FME();
 			mapFeatureType(geomattr,ret,wrapper,null);						
 			if(geomattr==null){
-				ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 			}else{
 				Type type=geomattr.getDomainResolvingAliases();
 				if(formatMode==MODE_XTF){
 					if (type instanceof PolylineType){
-						ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
 					}else if(type instanceof SurfaceType){
-						ret.setStringAttribute("fme_geometry{0}", "xtf_surface");
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_surface");
 					}else if(type instanceof AreaType){
-						ret.setStringAttribute("fme_geometry{0}", "xtf_area");
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_area");
 					}else if(type instanceof CoordType){
-						ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_coord");
 					}else{
 						throw new IllegalStateException("!(type instanceof geomType)");
 					}
 				}else if(formatMode==MODE_ITF){
 					if (type instanceof PolylineType){
-						ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
 					}else if(type instanceof SurfaceType){
 						// is main table?
 						if(!wrapper.isHelper()){
 							// main table
-							ret.setStringAttribute("fme_geometry{0}", "xtf_surface");
+							ret.setSequencedAttribute("fme_geometry{0}", "xtf_surface");
 							if(createLineTableFeatures){
 								if(!skipPolygonBuilding){
 									// add main table (MT) feature type
 									pendingSchemaFeature=session.createFeature();
 									ret.clone(pendingSchemaFeature);
-									pendingSchemaFeature.setStringAttribute("fme_geometry{0}", "xtf_none");
+									pendingSchemaFeature.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 									String featureType=ret.getFeatureType();
 									pendingSchemaFeature.setFeatureType(featureType+"_MT");
 								}else{
 									// change feature type that represents the main table
-									ret.setStringAttribute("fme_geometry{0}", "xtf_none");
+									ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 									String featureType=ret.getFeatureType();
 									ret.setFeatureType(featureType+"_MT");
 								}
@@ -1620,11 +1620,11 @@ public class Ili2Reader implements IFMEReader {
 							if(createLineTableFeatures){
 								String featureType=ret.getFeatureType();
 								ret.setFeatureType(featureType+"_LT");
-								ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+								ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
 								//add reference attr to main table
 								//String fkName=wrapper.getGeomAttr4FME().getContainer().getName();
 								String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
-								ret.setStringAttribute(fkName,Main.ID_TYPE);
+								ret.setSequencedAttribute(fkName,Main.ID_TYPE);
 								// add line attrs
 								SurfaceType surfaceType=(SurfaceType)type;
 								Table lineAttrTable=surfaceType.getLineAttributeStructure();
@@ -1642,18 +1642,18 @@ public class Ili2Reader implements IFMEReader {
 					}else if(type instanceof AreaType){
 						// if main table?
 						if(!wrapper.isHelper()){
-							ret.setStringAttribute("fme_geometry{0}", "xtf_area");
+							ret.setSequencedAttribute("fme_geometry{0}", "xtf_area");
 							if(createLineTableFeatures){
 								if(!skipPolygonBuilding){
 									// add main table (MT) feature type
 									pendingSchemaFeature=session.createFeature();
 									ret.clone(pendingSchemaFeature);
-									pendingSchemaFeature.setStringAttribute("fme_geometry{0}", "xtf_coord");
+									pendingSchemaFeature.setSequencedAttribute("fme_geometry{0}", "xtf_coord");
 									String featureType=ret.getFeatureType();
 									pendingSchemaFeature.setFeatureType(featureType+"_MT");
 								}else{
 									// change feature type that represents the main table
-									ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
+									ret.setSequencedAttribute("fme_geometry{0}", "xtf_coord");
 									String featureType=ret.getFeatureType();
 									ret.setFeatureType(featureType+"_MT");
 								}
@@ -1661,7 +1661,7 @@ public class Ili2Reader implements IFMEReader {
 						}else{
 							// helper table
 							if(createLineTableFeatures){
-								ret.setStringAttribute("fme_geometry{0}", "xtf_polyline");
+								ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
 								String featureType=ret.getFeatureType();
 								ret.setFeatureType(featureType+"_LT");
 								// add line attrs
@@ -1679,7 +1679,7 @@ public class Ili2Reader implements IFMEReader {
 							}
 						}
 					}else if(type instanceof CoordType){
-						ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_coord");
 					}else{
 						throw new IllegalStateException("!(type instanceof geomType)");
 					}
@@ -1711,7 +1711,7 @@ public class Ili2Reader implements IFMEReader {
 		List attrv=wrapper.getAttrv();
 		if(!isStruct){
 			ret.setFeatureType(wrapper.getFmeFeatureType());
-			ret.setStringAttribute(Main.XTF_ID,Main.ID_TYPE);
+			ret.setSequencedAttribute(Main.XTF_ID,Main.ID_TYPE);
 			// do not add the following attributes, so they appear only in the 
 			// Format Attribute tab in the workbench
 			// see also WORKBENCH_EXPOSABLE_ATTRIBUTES in metafile (.fmf)
@@ -1721,7 +1721,7 @@ public class Ili2Reader implements IFMEReader {
 			//ret.setStringAttribute(Main.XTF_CONSISTENCY,Main.CONSISTENCY_TYPE);
 			//ret.setStringAttribute(Main.XTF_OPERATION,Main.OPERATION_TYPE);
 		}else{
-			ret.setStringAttribute(attrNamePrefix+Main.XTF_CLASS,getIliQNameType());
+			ret.setSequencedAttribute(attrNamePrefix+Main.XTF_CLASS,getIliQNameType());
 		}
 		for(int i=0;i<attrv.size();i++){
 			ViewableTransferElement attro=(ViewableTransferElement)attrv.get(i);
@@ -1730,7 +1730,7 @@ public class Ili2Reader implements IFMEReader {
 				mapAttributeDef(geomAttr, ret, attr, attrNamePrefix);
 			}else if(attro.obj instanceof RoleDef){
 				RoleDef role=(RoleDef)attro.obj;
-				ret.setStringAttribute(attrNamePrefix+role.getName(),Main.ID_TYPE);
+				ret.setSequencedAttribute(attrNamePrefix+role.getName(),Main.ID_TYPE);
 				if(attro.embedded){
 					AssociationDef assocClass=(AssociationDef)role.getContainer();
 					if(assocClass.getAttributes().hasNext() || assocClass.getLightweightAssociations().iterator().hasNext()){
@@ -1755,13 +1755,13 @@ public class Ili2Reader implements IFMEReader {
 			|| type instanceof CoordType){
 				if((type instanceof CoordType) && ((CoordType)type).getDimensions().length==1){
 					// TODO set attribute type
-					ret.setStringAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");
+					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");
 				}else{
 					if(geomAttr==attr){
 						// process it as FME geometry
 						// don't add it as a FME attribute
 					}else{
-						ret.setStringAttribute(attrNamePrefix+attr.getName(),"xtf_char(254)");
+						ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(254)");
 					}
 				}
 		}else if(type instanceof CompositionType){
@@ -1774,7 +1774,7 @@ public class Ili2Reader implements IFMEReader {
 			mapFeatureType(null,ret,(ViewableWrapper)transferViewables.get(rootClass.getScopedName(null)),attrNamePrefix+attr.getName()+"{}.");						
 		}else{
 			// TODO set attribute type
-			ret.setStringAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");
+			ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");
 		}
 	}
 	public boolean spatialEnabled() throws Exception {
