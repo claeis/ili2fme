@@ -1065,38 +1065,52 @@ public class Ili2Writer implements IFMEWriter {
 				tag=fmeFeatureType;
 			}
 		}
+		ViewableWrapper wrapper=(ViewableWrapper)fmeFeatureTypev.get(tag);
+		if(wrapper==null){
+			String err=fmeRecInfo+": unknown interlis class <"+tag+">";
+			EhiLogger.logError(err);
+			throw new Exception(err);
+		}
 		IomObject iomObj=null;
 		if(!isStructEle){
-			String tid=null;
-			if(!obj.attributeExists(Main.XTF_ID)){
-				if(!autoTid){
-					String err=fmeRecInfo+": missing mandatory attribute "+Main.XTF_ID;
-					EhiLogger.logError(err);
-					throw new Exception(err);
+			boolean classRequiresTid=true;
+			Viewable viewable=wrapper.getViewable();
+			if(formatMode==MODE_XTF && (viewable instanceof AssociationDef)){
+				AssociationDef assoc=(AssociationDef)viewable;
+				if(assoc.isIdentifiable()){
+					classRequiresTid=true;
+				}else{
+					Domain oid=assoc.getOid();
+					if(oid==null || (oid instanceof NoOid)){
+						classRequiresTid=false;
+					}
 				}
-				tid=newTid();
-			}else{
-				tid=getStringAttribute(obj,Main.XTF_ID);
-				if(tid==null || tid.length()==0){
+			}
+			String tid=null;
+			if(classRequiresTid){
+				if(!obj.attributeExists(Main.XTF_ID)){
 					if(!autoTid){
 						String err=fmeRecInfo+": missing mandatory attribute "+Main.XTF_ID;
 						EhiLogger.logError(err);
 						throw new Exception(err);
 					}
 					tid=newTid();
+				}else{
+					tid=getStringAttribute(obj,Main.XTF_ID);
+					if(tid==null || tid.length()==0){
+						if(!autoTid){
+							String err=fmeRecInfo+": missing mandatory attribute "+Main.XTF_ID;
+							EhiLogger.logError(err);
+							throw new Exception(err);
+						}
+						tid=newTid();
+					}
 				}
 			}
 			//EhiLogger.debug("tag "+tag+", tid "+tid);
 			iomObj=new ch.interlis.iom_j.Iom_jObject(tag,tid);	
 		}else{
 			iomObj=iliStructParent.addattrobj(iliStructAttrName,tag);	
-		}
-		ViewableWrapper wrapper=(ViewableWrapper)fmeFeatureTypev.get(tag);
-		if(wrapper==null){
-			String err=fmeRecInfo+": unknown interlis class <"+tag+">";
-			EhiLogger.logError(err);
-			throw new Exception(err);
-			
 		}
 		if(formatMode==MODE_ITF){
 			// if SURFACE helper table
