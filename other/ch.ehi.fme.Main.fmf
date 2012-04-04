@@ -201,9 +201,19 @@ GEOM_MAP xtf_area             fme_ellipse          \
 GEOM_MAP xtf_area fme_rectangle
 GEOM_MAP xtf_area fme_rounded_rectangle 
 
-ATTR_TYPE_MAP  xtf_char(width)             fme_varchar(width)            \
-               xtf_char(width)             fme_char(width)               \
-               xtf_number(width,decimal)   fme_decimal(width,decimal) 
+ATTR_TYPE_MAP                                              \
+    xtf_char(width)             fme_varchar(width)         \
+    xtf_char(width)             fme_char(width)            \
+    xtf_buffer                  fme_buffer                 \
+    xtf_decimal(width,decimal)  fme_decimal(width,decimal) \
+    xtf_real32                  fme_real32                 \
+    xtf_real64                  fme_real64                 \
+    xtf_int32                   fme_int32                  \
+    xtf_int16                   fme_int16                  \
+    xtf_boolean                 fme_boolean                \
+    xtf_datetime                fme_datetime               \
+    xtf_date                    fme_date                   \
+    xtf_time                    fme_time
 
 GENERICIZE_GEOMTYPE_ATTR_NAME xtf_geomtype
 

@@ -94,6 +94,8 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String STATE_TYPE="xtf_char(250)";
 	static public final String CONSISTENCY_TYPE="xtf_char(12)";
 	static public final String OPERATION_TYPE="xtf_char(6)";
+	static public final String XTF_ENUMITFCODE_TYPE="xtf_int16";
+	static public final String XTF_ENUMSEQ_TYPE="xtf_int16";
 	//static public final String ILIQNAME_TYPE="xtf_char(255)"; //757 3*255+2 "Model.Topic.Class"
 	// XML tag
 	static public final String DELETE_TAG="DELETE";

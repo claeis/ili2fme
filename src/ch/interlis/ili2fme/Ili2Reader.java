@@ -17,7 +17,6 @@
  */
 package ch.interlis.ili2fme;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
@@ -37,9 +36,6 @@ import COM.safe.fmeobjects.IFMEPath;
 import COM.safe.fmeobjects.IFMEDonut;
 
 import ch.ehi.basics.logging.EhiLogger;
-import ch.ehi.basics.logging.LogEvent;
-import ch.ehi.basics.logging.StdListener;
-import ch.ehi.basics.logging.StdLogEvent;
 import ch.ehi.basics.tools.StringUtility;
 import ch.ehi.fme.*;
 
@@ -48,11 +44,9 @@ import ch.interlis.ili2c.metamodel.*;
 //import ch.interlis.iom.swig.iom_javaConstants;
 import ch.interlis.iom.*;
 import ch.interlis.iox.*;
-import ch.interlis.iom_j.xtf.XtfReader;
 import ch.interlis.iom_j.itf.ItfReader;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
-import ch.interlis.iox_j.jts.Jts2iox;
 
 /** INTERLIS implementation of an FME-Reader.
  * @author ce
@@ -799,7 +793,9 @@ public class Ili2Reader implements IFMEReader {
 		//EhiLogger.debug("aclass <"+aclass+">, root <"+rootClass+">");
 		if(!isStruct){
 			ret.setFeatureType(wrapper.getFmeFeatureType());
-			ret.setStringAttribute(Main.XTF_ID,iomObj.getobjectoid());
+			if(iomObj.getobjectoid()!=null){ // an ili2 assocObj might have no oid
+				ret.setStringAttribute(Main.XTF_ID,iomObj.getobjectoid());
+			}
 			ret.setStringAttribute(Main.XTF_BASKET,currentBid);
 			if(formatMode==MODE_XTF){
 				String consistency=FmeUtility.mapIox2FmeConsistency(iomObj.getobjectconsistency());
@@ -1526,8 +1522,8 @@ public class Ili2Reader implements IFMEReader {
 				ret.setSequencedAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
 				ret.setSequencedAttribute(Main.XTF_ENUMBASE,Main.ILINAME_TYPE);
 				ret.setSequencedAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
-				ret.setSequencedAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
-				ret.setSequencedAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+				ret.setSequencedAttribute(Main.XTF_ENUMITFCODE,Main.XTF_ENUMITFCODE_TYPE);
+				ret.setSequencedAttribute(Main.XTF_ENUMSEQ,Main.XTF_ENUMSEQ_TYPE);
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
@@ -1542,8 +1538,8 @@ public class Ili2Reader implements IFMEReader {
 						ret.setFeatureType(enumTypeName);
 						ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 						ret.setSequencedAttribute(Main.XTF_ENUMILICODE,Main.ILINAME_TYPE);
-						ret.setSequencedAttribute(Main.XTF_ENUMITFCODE,"xtf_char(3)");
-						ret.setSequencedAttribute(Main.XTF_ENUMSEQ,"xtf_char(3)");
+						ret.setSequencedAttribute(Main.XTF_ENUMITFCODE,Main.XTF_ENUMITFCODE_TYPE);
+						ret.setSequencedAttribute(Main.XTF_ENUMSEQ,Main.XTF_ENUMSEQ_TYPE);
 						formatFeatureTypeIdx++;
 						return ret;	
 					}else{
@@ -1754,14 +1750,14 @@ public class Ili2Reader implements IFMEReader {
 			|| type instanceof SurfaceOrAreaType
 			|| type instanceof CoordType){
 				if((type instanceof CoordType) && ((CoordType)type).getDimensions().length==1){
-					// TODO set attribute type
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");
+					String numType = mapNumericType((NumericType)((CoordType)type).getDimensions()[0]);
+					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),numType);
 				}else{
 					if(geomAttr==attr){
 						// process it as FME geometry
 						// don't add it as a FME attribute
 					}else{
-						ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(254)");
+						ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_buffer");
 					}
 				}
 		}else if(type instanceof CompositionType){
@@ -1774,9 +1770,149 @@ public class Ili2Reader implements IFMEReader {
 			mapFeatureType(null,ret,(ViewableWrapper)transferViewables.get(rootClass.getScopedName(null)),attrNamePrefix+attr.getName()+"{}.");						
 		}else{
 			// TODO set attribute type
-			ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(20)");
+			if (isBoolean(iliTd,attr)) {
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_boolean");
+			}else if (isIli1Date(iliTd,attr)) {
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_date");
+			}else if (isIli2Date(iliTd,attr)) {
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_date");
+			}else if (isIli2DateTime(iliTd,attr)) {
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_datetime");
+			}else if (isIli2Time(iliTd,attr)) {
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_time");
+			}else if (type instanceof ReferenceType){
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.ID_TYPE);
+			}else if (type instanceof BasketType){
+				// skip it; type no longer exists in ili 2.3
+			}else if(type instanceof EnumerationType){
+				if(ili1EnumAsItfCode){
+					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.XTF_ENUMITFCODE_TYPE);
+				}else{
+					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.ILINAME_TYPE);
+				}
+			}else if(type instanceof NumericType){
+				if(type.isAbstract()){
+				}else{
+					String numType = mapNumericType((NumericType)type);
+					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),numType);
+				}
+			}else if(type instanceof TextType){
+				if(((TextType)type).getMaxLength()>0){
+					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char("+((TextType)type).getMaxLength()+")");
+				}else{
+					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_buffer");
+				}
+			}else if(type instanceof BlackboxType){
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_buffer");
+			}else{
+				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(255)");
+			}
+			
 		}
 	}
+	private String mapNumericType(NumericType type) {
+		String numType=null;
+		PrecisionDecimal min=((NumericType)type).getMinimum();
+		PrecisionDecimal max=((NumericType)type).getMaximum();
+		if(min.getAccuracy()>0){
+			int size=Math.max(min.toString().length(),max.toString().length());
+			int precision=min.getAccuracy();
+			//EhiLogger.debug("attr "+ attr.getName()+", maxStr <"+maxStr+">, size "+Integer.toString(size)+", precision "+Integer.toString(precision));
+			numType="xtf_decimal("+size+","+precision+")";
+		}else{
+			if(min.compareTo(new PrecisionDecimal(Integer.MIN_VALUE))>=0 && max.compareTo(new PrecisionDecimal(Integer.MAX_VALUE))<=0){
+				numType="xtf_int32";
+			}else{
+				int size=Math.max(min.toString().length(),max.toString().length());
+				numType="xtf_decimal("+size+","+0+")";
+			}
+		}
+		return numType;
+	}
+	static public boolean isBoolean(TransferDescription td,Type type){
+		while(type instanceof TypeAlias) {
+			if (((TypeAlias) type).getAliasing() == td.INTERLIS.BOOLEAN) {
+				return true;
+			}
+			type=((TypeAlias) type).getAliasing().getType();
+		}
+		
+		return false;
+	}
+	static public boolean isBoolean(TransferDescription td,AttributeDef attr){
+		if (attr.getDomain() instanceof TypeAlias && isBoolean(td,attr.getDomain())) {
+			return true;
+		}
+		return false;
+		
+	}
+	static public boolean isIli1Date(TransferDescription td,AttributeDef attr){
+		if (attr.getDomain() instanceof TypeAlias){
+			Type type=attr.getDomain();
+			while(type instanceof TypeAlias) {
+				if (((TypeAlias) type).getAliasing() == td.INTERLIS.INTERLIS_1_DATE) {
+					return true;
+				}
+				type=((TypeAlias) type).getAliasing().getType();
+			}
+		}
+		return false;
+	}
+	static public boolean isIli2Date(TransferDescription td,AttributeDef attr){
+		Type type=attr.getDomain();
+		if (type instanceof TypeAlias){
+			while(type instanceof TypeAlias) {
+				if (((TypeAlias) type).getAliasing() == td.INTERLIS.XmlDate) {
+					return true;
+				}
+				type=((TypeAlias) type).getAliasing().getType();
+			}
+		}
+		if(type instanceof FormattedType){
+			FormattedType ft=(FormattedType)type;
+			if(ft.getDefinedBaseDomain()== td.INTERLIS.XmlDate){
+				return true;
+			}
+		}
+		return false;
+	}
+	static public boolean isIli2Time(TransferDescription td,AttributeDef attr){
+		Type type=attr.getDomain();
+		if (type instanceof TypeAlias){
+			while(type instanceof TypeAlias) {
+				if (((TypeAlias) type).getAliasing() == td.INTERLIS.XmlTime) {
+					return true;
+				}
+				type=((TypeAlias) type).getAliasing().getType();
+			}
+		}
+		if(type instanceof FormattedType){
+			FormattedType ft=(FormattedType)type;
+			if(ft.getDefinedBaseDomain()== td.INTERLIS.XmlTime){
+				return true;
+			}
+		}
+		return false;
+	}
+	static public boolean isIli2DateTime(TransferDescription td,AttributeDef attr){
+		Type type=attr.getDomain();
+		if (type instanceof TypeAlias){
+			while(type instanceof TypeAlias) {
+				if (((TypeAlias) type).getAliasing() == td.INTERLIS.XmlDateTime) {
+					return true;
+				}
+				type=((TypeAlias) type).getAliasing().getType();
+			}
+		}
+		if(type instanceof FormattedType){
+			FormattedType ft=(FormattedType)type;
+			if(ft.getDefinedBaseDomain()== td.INTERLIS.XmlDateTime){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean spatialEnabled() throws Exception {
 		return false;
 	}
