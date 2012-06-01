@@ -96,12 +96,14 @@ public class Ili2Writer implements IFMEWriter {
 		session=session1;
 		this.writerTypename=writerTypename;
 		fmeLog=log;
+		//fmeLog.logMessageString("Ili2Writer() "+'@' + Integer.toHexString(session.hashCode()),IFMELogFile.FME_INFORM);
 	}
 	// Open up the writer and pass it the destination directory to which files will
 	// be written (1st parameter) and a string array which may contain additional
 	// dataset parameters (2nd parameter).
 	public void open(ArrayList args) throws Exception {
 		listener=Main.setupLogging(fmeLog);
+		//fmeLog.logMessageString("open()",IFMELogFile.FME_INFORM);
 		try{
 			myopen(args);
 		}catch(Exception ex)
@@ -369,8 +371,10 @@ public class Ili2Writer implements IFMEWriter {
 	}
 	// Close the writer after it has completed writing out all the features.
 	public void close() throws Exception {
+		//fmeLog.logMessageString("close()",IFMELogFile.FME_INFORM);
 		try {
 			myclose();
+			//DebugUtil.dumpObjects(session,fmeLog);
 		} catch (Exception ex) {
 			EhiLogger.logError(ex);
 			throw ex;

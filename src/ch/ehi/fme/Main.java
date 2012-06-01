@@ -27,9 +27,6 @@ import COM.safe.fmeobjects.IFMELogFile;
 import COM.safe.fmeobjects.IFMESession;
 
 import ch.ehi.basics.logging.EhiLogger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import ch.interlis.ili2c.metamodel.TransferDescription;
 import ch.interlis.ili2fme.FmeLogListener;
 import ch.interlis.ili2fme.Ili2Reader;
 import ch.interlis.ili2fme.Ili2Writer;
@@ -139,6 +136,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		logFile.logMessageString("ili2fme-"+getVersion(),IFMELogFile.FME_INFORM);
 		logFile.logMessageString("ili2c-"+ch.interlis.ili2c.Main.getVersion(),IFMELogFile.FME_INFORM);
 		logFile.logMessageString("java.version "+System.getProperty("java.version"),IFMELogFile.FME_INFORM);
+		//ch.interlis.ili2fme.DebugUtil.patchPoint(logFile);
 		Ili2Writer ret=null;
 		try{
 			ret=new Ili2Writer(session,mappingFile,readerTypeName,readerKeyword,logFile);
