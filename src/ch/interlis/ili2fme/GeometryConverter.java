@@ -217,7 +217,7 @@ public class GeometryConverter {
 				}
 			}finally{
 				if(fmeGeom!=null){
-					//fmeGeom.dispose();
+					fmeGeom.dispose();
 					fmeGeom=null;
 				}
 			}

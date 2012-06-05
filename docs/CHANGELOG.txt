@@ -1,3 +1,7 @@
+ili2fme 5.6.1 (2012-06-xx)
+---------------------------
+- fixed Writer: IFMEPoint leaked if COORD as non FME geometry and enhanced geometry model
+
 ili2fme 5.6.0 (2012-04-06)
 ---------------------------
 - ili2c-4.4.4
