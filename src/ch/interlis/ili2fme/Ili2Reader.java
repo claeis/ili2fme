@@ -45,6 +45,7 @@ import ch.interlis.ili2c.metamodel.*;
 import ch.interlis.iom.*;
 import ch.interlis.iox.*;
 import ch.interlis.iom_j.itf.ItfReader;
+import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 
@@ -627,7 +628,32 @@ public class Ili2Reader implements IFMEReader {
 		while(true){
 			event=ioxReader.read();
 			//EhiLogger.debug("event "+event.getClass().getName());
-			if(!skipBasket && (event instanceof ObjectEvent)){
+			if(event instanceof StartTransferEvent){
+				ret.setFeatureType(Main.XTF_TRANSFER);
+				if(event instanceof XtfStartTransferEvent){
+					XtfStartTransferEvent startEvent=(XtfStartTransferEvent)event;
+					String value=null;
+					ArrayList oids=startEvent.getOidSpaces();
+					EhiLogger.debug("oids.size() "+oids.size());
+					for(int i=0;i<oids.size();i++){
+						ch.interlis.iom_j.xtf.OidSpace oid=(ch.interlis.iom_j.xtf.OidSpace)oids.get(i);
+						String prefix=Main.XTF_OIDSPACE+"{"+i+"}.";
+						value=oid.getName();
+						if(value!=null){
+							ret.setStringAttribute(prefix+Main.XTF_OIDNAME,value);
+						}
+						value=oid.getOiddomain();
+						if(value!=null){
+							ret.setStringAttribute(prefix+Main.XTF_OIDDOMAIN,value);
+						}
+					}
+					value=startEvent.getComment();
+					if(value!=null){
+						ret.setStringAttribute(Main.XTF_COMMENT, value);
+					}
+				}
+				return ret;
+			}else if(!skipBasket && (event instanceof ObjectEvent)){
 				ObjectEvent oe=(ObjectEvent)event;
 				IomObject iomObj=oe.getIomObject();
 				if(checkoids!=null){
@@ -1496,8 +1522,18 @@ public class Ili2Reader implements IFMEReader {
 		}
 		// first call?
 		if(transferViewablei==null){
-			// create XTF_BASKETS class
+			// create XTF_TRANSFER class
 			if(formatFeatureTypeIdx==0){
+				ret.setFeatureType(Main.XTF_TRANSFER);
+				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
+				ret.setSequencedAttribute(Main.XTF_OIDSPACE+"{}."+Main.XTF_OIDNAME,Main.ILINAME_TYPE);
+				ret.setSequencedAttribute(Main.XTF_OIDSPACE+"{}."+Main.XTF_OIDDOMAIN,Main.ILINAME_TYPE);
+				ret.setSequencedAttribute(Main.XTF_COMMENT,Main.ILINAME_TYPE);
+				formatFeatureTypeIdx++;
+				return ret;	
+			}
+			// create XTF_BASKETS class
+			if(formatFeatureTypeIdx==1){
 				ret.setFeatureType(Main.XTF_BASKETS);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_TOPIC,getIliQNameType());
@@ -1508,7 +1544,7 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx==1){
+			if(formatFeatureTypeIdx==2){
 				ret.setFeatureType(Main.XTF_DELETEOBJECT);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_ID,Main.ID_TYPE);
@@ -1516,7 +1552,7 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx==2 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+			if(formatFeatureTypeIdx==3 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
 				ret.setFeatureType(Main.XTF_ENUMS);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
@@ -1527,7 +1563,7 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx>=2 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
+			if(formatFeatureTypeIdx>=3 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
 				if(formatFeatureTypeIdx==2){
 					enumDefi=enumDefs.iterator();
 				}

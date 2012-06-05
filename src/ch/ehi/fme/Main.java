@@ -64,6 +64,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String HTTP_PROXYPORT="HTTP_PROXYPORT";
 	static public final String TOPICS_FILTER="TOPICS_FILTER";
 	// format feature types
+	static public final String XTF_TRANSFER="XTF_TRANSFER";
 	static public final String XTF_BASKETS="XTF_BASKETS";
 	static public final String XTF_DELETEOBJECT="XTF_DELETEOBJECT";
 	static public final String XTF_ENUMS="XTF_ENUMS";
@@ -84,6 +85,10 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String XTF_ENUMILICODE="iliCode";
 	static public final String XTF_ENUMITFCODE="itfCode";
 	static public final String XTF_ENUMSEQ="seq";
+	static public final String XTF_OIDSPACE="oidspace";
+	static public final String XTF_OIDNAME="name";
+	static public final String XTF_OIDDOMAIN="oiddomain";
+	static public final String XTF_COMMENT="comment";
 	
 	// xtf types
 	static public final String ID_TYPE="xtf_char(200)";

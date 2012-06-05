@@ -48,6 +48,8 @@ import ch.ehi.fme.*;
 import ch.interlis.ili2c.metamodel.*;
 
 import ch.interlis.iom.*;
+import ch.interlis.iom_j.xtf.OidSpace;
+import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iox.*;
 import ch.interlis.iox_j.jts.Jts2iox;
 import ch.interlis.iox_j.jts.Iox2jtsException;
@@ -90,6 +92,7 @@ public class Ili2Writer implements IFMEWriter {
 	private HashMap checkoids=null; // map<String tid,String info>
 	private int maxTid=1; // only used if formatMode==MODE_ITF
 	private IFMELogFile fmeLog=null;
+	private XtfStartTransferEvent startTransferEvent=null;
 	public Ili2Writer(IFMESession session1,IFMEMappingFile mappingFile1,String writerTypename,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		writerKeyword=keyword;
@@ -403,7 +406,11 @@ public class Ili2Writer implements IFMEWriter {
 				}else{
 					ioxWriter=new ch.interlis.iom_j.itf.ItfWriter(outputFile,iliTd);
 				}
-				ioxWriter.write(new ch.interlis.iox_j.StartTransferEvent("ili2fme-"+Main.getVersion(),null,null));
+				if(startTransferEvent!=null){
+					ioxWriter.write(startTransferEvent);
+				}else{
+					ioxWriter.write(new ch.interlis.iox_j.StartTransferEvent(getStartTransferEventVersion(),null,null));
+				}
 				if(formatMode==MODE_XTF || formatMode==MODE_GML){
 					// write each basket (feature collection)
 					writeXtfBuffers();
@@ -420,6 +427,9 @@ public class Ili2Writer implements IFMEWriter {
 			throw new Exception("INTERLIS 2 writer failed");
 		}
 		cleanup();
+	}
+	private String getStartTransferEventVersion() {
+		return "ili2fme-"+Main.getVersion();
 	}
 	private void writeXtfBuffers() throws IoxException,Exception {
 		if(basketv!=null){
@@ -858,8 +868,36 @@ public class Ili2Writer implements IFMEWriter {
 	throws Exception 
 	{
 		try{
-			// special feature type with basket metadata
-			if(obj.getFeatureType().equals(Main.XTF_BASKETS)){
+			// special feature type with transferfile metadata
+			if(obj.getFeatureType().equals(Main.XTF_TRANSFER)){
+				if(startTransferEvent!=null){
+					throw new Exception("unexpected second feature "+Main.XTF_TRANSFER);
+				}else{
+					String comment=null;
+					if(obj.attributeExists(Main.XTF_COMMENT)){
+						comment=obj.getStringAttribute(Main.XTF_COMMENT);
+					}
+					startTransferEvent=new XtfStartTransferEvent(getStartTransferEventVersion(),comment,null);
+					int i=0;
+					while(true){
+						String prefix=Main.XTF_OIDSPACE+"{"+i+"}.";
+						String oidname=null;
+						if(obj.attributeExists(prefix+Main.XTF_OIDNAME)){
+							oidname=obj.getStringAttribute(prefix+Main.XTF_OIDNAME);
+						}
+						String oiddomain=null;
+						if(obj.attributeExists(prefix+Main.XTF_OIDDOMAIN)){
+							oiddomain=obj.getStringAttribute(prefix+Main.XTF_OIDDOMAIN);
+						}
+						if(oidname==null && oiddomain==null){
+							break;
+						}
+						startTransferEvent.addOidSpace(new OidSpace(oidname,oiddomain));
+						i++;
+					}
+				}
+			}else if(obj.getFeatureType().equals(Main.XTF_BASKETS)){
+				// special feature type with basket metadata
 				//EhiLogger.debug("topic <"+getStringAttribute(obj,Main.XTF_TOPIC)+">, id <"+getStringAttribute(obj,Main.XTF_ID)+">");
 				mapBasket(obj);
 			}else{
