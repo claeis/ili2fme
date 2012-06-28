@@ -1,3 +1,9 @@
+ili2fme 5.7.1 (2012-06-28)
+---------------------------
+- ili2c-4.4.6
+- fixed Writer: ItfWriter didn't round numeric values
+
+
 ili2fme 5.7.0 (2012-06-06)
 ---------------------------
 - added new format feature type XTF_FORMAT to support reading/writing OIDSPACES
