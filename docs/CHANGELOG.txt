@@ -1,8 +1,12 @@
+ili2fme 5.7.2 (2012-07-23)
+---------------------------
+- ili2c-4.4.7
+- bug: XtfWriter failed to write OIDType with XML-attri
+
 ili2fme 5.7.1 (2012-06-28)
 ---------------------------
 - ili2c-4.4.6
 - fixed Writer: ItfWriter didn't round numeric values
-
 
 ili2fme 5.7.0 (2012-06-06)
 ---------------------------
