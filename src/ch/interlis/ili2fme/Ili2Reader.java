@@ -634,7 +634,7 @@ public class Ili2Reader implements IFMEReader {
 					XtfStartTransferEvent startEvent=(XtfStartTransferEvent)event;
 					String value=null;
 					ArrayList oids=startEvent.getOidSpaces();
-					EhiLogger.debug("oids.size() "+oids.size());
+					//EhiLogger.debug("oids.size() "+oids.size());
 					for(int i=0;i<oids.size();i++){
 						ch.interlis.iom_j.xtf.OidSpace oid=(ch.interlis.iom_j.xtf.OidSpace)oids.get(i);
 						String prefix=Main.XTF_OIDSPACE+"{"+i+"}.";

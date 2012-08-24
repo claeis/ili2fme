@@ -385,7 +385,7 @@ public class Ili2Writer implements IFMEWriter {
 	}
 	private void myclose() throws Exception {
 		if(outputFile!=null){
-			if(iliTd==null && modelsFromFME.isEmpty()){
+			if(iliTd==null && modelsFromFME.isEmpty() && (basketv==null || basketv.isEmpty())){
 				// no data and should use model name from data
 				// shortcut:
 				// - don't compile models
@@ -408,11 +408,14 @@ public class Ili2Writer implements IFMEWriter {
 				}
 				if(startTransferEvent!=null){
 					ioxWriter.write(startTransferEvent);
+					//EhiLogger.debug("ioxWriter.write(startTransferEvent)");
 				}else{
 					ioxWriter.write(new ch.interlis.iox_j.StartTransferEvent(getStartTransferEventVersion(),null,null));
+					//EhiLogger.debug("ioxWriter.write(new ...)");
 				}
 				if(formatMode==MODE_XTF || formatMode==MODE_GML){
 					// write each basket (feature collection)
+					//EhiLogger.debug("writeXtfBuffers()");
 					writeXtfBuffers();
 				}else{
 					writeItfBuffers();
@@ -928,10 +931,7 @@ public class Ili2Writer implements IFMEWriter {
 				String err=fmeRecInfo+": qualified INTERLIS name expected instead of <"+tag+">";
 				throw new ConfigException(err);
 			}
-			String iliModel=tag.substring(0,tag.indexOf('.'));
-			if(!modelsFromFME.contains(iliModel)){
-				modelsFromFME.add(iliModel);
-			}
+			trackModel(tag);
 			// keep track of max TID
 			if(obj.attributeExists(Main.XTF_ID)){
 				String tid=obj.getStringAttribute(Main.XTF_ID);
@@ -1004,6 +1004,12 @@ public class Ili2Writer implements IFMEWriter {
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(bufferKey);
 		featurev.append(obj);
 	}
+	private void trackModel(String tag) {
+		String iliModel=tag.substring(0,tag.indexOf('.'));
+		if(!modelsFromFME.contains(iliModel)){
+			modelsFromFME.add(iliModel);
+		}
+	}
 	private void mapBasket(IFMEFeature obj)
 	throws Exception 
 	{
@@ -1022,10 +1028,12 @@ public class Ili2Writer implements IFMEWriter {
 				basketv=new HashMap();
 			}
 			String topic=obj.getStringAttribute(Main.XTF_TOPIC);
+			trackModel(topic);
 			String basketId=obj.getStringAttribute(Main.XTF_ID);
 			if(basketv.containsKey(basketId)){
 				EhiLogger.logAdaption("dupliacte basket id "+basketId+"; ignored");
 			}else{
+				EhiLogger.traceState("basket topic <"+topic+">, id <"+basketId+">");
 				ch.interlis.iox_j.StartBasketEvent basket=new ch.interlis.iox_j.StartBasketEvent(topic,basketId);
 				String startState=null;
 				if(obj.attributeExists(Main.XTF_STARTSTATE)){
