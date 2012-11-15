@@ -465,9 +465,13 @@ public class Ili2Writer implements IFMEWriter {
 						throw new DataException("iomObj==null with feature "+feature.toString());
 					}
 					ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
-				} catch (DataException e) {
+				} catch (Exception e) {
 					feature.performFunction("@Log()");
-					EhiLogger.logError(e);
+					if(e instanceof DataException){
+						EhiLogger.logError(e);
+					}else{
+						throw e;
+					}
 				}
 				feature.dispose();
 			}
