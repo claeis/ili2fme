@@ -318,13 +318,4 @@ public class Iox2fme {
 		return ret;
 	}
 	
-	private static double dist(IFMEPoint pt1, IFMEPoint pt2){
-		return Math.sqrt(
-				Math.pow(pt2.getY()-pt1.getY(), 2)
-				+
-				Math.pow(pt2.getY()-pt1.getY(), 2)
-				);
-		
-	}
-
 }
