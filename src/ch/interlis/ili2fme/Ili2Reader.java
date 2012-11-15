@@ -633,7 +633,7 @@ public class Ili2Reader implements IFMEReader {
 				if(event instanceof XtfStartTransferEvent){
 					XtfStartTransferEvent startEvent=(XtfStartTransferEvent)event;
 					String value=null;
-					ArrayList oids=startEvent.getOidSpaces();
+					List<ch.interlis.iom_j.xtf.OidSpace> oids=startEvent.getOidSpaces();
 					//EhiLogger.debug("oids.size() "+oids.size());
 					for(int i=0;i<oids.size();i++){
 						ch.interlis.iom_j.xtf.OidSpace oid=(ch.interlis.iom_j.xtf.OidSpace)oids.get(i);
@@ -2125,7 +2125,7 @@ public class Ili2Reader implements IFMEReader {
 	private static double dist(double re1,double ho1,double re2,double ho2)
 	{
 		double ret;
-		ret=Math.sqrt(sqr(re2-re1)+sqr(ho2-ho1));
+		ret=Math.hypot(re2-re1,ho2-ho1);
 		return ret;
 	}
 	private void setPolyline(IFMEFeature ret,IomObject obj,boolean isSurfaceOrArea,double p)
@@ -2420,5 +2420,9 @@ public class Ili2Reader implements IFMEReader {
 		// no more enum eles
 		return null;	
 		
+	}
+	public boolean getProperties(String propertyCategory, ArrayList values) throws Exception {
+		values.clear();
+		return false;
 	}
 }

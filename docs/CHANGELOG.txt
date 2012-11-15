@@ -1,3 +1,9 @@
+ili2fme 5.7.5 (2012-11-15)
+---------------------------
+- function Reader.getProperties() added to make ili2fme usable by FME2013 BETA
+- improved error msg in case of trying to write non numeric values as numbers
+- ili2c-4.4.9
+
 ili2fme 5.7.4 (2012-08-31)
 ---------------------------
 - ili2c-4.4.8
