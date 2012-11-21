@@ -1,3 +1,8 @@
+ili2fme 5.7.6 (2012-11-21)
+---------------------------
+- bug: ItfReader failed to read polylines
+- ili2c-4.4.10
+
 ili2fme 5.7.5 (2012-11-15)
 ---------------------------
 - function Reader.getProperties() added to make ili2fme usable by FME2013 BETA
