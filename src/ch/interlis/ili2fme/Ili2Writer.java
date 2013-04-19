@@ -40,6 +40,7 @@ import COM.safe.fmeobjects.IFMESession;
 import COM.safe.fmeobjects.FMEException;
 import COM.safe.fmeobjects.IFMELogFile;
 import COM.safe.fmeobjects.IFMEStringArray;
+import COM.safe.fmeobjects.IFMEText;
 
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.basics.tools.StringUtility;
@@ -1384,6 +1385,9 @@ public class Ili2Writer implements IFMEWriter {
 									if(fmeGeom instanceof IFMEPoint){
 										IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
 										iomObj.addattrobj(attrName,coord);
+									}else if(fmeGeom instanceof IFMEText){
+										IomObject coord=Fme2iox.FME2coord(((IFMEText)fmeGeom).getLocationAsPoint());
+										iomObj.addattrobj(attrName,coord);
 									}else if(fmeGeom instanceof IFMENull){
 										// skip it
 									}else if(fmeGeom instanceof IFMEArea){
@@ -1418,6 +1422,9 @@ public class Ili2Writer implements IFMEWriter {
 						fmeGeom=obj.getGeometry();
 						if(fmeGeom instanceof IFMEPoint){
 							IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
+							iomObj.addattrobj(attrName,coord);
+						}else if(fmeGeom instanceof IFMEText){
+							IomObject coord=Fme2iox.FME2coord(((IFMEText)fmeGeom).getLocationAsPoint());
 							iomObj.addattrobj(attrName,coord);
 						}else if(fmeGeom instanceof IFMENull){
 							// skip it

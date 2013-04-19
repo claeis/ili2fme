@@ -12,6 +12,7 @@ import COM.safe.fmeobjects.IFMEDonut;
 import COM.safe.fmeobjects.IFMEPoint;
 import COM.safe.fmeobjects.IFMESession;
 import COM.safe.fmeobjects.IFMEGeometryTools;
+import COM.safe.fmeobjects.IFMEText;
 import ch.interlis.iom.IomObject;
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.fme.Main;
@@ -209,6 +210,9 @@ public class GeometryConverter {
 				fmeGeom=getGeometry(src,srcAttr);
 				if(fmeGeom instanceof IFMEPoint){
 					IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
+					target.addattrobj(targetAttr,coord);
+				}else if(fmeGeom instanceof IFMEText){
+					IomObject coord=Fme2iox.FME2coord(((IFMEText)fmeGeom).getLocationAsPoint());
 					target.addattrobj(targetAttr,coord);
 				}else if(fmeGeom instanceof IFMENull){
 					// skip it

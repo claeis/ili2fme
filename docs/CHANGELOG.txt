@@ -1,3 +1,7 @@
+ili2fme 5.8.0 (2013-04-19)
+---------------------------
+- writer automatically casts IFMEText to IFMEPoint (to simplify workbenches) 
+
 ili2fme 5.7.6 (2012-11-21)
 ---------------------------
 - bug: ItfReader failed to read polylines
