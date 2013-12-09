@@ -17,6 +17,10 @@
  */
 package ch.interlis.ili2fme;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
@@ -34,13 +38,11 @@ import COM.safe.fmeobjects.IFMEStringArray;
 import COM.safe.fmeobjects.IFMEPoint;
 import COM.safe.fmeobjects.IFMEPath;
 import COM.safe.fmeobjects.IFMEDonut;
-
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.basics.tools.StringUtility;
 import ch.ehi.fme.*;
-
 import ch.interlis.ili2c.metamodel.*;
-
+import ch.interlis.ilirepository.impl.RepositoryAccessException;
 //import ch.interlis.iom.swig.iom_javaConstants;
 import ch.interlis.iom.*;
 import ch.interlis.iox.*;
@@ -75,6 +77,7 @@ public class Ili2Reader implements IFMEReader {
 	private int formatFeatureTypeIdx=0;
 	private String xtfFile=null; // null if ili-file given
 	private IoxReader ioxReader=null;
+	private java.io.InputStream inputFile=null;
 	private String currentBid=null;
 	private int iliQNameSize=0;
 	private int formatMode=0;
@@ -380,15 +383,18 @@ public class Ili2Reader implements IFMEReader {
 		}
 		EhiLogger.logState("modeldir <"+modeldir+">");
 		
-		String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(new java.io.File(xtfFile)).toLowerCase();
-		if(xtfExt.equals("itf")){
+		String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(xtfFile);
+		if(xtfExt!=null){
+			xtfExt=xtfExt.toLowerCase();
+		}
+		if(xtfExt!=null && xtfExt.equals("itf")){
 			formatMode=MODE_ITF;
-		}else if(xtfExt.equals("gml")){
+		}else if(xtfExt!=null && xtfExt.equals("gml")){
 			throw new IllegalArgumentException("INTERLIS GML not yet supported by ili2fme reader");
 		}else{
 			formatMode=MODE_XTF;
 		}
-		if(xtfExt.equals("ili")){
+		if(xtfExt!=null && xtfExt.equals("ili")){
 			ArrayList iliFilev=new ArrayList();
 			iliFilev.add(xtfFile);
 			xtfFile=null;
@@ -418,26 +424,39 @@ public class Ili2Reader implements IFMEReader {
 		}else if(models.equals(Main.DATA_PLACEHOLDER) || models.equals(Main.DEPRECATED_XTF_PLACEHOLDER)){
 			// get model names out of transfer file
 			iliModelv=new ArrayList();
-			if(formatMode==MODE_XTF){
-				ioxReader=new ch.interlis.iom_j.xtf.XtfReader(new java.io.File(xtfFile));
-			}else if(formatMode==MODE_ITF){
-				ioxReader=new ch.interlis.iom_j.itf.ItfReader(new java.io.File(xtfFile));
-			}else{
-				throw new IllegalStateException("unexpected formatMode");
-			}
-
-			// get first basket
-			IoxEvent event;
 			StartBasketEvent be=null;
-			do{
-				event=ioxReader.read();
-				if(event instanceof StartBasketEvent){
-					be=(StartBasketEvent)event;
-					break;
+			try{
+				inputFile=openInputFile(xtfFile);
+				if(formatMode==MODE_XTF){
+					ioxReader=new ch.interlis.iom_j.xtf.XtfReader(inputFile);
+				}else if(formatMode==MODE_ITF){
+					ioxReader=new ch.interlis.iom_j.itf.ItfReader(inputFile);
+				}else{
+					throw new IllegalStateException("unexpected formatMode");
 				}
-			}while(!(event instanceof EndTransferEvent));
-			ioxReader.close();
-			ioxReader=null;
+
+				// get first basket
+				IoxEvent event;
+				do{
+					event=ioxReader.read();
+					if(event instanceof StartBasketEvent){
+						be=(StartBasketEvent)event;
+						break;
+					}
+				}while(!(event instanceof EndTransferEvent));
+				
+			}finally{
+				if(ioxReader!=null){
+					ioxReader.close();
+					ioxReader=null;
+				}
+				if(inputFile!=null){
+					inputFile.close();
+					inputFile=null;
+				}
+				
+			}
+			
 			// no baskets?
 			if(be==null){
 				// no models!
@@ -610,10 +629,12 @@ public class Ili2Reader implements IFMEReader {
 		}
 		// if first call?
 		if(ioxReader==null){
+			inputFile=openInputFile(xtfFile);
+			
 			if(formatMode==MODE_XTF){
-				ioxReader=new ch.interlis.iom_j.xtf.XtfReader(new java.io.File(xtfFile));
+				ioxReader=new ch.interlis.iom_j.xtf.XtfReader(inputFile);
 			}else if(formatMode==MODE_ITF){
-				ioxReader=new ch.interlis.iom_j.itf.ItfReader(new java.io.File(xtfFile));
+				ioxReader=new ch.interlis.iom_j.itf.ItfReader(inputFile);
 				((ItfReader)ioxReader).setModel(iliTd);		
 				((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);		
 				((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
@@ -754,6 +775,43 @@ public class Ili2Reader implements IFMEReader {
 			}
 		}
 	}
+
+	private java.io.InputStream openInputFile(String xtfFile)
+			throws IOException, URISyntaxException {
+		java.io.InputStream input = null;
+		String urilc = xtfFile.toLowerCase();
+		if (!urilc.startsWith("http:") && !urilc.startsWith("https:")) {
+			input = new java.io.FileInputStream(xtfFile);
+		} else {
+			// fetch from http server (handle redirects)
+			java.net.URL url = null;
+			url = new java.net.URI(xtfFile).toURL();
+			EhiLogger.traceState("fetching <" + url + "> ...");
+			java.net.URLConnection conn = null;
+			//
+			// java -Dhttp.proxyHost=myproxyserver.com -Dhttp.proxyPort=80
+			// MyJavaApp
+			//
+			// System.setProperty("http.proxyHost", "myProxyServer.com");
+			// System.setProperty("http.proxyPort", "80");
+			//
+			// System.setProperty("java.net.useSystemProxies", "true");
+			//
+			// since 1.5
+			// Proxy instance, proxy ip = 123.0.0.1 with port 8080
+			// Proxy proxy = new Proxy(Proxy.Type.HTTP, new
+			// InetSocketAddress("123.0.0.1", 8080));
+			// URL url = new URL("http://www.yahoo.com");
+			// HttpURLConnection uc =
+			// (HttpURLConnection)url.openConnection(proxy);
+			// uc.connect();
+			//
+			conn = url.openConnection();
+			input = new java.io.BufferedInputStream(conn.getInputStream());
+		}
+		return input;
+	}
+
 	private void checkConvertedFeature(IFMEFeature ret,AttributeDef attr){
 		String featureType=ret.getFeatureType();
 		if(featureType.startsWith(ERR_FEATURETYPE_PREFIX)){
@@ -2268,6 +2326,14 @@ public class Ili2Reader implements IFMEReader {
 				EhiLogger.logError(ex);
 			}
 			ioxReader=null;
+		}
+		if(inputFile!=null){
+			try{
+				inputFile.close();
+			}catch(IOException ex){
+				EhiLogger.logError(ex);
+			}
+			inputFile=null;
 		}
 		if(listener!=null){
 			Main.endLogging(listener);
