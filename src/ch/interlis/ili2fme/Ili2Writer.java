@@ -1366,7 +1366,9 @@ public class Ili2Writer implements IFMEWriter {
 					AssociationDef roleOwner = (AssociationDef) role.getContainer();
 					if(roleOwner.getDerivedFrom()==null){
 						if(obj.attributeExists(roleName)){
-							IomObject structvalue=null;
+							String refoid=StringUtility.purge(getStringAttribute(obj,roleName));
+							if(refoid!=null){
+								IomObject structvalue=null;
 								// not just a link?
 								if (roleOwner.getAttributes().hasNext()
 									|| roleOwner.getLightweightAssociations().iterator().hasNext()) {
@@ -1383,17 +1385,17 @@ public class Ili2Writer implements IFMEWriter {
 									// just a link
 									structvalue=iomObj.addattrobj(roleName,"REF");
 								}
-								String refoid=getStringAttribute(obj,roleName);
 								 structvalue.setobjectrefoid(refoid);
 								 if(role.isOrdered()){
 									long orderPos=obj.getIntAttribute(roleName+"."+Main.ORDERPOS);
 									structvalue.setobjectreforderpos(orderPos);
 								 }
+							}
 						}
 					}
 				}else{
 					if(!((AssociationDef)role.getContainer()).isLightweight()){
-						String refoid=getStringAttribute(obj,roleName);
+						String refoid=StringUtility.purge(getStringAttribute(obj,roleName));
 						IomObject structvalue=iomObj.addattrobj(roleName,"REF");
 						 structvalue.setobjectrefoid(refoid);
 						 if(role.isOrdered()){
@@ -1427,8 +1429,8 @@ public class Ili2Writer implements IFMEWriter {
 			}
 		}else if(type instanceof ReferenceType){
 			if(obj.attributeExists(attrPrefix+attrName)){
-				String refoid=getStringAttribute(obj,attrPrefix+attrName);
-				if(refoid!=null && refoid.length()>0){
+				String refoid=StringUtility.purge(getStringAttribute(obj,attrPrefix+attrName));
+				if(refoid!=null){
 					IomObject	structvalue=iomObj.addattrobj(attrName,"REF");
 					structvalue.setobjectrefoid(refoid);
 				}
@@ -1614,6 +1616,7 @@ public class Ili2Writer implements IFMEWriter {
 		}else{
 			if(obj.attributeExists(attrPrefix+attrName)){
 				String value=getStringAttribute(obj,attrPrefix+attrName);
+				// TODO if(stripValues){
 				if(value!=null && value.length()>0){
 					iomObj.setattrvalue(attrName, value);
 				}
