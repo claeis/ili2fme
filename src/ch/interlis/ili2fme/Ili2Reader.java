@@ -96,6 +96,7 @@ public class Ili2Reader implements IFMEReader {
 	private boolean ili1CheckConvert=false;
 	private boolean checkAttrType=false;
 	private boolean checkAttrMultiplicity=false;
+	private boolean trimValues=true;
 	private boolean ili1RenumberTid=false;
 	private GeometryConverter geomConv=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
@@ -234,6 +235,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.CHECK_ATTRMULTIPLICITY)){
 				i++;
 				checkAttrMultiplicity=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.TRIM_VALUES)){
+				i++;
+				trimValues=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.ILI1_ENUMASITFCODE)){
 				i++;
 				ili1EnumAsItfCode=FmeUtility.isTrue((String)args.get(i));
@@ -291,6 +295,8 @@ public class Ili2Reader implements IFMEReader {
 					checkAttrType=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_ATTRMULTIPLICITY)){
 					checkAttrMultiplicity=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.TRIM_VALUES)){
+					trimValues=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CREATEFEATURETYPE4ENUM)){
@@ -325,6 +331,7 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
 		EhiLogger.logState("checkAttrType <"+checkAttrType+">");
 		EhiLogger.logState("checkAttrMultiplicity <"+checkAttrMultiplicity+">");
+		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("ili1RenumberTid <"+ili1RenumberTid+">");
 		EhiLogger.logState("createLineTables <"+createLineTableFeatures+">");
@@ -1294,6 +1301,9 @@ public class Ili2Reader implements IFMEReader {
 				}
 		}else{
 		 String value=iomObj.getattrvalue(attrName);
+		 if(trimValues){
+			 value=StringUtility.purge(value);
+		 }
 		 if(value!=null){
 			 ret.setStringAttribute(prefix+attrName, value);
 		 }

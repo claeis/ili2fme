@@ -54,6 +54,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String CHECK_UNIQUEOID="CHECK_UNIQUEOID";
 	static public final String CHECK_ATTRTYPE="CHECK_ATTRTYPE";
 	static public final String CHECK_ATTRMULTIPLICITY="CHECK_ATTRMULTIPLICITY";
+	static public final String TRIM_VALUES="TRIM_VALUES";
 	static public final String ILI1_RENUMBERTID="ILI1_RENUMBERTID"; 
 	static public final String XTFDIR_PLACEHOLDER="%XTF_DIR";
 	static public final String DATA_PLACEHOLDER="%DATA";

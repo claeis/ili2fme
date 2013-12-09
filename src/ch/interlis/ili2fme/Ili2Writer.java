@@ -91,6 +91,7 @@ public class Ili2Writer implements IFMEWriter {
 	private boolean checkAttrType=false;
 	private boolean checkAttrMultiplicity=false;
 	private boolean checkUniqueOid=false;
+	private boolean trimValues=true;
 	private HashMap checkoids=null; // map<String tid,String info>
 	private int maxTid=1; // only used if formatMode==MODE_ITF
 	private IFMELogFile fmeLog=null;
@@ -179,6 +180,9 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.CHECK_ATTRMULTIPLICITY)){
 				i++;
 				checkAttrMultiplicity=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.TRIM_VALUES)){
+				i++;
+				trimValues=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.HTTP_PROXYHOST)){
 				i++;
 				httpProxyHost=(String)args.get(i);
@@ -208,6 +212,8 @@ public class Ili2Writer implements IFMEWriter {
 					checkAttrType=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.CHECK_ATTRMULTIPLICITY)){
 					checkAttrMultiplicity=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.TRIM_VALUES)){
+					trimValues=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.INHERITANCE_MAPPING)){
 					inheritanceMapping=InheritanceMapping.valueOf((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.GEOMETRY_ENCODING)){
@@ -242,6 +248,7 @@ public class Ili2Writer implements IFMEWriter {
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
 		EhiLogger.logState("checkAttrType <"+checkAttrType+">");
 		EhiLogger.logState("checkAttrMultiplicity <"+checkAttrMultiplicity+">");
+		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
 		EhiLogger.traceState("models <"+models+">");
 		
@@ -1616,7 +1623,9 @@ public class Ili2Writer implements IFMEWriter {
 		}else{
 			if(obj.attributeExists(attrPrefix+attrName)){
 				String value=getStringAttribute(obj,attrPrefix+attrName);
-				// TODO if(stripValues){
+				if(trimValues){
+					value=StringUtility.purge(value);
+				}
 				if(value!=null && value.length()>0){
 					iomObj.setattrvalue(attrName, value);
 				}

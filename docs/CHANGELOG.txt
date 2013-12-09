@@ -1,3 +1,10 @@
+ili2fme 5.9.0 (2013-12-09)
+---------------------------
+- Reader: assume xtf format, if no extension given on inputpath
+- new option to trim values when reading/writing
+- bug: XtfWriter NullPointerException if FME attribute value is null (in FME2014)
+- ili2c-4.5.1
+
 ili2fme 5.8.0 (2013-04-19)
 ---------------------------
 - writer automatically casts IFMEText to IFMEPoint (to simplify workbenches) 
