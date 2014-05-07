@@ -17,6 +17,7 @@
  */
 package ch.interlis.ili2fme;
 
+import ch.ehi.basics.logging.EhiLogger;
 import ch.interlis.iom.IomObject;
 import COM.safe.fmeobjects.*;
 
@@ -90,41 +91,49 @@ public class Fme2iox {
 				}
 			}else if(seg instanceof IFMEArc){
 				IFMEArc arc=(IFMEArc)seg;
-				// if first segement
-				if(sequence.getattrvaluecount("segment")==0){
-					// add start point
+				if(arc.isCircular()){
+					// if first segement
+					if(sequence.getattrvaluecount("segment")==0){
+						// add start point
+						try {
+							arc.getStartPoint(coord);
+						} catch (FMEException ex) {
+							throw new DataException(ex);
+						}
+						IomObject iomCoord=new ch.interlis.iom_j.Iom_jObject("COORD",null);
+						iomCoord.setattrvalue("C1", Double.toString(coord.getX()));
+						iomCoord.setattrvalue("C2", Double.toString(coord.getY()));
+						if(is3D){
+							iomCoord.setattrvalue("C3", Double.toString(coord.getZ()));
+						}
+						sequence.addattrobj("segment", iomCoord);
+					}
 					try {
-						arc.getStartPoint(coord);
+						coord=tools.createPoint();
+						arc.getEndPoint(coord);
 					} catch (FMEException ex) {
 						throw new DataException(ex);
 					}
-					IomObject iomCoord=new ch.interlis.iom_j.Iom_jObject("COORD",null);
-					iomCoord.setattrvalue("C1", Double.toString(coord.getX()));
-					iomCoord.setattrvalue("C2", Double.toString(coord.getY()));
+					IomObject iomArc=new ch.interlis.iom_j.Iom_jObject("ARC",null);
+					iomArc.setattrvalue("C1", Double.toString(coord.getX()));
+					iomArc.setattrvalue("C2", Double.toString(coord.getY()));
 					if(is3D){
-						iomCoord.setattrvalue("C3", Double.toString(coord.getZ()));
+						iomArc.setattrvalue("C3", Double.toString(coord.getZ()));
 					}
-					sequence.addattrobj("segment", iomCoord);
+					try {
+						coord=tools.createPoint();
+						arc.getMidPoint(coord);
+					} catch (FMEException ex) {
+						throw new DataException(ex);
+					}
+					iomArc.setattrvalue("A1", Double.toString(coord.getX()));
+					iomArc.setattrvalue("A2", Double.toString(coord.getY()));
+					sequence.addattrobj("segment", iomArc);
+				}else{
+					// elliptical arc; linearize it
+					IFMELine arcAsLine=arc.getAsLine();
+					addSegment(session,sequence, arcAsLine, is3D);
 				}
-				try {
-					arc.getEndPoint(coord);
-				} catch (FMEException ex) {
-					throw new DataException(ex);
-				}
-				IomObject iomArc=new ch.interlis.iom_j.Iom_jObject("ARC",null);
-				iomArc.setattrvalue("C1", Double.toString(coord.getX()));
-				iomArc.setattrvalue("C2", Double.toString(coord.getY()));
-				if(is3D){
-					iomArc.setattrvalue("C3", Double.toString(coord.getZ()));
-				}
-				try {
-					arc.getMidPoint(coord);
-				} catch (FMEException ex) {
-					throw new DataException(ex);
-				}
-				iomArc.setattrvalue("A1", Double.toString(coord.getX()));
-				iomArc.setattrvalue("A2", Double.toString(coord.getY()));
-				sequence.addattrobj("segment", iomArc);
 			}else{
 				throw new IllegalArgumentException("unexpected IFMESegment "+seg.getClass().getName());
 			}
