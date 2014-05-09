@@ -1,3 +1,10 @@
+ili2fme 5.10.0 (2014-05-07)
+---------------------------
+- ili2c-4.5.3
+- export elliptical arcs as linearized straights
+- changed default of GEOMETRY_ENCODING from OGCHEXBIN to FMEBIN
+- new reader parameter GEOM_ATTR_MAPPING/"Mapping of multiple Geometry Attributes:" to simplify viewing of INTERLIS objects with multiple geometry attributes
+
 ili2fme 5.9.0 (2013-12-09)
 ---------------------------
 - Reader: assume xtf format, if no extension given on inputpath

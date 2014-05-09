@@ -61,6 +61,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String DEPRECATED_XTF_PLACEHOLDER="XTF";
 	static public final String FME_COORDINATE_SYSTEM="COORDINATE_SYSTEM";
 	static public final String GEOMETRY_ENCODING="GEOMETRY_ENCODING";
+	static public final String GEOM_ATTR_MAPPING="GEOM_ATTR_MAPPING";
 	static public final String HTTP_PROXYHOST="HTTP_PROXYHOST";
 	static public final String HTTP_PROXYPORT="HTTP_PROXYPORT";
 	static public final String TOPICS_FILTER="TOPICS_FILTER";

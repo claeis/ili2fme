@@ -100,6 +100,7 @@ public class Ili2Reader implements IFMEReader {
 	private boolean ili1RenumberTid=false;
 	private GeometryConverter geomConv=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
+	private int geomAttrMapping=GeomAttrMapping.ENCODE_AS_ATTRIBUTE;
 	private IFMELogFile fmeLog=null;
 	private static final String ERR_FEATURETYPE_PREFIX="ERR.";
 	private static final String ERRMSG_ATTRIBUTE="_errmsg";
@@ -250,6 +251,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.GEOMETRY_ENCODING )){
 				i++;
 				geometryEncoding=GeometryEncoding.valueOf((String)args.get(i));
+			}else if(arg.equals(Main.GEOM_ATTR_MAPPING )){
+				i++;
+				geomAttrMapping=GeomAttrMapping.valueOf((String)args.get(i));
 			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
 				i++;
 				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
@@ -303,6 +307,8 @@ public class Ili2Reader implements IFMEReader {
 					createEnumTypes=CreateEnumFeatureTypes.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.GEOMETRY_ENCODING)){
 					geometryEncoding=GeometryEncoding.valueOf((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.GEOM_ATTR_MAPPING)){
+					geomAttrMapping=GeomAttrMapping.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ENUMASITFCODE)){
 					ili1EnumAsItfCode=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_UNIQUEOID)){
@@ -333,6 +339,7 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("checkAttrMultiplicity <"+checkAttrMultiplicity+">");
 		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
+		EhiLogger.logState("geoAttrMapping <"+GeomAttrMapping.toString(geomAttrMapping)+">");
 		EhiLogger.logState("ili1RenumberTid <"+ili1RenumberTid+">");
 		EhiLogger.logState("createLineTables <"+createLineTableFeatures+">");
 		EhiLogger.logState("skipPolygonBuilding <"+skipPolygonBuilding+">");
@@ -599,6 +606,7 @@ public class Ili2Reader implements IFMEReader {
 		}
 	}
 	HashMap checkoids=null; // new HashMap();
+	private GeomAttrIterator geomAttrIterator=null;
 	private IFMEFeature myread(IFMEFeature ret) 
 		throws Exception 
 	{
@@ -633,6 +641,14 @@ public class Ili2Reader implements IFMEReader {
 				//EhiLogger.debug("end of pipeline; remove it");
 				surfaceBuilderi.remove();
 			}
+		}
+		if(geomAttrIterator!=null){
+			if(geomAttrIterator.hasNext()){
+				geomAttrIterator.next(ret);
+				return ret;
+			}
+			geomAttrIterator.dispose();
+			geomAttrIterator=null;
 		}
 		// if first call?
 		if(ioxReader==null){
@@ -696,13 +712,20 @@ public class Ili2Reader implements IFMEReader {
 				// translate object
 				try{
 					//EhiLogger.debug("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid());
-					ret=mapFeature(ret,iomObj,null);
+					ArrayList<String> geomAttrsCollector=new ArrayList<String>();
+					ret=mapFeature(ret,iomObj,null,geomAttrsCollector);
 					// feature feed into pipeline
 					if(ret==null){
 						// create a new one
 						ret=session.createFeature();
 						// read next object from transferfile
 						continue;
+					}
+					if(geomAttrMapping==GeomAttrMapping.REPEAT_FEATRUE){
+						ViewableWrapper wrapper=((ViewableWrapper)transferViewables.get(iomObj.getobjecttag()));
+						if(wrapper.getViewable()!=null){
+							geomAttrIterator=new GeomAttrIterator(session,ret,geomAttrsCollector,geometryEncoding);
+						}
 					}
 				}catch(DataException ex){
 					EhiLogger.logError("object "+iomObj.getobjecttag()+" "+iomObj.getobjectoid()+" skipped; "+ch.interlis.iom_j.Iom_jObject.dumpObject(iomObj),ex);
@@ -854,7 +877,7 @@ public class Ili2Reader implements IFMEReader {
 			ret.setStringAttribute(Main.XTF_CONSISTENCY,consistency);
 		}
 	}
-	private IFMEFeature mapFeature(IFMEFeature ret,IomObject iomObj,String prefix)
+	private IFMEFeature mapFeature(IFMEFeature ret,IomObject iomObj,String prefix,ArrayList<String> geomAttrsCollector)
 	throws DataException,ConfigException
 	{
 		boolean isStruct=prefix!=null;
@@ -928,7 +951,7 @@ public class Ili2Reader implements IFMEReader {
 			ViewableTransferElement prop = (ViewableTransferElement)iter.next();
 			if (prop.obj instanceof AttributeDef) {
 				AttributeDef attr = (AttributeDef) prop.obj;
-				feedToPipeline=mapAttributeValue(feedToPipeline,geomattr,ret,iomObj,attr,prefix,wrapper,cloneFeatureType);
+				feedToPipeline=mapAttributeValue(feedToPipeline,geomattr,ret,iomObj,attr,prefix,wrapper,cloneFeatureType,geomAttrsCollector);
 			}
 			if(prop.obj instanceof RoleDef){
 				RoleDef role = (RoleDef) prop.obj;
@@ -943,7 +966,7 @@ public class Ili2Reader implements IFMEReader {
 							if (roleOwner.getAttributes().hasNext()
 								|| roleOwner.getLightweightAssociations().iterator().hasNext()) {
 								 // add association attributes
-								mapFeature(ret,structvalue,prefix+roleName+"{0}.");
+								mapFeature(ret,structvalue,prefix+roleName+"{0}.",geomAttrsCollector);
 							}
 							 String refoid=structvalue.getobjectrefoid();
 							 long orderPos=structvalue.getobjectreforderpos();
@@ -1005,7 +1028,7 @@ public class Ili2Reader implements IFMEReader {
 		}
 		return ret;
 	}
-	private boolean mapAttributeValue(boolean feedToPipeline,AttributeDef geomattr, IFMEFeature ret, IomObject iomObj,AttributeDef attr, String prefix,ViewableWrapper wrapper,StringBuffer cloneFeatureType) 
+	private boolean mapAttributeValue(boolean feedToPipeline,AttributeDef geomattr, IFMEFeature ret, IomObject iomObj,AttributeDef attr, String prefix,ViewableWrapper wrapper,StringBuffer cloneFeatureType,ArrayList<String> geomAttrsCollector) 
 	throws DataException,ConfigException
 	{
 		if(prefix==null){
@@ -1018,7 +1041,7 @@ public class Ili2Reader implements IFMEReader {
 		 for(int valuei=0;valuei<valuec;valuei++){
 			IomObject value=iomObj.getattrobj(attrName,valuei);
 			if(value!=null){
-				mapFeature(ret,value,prefix+attr.getName()+"{"+Integer.toString(valuei)+"}.");
+				mapFeature(ret,value,prefix+attr.getName()+"{"+Integer.toString(valuei)+"}.",geomAttrsCollector);
 			}
 		 }
 		}else if (type instanceof PolylineType){
@@ -1038,6 +1061,7 @@ public class Ili2Reader implements IFMEReader {
 					 }else{
 						 geomConv.polyline2FME(ret,prefix+attrName,value);
 					 }
+					 geomAttrsCollector.add(prefix+attrName);
 				 }else{
 					 ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_polyline");
 					 if(doRichGeometry){
@@ -1074,6 +1098,7 @@ public class Ili2Reader implements IFMEReader {
 					 }else{
 						 geomConv.surface2FME(ret,prefix+attrName,value);
 					 }
+					 geomAttrsCollector.add(prefix+attrName);
 				 }
 			 }else{
 				 // is itf? 
@@ -1116,7 +1141,7 @@ public class Ili2Reader implements IFMEReader {
 								    Iterator attri = lineAttrTable.getAttributes ();
 								    while(attri.hasNext()){
 								    	AttributeDef lineattr=(AttributeDef)attri.next();
-										mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null);
+										mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null,geomAttrsCollector);
 								    }
 								}
 						 }
@@ -1161,6 +1186,7 @@ public class Ili2Reader implements IFMEReader {
 					 }else{
 						 geomConv.surface2FME(ret,prefix+attrName,value);
 					 }
+					 geomAttrsCollector.add(prefix+attrName);
 				 }
 			 }else{
 				 //ret.setStringAttribute("fme_geometry{0}", "xtf_area");
@@ -1195,7 +1221,7 @@ public class Ili2Reader implements IFMEReader {
 										    Iterator attri = lineAttrTable.getAttributes ();
 										    while(attri.hasNext()){
 										    	AttributeDef lineattr=(AttributeDef)attri.next();
-												mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null);
+												mapAttributeValue(false,null, ret, iomObj,lineattr, null,null,null,geomAttrsCollector);
 										    }
 										}
 							 }
@@ -1274,6 +1300,7 @@ public class Ili2Reader implements IFMEReader {
 							 geomConv.coord2FME(ret,prefix+attrName,value);
 						}
 					}
+					 geomAttrsCollector.add(prefix+attrName);
 				}else{
 					 ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_coord");
 					 if(doRichGeometry){
@@ -2328,6 +2355,10 @@ public class Ili2Reader implements IFMEReader {
 		//EhiLogger.debug("cleanup");
 		if(geomConv!=null){
 			geomConv.dispose();
+		}
+		if(geomAttrIterator!=null){
+			geomAttrIterator.dispose();
+			geomAttrIterator=null;
 		}
 		if(ioxReader!=null){
 			try{
