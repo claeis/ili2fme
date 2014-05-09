@@ -365,8 +365,9 @@ public class Ili2Writer implements IFMEWriter {
 			fmeFeatureTypev=ModelUtility.getXtfTransferViewables(iliTd,inheritanceMapping);
 			tag2class=ch.interlis.ili2c.generator.XSDGenerator.getTagMap(iliTd);
 		}else if(formatMode==MODE_XRF){
-			fmeFeatureTypev=ModelUtility.getXrfTransferViewables(iliTd);
-			tag2class=ch.interlis.iom_j.itf.ModelUtilities.getTagMap(iliTd);
+			fmeFeatureTypev=ModelUtility.getXtfTransferViewables(iliTd,inheritanceMapping);
+			// use the same feature type naming as for XTF2.3
+			tag2class=ch.interlis.ili2c.generator.XSDGenerator.getTagMap(iliTd);
 		}else{
 			fmeFeatureTypev=ModelUtility.getItfTransferViewables(iliTd);
 			tag2class=ch.interlis.iom_j.itf.ModelUtilities.getTagMap(iliTd); //FIXME 
@@ -418,7 +419,7 @@ public class Ili2Writer implements IFMEWriter {
 				}else if(formatMode==MODE_GML){
 						ioxWriter=new ch.interlis.iom_j.iligml.IligmlWriter(outputFile,iliTd);
 				}else if(formatMode==MODE_XRF){
-					ioxWriter=new ch.interlis.iom_j.xrf.XrfWriter(outputFile,iliTd);
+					ioxWriter=null; // TODO new ch.interlis.iom_j.xtf.Xtf24Writer(outputFile,iliTd);
 				}else{
 					ioxWriter=new ch.interlis.iom_j.itf.ItfWriter(outputFile,iliTd);
 				}
@@ -434,7 +435,7 @@ public class Ili2Writer implements IFMEWriter {
 					//EhiLogger.debug("writeXtfBuffers()");
 					writeXtfBuffers();
 				}else if(formatMode==MODE_XRF){
-					writeXrfBuffers();
+					writeXtfBuffers();
 				}else{
 					writeItfBuffers();
 				}
@@ -548,12 +549,7 @@ public class Ili2Writer implements IFMEWriter {
 			while(lineTableBuilder.getOutputFeature(feature)){
 				// process feature
 				IomObject iomObj=null;
-				if(formatMode==MODE_XRF){
-					String iomObjTag=wrapper.getGeomAttr4FME().getContainer().getScopedName(null)+"."+wrapper.getGeomAttr4FME().getName();
-					iomObj=new ch.interlis.iom_j.Iom_jObject(iomObjTag,newTid());	
-				}else{
-					iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
-				}
+				iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
 				mapItfPolylineValueOfLineTable(feature, iomObj, wrapper, type, iomAttrName);
 				// add line attributes
 				//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
@@ -708,100 +704,6 @@ public class Ili2Writer implements IFMEWriter {
 		    	AttributeDef lineattr=(AttributeDef)attri.next();
 				mapAttributeValue(feature, null, iomObj, wrapper, null, lineattr);
 		    }
-		}
-	}
-	private void writeXrfBuffers() throws IoxException,Exception
-	{
-		Iterator modeli = iliTd.iterator();
-		int topicNr=0;
-		while (modeli.hasNext()) {
-			Object mObj = modeli.next();
-			if (mObj instanceof Model) {
-				Model model = (Model) mObj;
-				if (model instanceof TypeModel) {
-					continue;
-				}
-				if (model instanceof PredefinedModel) {
-					continue;
-				}
-				Iterator topici = model.iterator();
-				while (topici.hasNext()) {
-					Object tObj = topici.next();
-					if (tObj instanceof Topic) {
-						Topic topic = (Topic) tObj;
-						// StartBasket
-						topicNr++;
-						StartBasketEvent basketEvent=new ch.interlis.iox_j.StartBasketEvent(topic.getScopedName(null),Integer.toString(topicNr));
-						ioxWriter.write(basketEvent);
-						Iterator iter = topic.getViewables().iterator();
-						while (iter.hasNext()) {
-							Object obj = iter.next();
-							if (obj instanceof Viewable) {
-								Viewable v = (Viewable) obj;
-								if((v instanceof Table) && !((Table)v).isIdentifiable()){
-									// STRUCTURE
-									continue;
-								}
-								if(ModelUtility.isPureRefAssoc(v)){
-									continue;
-								}
-								Iterator attri =null;
-								String className = v.getScopedName(null);
-								if(useLineTableFeatures && xrfLineTableExists(v)){
-									// add helper tables of area attributes
-									attri = v.getAttributes();
-									while (attri.hasNext()) {
-										Object attrObj = attri.next();
-										if (attrObj instanceof AttributeDef) {
-											AttributeDef attr = (AttributeDef) attrObj;
-											Type type = Type.findReal(attr.getDomain());
-											if (type instanceof AreaType) {
-												String helperTableName =
-													v.getContainer().getScopedName(
-														null)
-														+ "."
-														+ v.getName()
-														+ "_"
-														+ attr.getName();
-												// area helper table
-												EhiLogger.logState(helperTableName+"...");
-												writeBasket(helperTableName,true);
-											}
-										}
-									}
-									
-									// main table
-									EhiLogger.logState(className+"...");
-									writeBasket(className,false);
-
-								}else{
-									ViewableWrapper wrapper=(ViewableWrapper)fmeFeatureTypev.get(className);
-									
-									if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof AreaType){
-										// build line table from polygons/donuts
-										String lineTableName =
-											v.getContainer().getScopedName(
-												null)
-												+ "."
-												+ v.getName()
-												+ "_"
-												+ wrapper.getGeomAttr4FME().getName();
-										EhiLogger.logState(lineTableName+"...");
-										writeItfLineTableArea(className,lineTableName);
-									}
-									
-									// main table
-									EhiLogger.logState(className+"...");
-									writeBasket(className,false);
-								}
-								
-							}
-						}
-						// EndBasket
-						ioxWriter.write(new ch.interlis.iox_j.EndBasketEvent());
-					}
-				}
-			}
 		}
 	}
 	private void writeItfBuffers() throws IoxException,Exception
@@ -982,35 +884,6 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 		}
-		return false;
-	}
-	private boolean xrfLineTableExists(Viewable v)
-	{
-		// helper tables of area attributes
-		Iterator attri = v.getAttributes();
-		while (attri.hasNext()) {
-			Object attrObj = attri.next();
-			if (attrObj instanceof AttributeDef) {
-				AttributeDef attr = (AttributeDef) attrObj;
-				Type type = Type.findReal(attr.getDomain());
-				if (type instanceof AreaType) {
-					String helperTableName =
-						v.getContainer().getScopedName(
-							null)
-							+ "."
-							+ v.getName()
-							+ "_"
-							+ attr.getName();
-					// area helper table
-					COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(helperTableName);
-					int featurec=featurev.entries();
-					if(featurec>0){
-						return true;
-					}
-				}
-			}
-		}
-		
 		return false;
 	}
 	public int id() {
@@ -1309,12 +1182,7 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 			//EhiLogger.debug("tag "+tag+", tid "+tid);
-			if(formatMode==MODE_XRF && wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof AreaType){
-				String iomObjTag=wrapper.getGeomAttr4FME().getContainer().getScopedName(null)+"."+wrapper.getGeomAttr4FME().getName();
-				iomObj=new ch.interlis.iom_j.Iom_jObject(iomObjTag,tid);	
-			}else{
-				iomObj=new ch.interlis.iom_j.Iom_jObject(tag,tid);	
-			}
+			iomObj=new ch.interlis.iom_j.Iom_jObject(tag,tid);	
 		}else{
 			iomObj=iliStructParent.addattrobj(iliStructAttrName,tag);	
 		}
@@ -1339,7 +1207,7 @@ public class Ili2Writer implements IFMEWriter {
 		}
 		
 		Iterator iter;
-		if(formatMode==MODE_ITF || formatMode==MODE_XRF){
+		if(formatMode==MODE_ITF){
 			iter = wrapper.getAttrIterator();
 		}else{
 			Viewable aclass=(Viewable)tag2class.get(tag);

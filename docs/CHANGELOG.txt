@@ -1,4 +1,4 @@
-ili2fme 5.10.0 (2014-05-07)
+ili2fme 5.10.0 (2014-05-09)
 ---------------------------
 - ili2c-4.5.3
 - export elliptical arcs as linearized straights
