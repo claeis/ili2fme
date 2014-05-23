@@ -22,7 +22,7 @@ import ch.ehi.basics.logging.EhiLogger;
 public class GeomAttrMapping {
 	static public final int ENCODE_AS_ATTRIBUTE=1;
 	static public final int REPEAT_FEATRUE=2;
-	static public final String ENCODE_AS_ATTRIBUTE_TXT="EncodeAsAttribute";
+	static public final String ENCODE_AS_ATTRIBUTE_TXT="EncodeAsFmeAttribute";
 	static public final String REPEAT_FEATRUE_TXT="RepeatFeature";
 	private GeomAttrMapping(){}
 	static public int valueOf(String value) {

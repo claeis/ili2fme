@@ -1,3 +1,7 @@
+ili2fme 5.10.1 (2014-05-23)
+---------------------------
+- fixed read of parameter GEOM_ATTR_MAPPING:EncodeAsFmeAttribute
+
 ili2fme 5.10.0 (2014-05-09)
 ---------------------------
 - ili2c-4.5.3
