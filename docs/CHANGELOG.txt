@@ -1,3 +1,7 @@
+ili2fme 5.11.0 (2014-06-xx)
+---------------------------
+- read also modelnames from XTF header
+
 ili2fme 5.10.1 (2014-05-23)
 ---------------------------
 - fixed read of parameter GEOM_ATTR_MAPPING:EncodeAsFmeAttribute

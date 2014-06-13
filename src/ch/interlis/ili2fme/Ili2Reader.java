@@ -48,6 +48,7 @@ import ch.interlis.iom.*;
 import ch.interlis.iox.*;
 import ch.interlis.iom_j.itf.ItfReader;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
+import ch.interlis.iom_j.xtf.XtfUtility;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 
@@ -65,7 +66,7 @@ public class Ili2Reader implements IFMEReader {
 	private HashMap surfaceBuilders=null; // map<ViewableWrapper, IFMEFactoryPipeline>
 	private String readerKeyword=null;
 	private ch.interlis.ili2c.metamodel.TransferDescription iliTd=null;
-	private ArrayList iliModelv=null;
+	private ArrayList<String> iliModelv=null;
 	private HashMap tag2class=null; // map<String iliQName,Viewable|AttributeDef modelele>
 	
 	private HashMap transferViewables=null; // map<String iliQName, ViewableWrapper>
@@ -437,8 +438,9 @@ public class Ili2Reader implements IFMEReader {
 			}
 		}else if(models.equals(Main.DATA_PLACEHOLDER) || models.equals(Main.DEPRECATED_XTF_PLACEHOLDER)){
 			// get model names out of transfer file
-			iliModelv=new ArrayList();
+			iliModelv=new ArrayList<String>();
 			StartBasketEvent be=null;
+			XtfStartTransferEvent xtfStart=null;
 			try{
 				inputFile=openInputFile(xtfFile);
 				if(formatMode==MODE_XTF){
@@ -456,6 +458,8 @@ public class Ili2Reader implements IFMEReader {
 					if(event instanceof StartBasketEvent){
 						be=(StartBasketEvent)event;
 						break;
+					}else if(event instanceof XtfStartTransferEvent){
+						xtfStart=(XtfStartTransferEvent)event;
 					}
 				}while(!(event instanceof EndTransferEvent));
 				
@@ -478,8 +482,13 @@ public class Ili2Reader implements IFMEReader {
 				throw new IllegalArgumentException("no baskets in xtf-file");
 			}
 			String model[]=be.getType().split("\\.");
-			EhiLogger.logState("model from xtf <"+model[0]+">");
 			iliModelv.add(model[0]);
+			if(xtfStart!=null){
+				XtfUtility.addModels(iliModelv,xtfStart);
+			}
+			for(String modelName:iliModelv){
+				EhiLogger.logState("model from xtf <"+modelName+">");
+			}
 			// compile models
 			{
 				// create repository manager
@@ -499,7 +508,7 @@ public class Ili2Reader implements IFMEReader {
 			}
 		}else{
 			// parse string
-			iliModelv=new ArrayList(java.util.Arrays.asList(models.split(";")));
+			iliModelv=new ArrayList<String>(java.util.Arrays.asList(models.split(";")));
 			// compile models
 			{
 				// create repository manager
