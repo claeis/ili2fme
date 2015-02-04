@@ -1,6 +1,8 @@
-ili2fme 5.11.0 (2014-06-xx)
+ili2fme 5.11.0 (2015-02-04)
 ---------------------------
 - read also modelnames from XTF header
+- xtf22 writer: missing identity (TID) on ASSOCIATIONs that are not embedded
+- ili2c-4.5.8
 
 ili2fme 5.10.1 (2014-05-23)
 ---------------------------
