@@ -446,6 +446,7 @@ public class Ili2Writer implements IFMEWriter {
 			}
 		}
 		if(listener!=null && listener.hasSeenErrors()){
+			listener.clearErrors();
 			throw new Exception("INTERLIS 2 writer failed");
 		}
 		cleanup();

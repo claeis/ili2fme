@@ -806,6 +806,7 @@ public class Ili2Reader implements IFMEReader {
 				ioxReader.close();
 				ioxReader=null;
 				if(listener.hasSeenErrors()){
+					listener.clearErrors();
 					throw new Exception("INTERLIS 2 reader failed");
 				}
 				return null;

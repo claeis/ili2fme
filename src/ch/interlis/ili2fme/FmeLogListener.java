@@ -65,4 +65,7 @@ public class FmeLogListener implements LogListener {
 	public int getCount(){
 		return initCount;
 	}
+	public void clearErrors() {
+		errors=false;
+	}
 }

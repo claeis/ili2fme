@@ -1,3 +1,7 @@
+ili2fme 5.11.1 (2015-04-xx)
+---------------------------
+- clear errors flag after logging, so that new reader/writer run doesn't report already reported errors
+
 ili2fme 5.11.0 (2015-02-04)
 ---------------------------
 - read also modelnames from XTF header
