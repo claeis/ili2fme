@@ -1,5 +1,6 @@
-ili2fme 5.11.1 (2015-04-xx)
+ili2fme 5.11.1 (2015-07-07)
 ---------------------------
+- ili2c-4.5.13
 - clear errors flag after logging, so that new reader/writer run doesn't report already reported errors
 
 ili2fme 5.11.0 (2015-02-04)
