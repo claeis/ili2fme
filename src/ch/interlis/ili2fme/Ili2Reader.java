@@ -47,6 +47,7 @@ import ch.interlis.ilirepository.impl.RepositoryAccessException;
 import ch.interlis.iom.*;
 import ch.interlis.iox.*;
 import ch.interlis.iom_j.itf.ItfReader;
+import ch.interlis.iom_j.itf.ItfReader2;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iom_j.xtf.XtfUtility;
 import ch.interlis.iox_j.jts.Iox2jts;
@@ -84,6 +85,7 @@ public class Ili2Reader implements IFMEReader {
 	private int formatMode=0;
 	private static final int MODE_XTF=1;
 	private static final int MODE_ITF=2;
+	private static final int MODE_ITF2=5;
 	private boolean createLineTableFeatures=false;
 	private boolean skipPolygonBuilding=false;
 	private boolean ili1AddDefVal=false;
@@ -403,7 +405,13 @@ public class Ili2Reader implements IFMEReader {
 			xtfExt=xtfExt.toLowerCase();
 		}
 		if(xtfExt!=null && xtfExt.equals("itf")){
-			formatMode=MODE_ITF;
+			if(ili1ConvertArea==null && ili1ConvertSurface==null && skipPolygonBuilding==false && createLineTableFeatures==false){
+				EhiLogger.logState("use builtin polygon building");
+				formatMode=MODE_ITF2;
+			}else{
+				EhiLogger.logState("use raw ITF reader");
+				formatMode=MODE_ITF;
+			}
 		}else if(xtfExt!=null && xtfExt.equals("gml")){
 			throw new IllegalArgumentException("INTERLIS GML not yet supported by ili2fme reader");
 		}else{
@@ -445,7 +453,8 @@ public class Ili2Reader implements IFMEReader {
 				inputFile=openInputFile(xtfFile);
 				if(formatMode==MODE_XTF){
 					ioxReader=new ch.interlis.iom_j.xtf.XtfReader(inputFile);
-				}else if(formatMode==MODE_ITF){
+				}else if(formatMode==MODE_ITF || formatMode==MODE_ITF2){
+					//  just try to find out modelname; no need to build polygons
 					ioxReader=new ch.interlis.iom_j.itf.ItfReader(inputFile);
 				}else{
 					throw new IllegalStateException("unexpected formatMode");
@@ -532,6 +541,8 @@ public class Ili2Reader implements IFMEReader {
 			transferViewables=ModelUtility.getXtfTransferViewables(iliTd,inheritanceMapping);
 		}else if(formatMode==MODE_ITF){
 			transferViewables=ModelUtility.getItfTransferViewables(iliTd);
+		}else if(formatMode==MODE_ITF2){
+			transferViewables=ModelUtility.getItf2TransferViewables(iliTd);
 		}else{
 			throw new IllegalStateException("unexpected formatMode");
 		}
@@ -550,6 +561,8 @@ public class Ili2Reader implements IFMEReader {
 			tag2class=ch.interlis.ili2c.generator.XSDGenerator.getTagMap(iliTd);
 		}else if(formatMode==MODE_ITF){
 			tag2class=ch.interlis.iom_j.itf.ModelUtilities.getTagMap(iliTd);
+		}else if(formatMode==MODE_ITF2){
+			tag2class=ch.interlis.iom_j.itf.ModelUtilities.getTagMap2(iliTd);
 		}else{
 			throw new IllegalStateException("unexpected formatMode");
 		}
@@ -670,6 +683,14 @@ public class Ili2Reader implements IFMEReader {
 				((ItfReader)ioxReader).setModel(iliTd);		
 				((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);		
 				((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
+				if(ili1AddDefVal){
+					ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
+				}
+			}else if(formatMode==MODE_ITF2){
+				ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile);
+				((ItfReader2)ioxReader).setModel(iliTd);		
+				((ItfReader2)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);		
+				((ItfReader2)ioxReader).setRenumberTids(ili1RenumberTid);
 				if(ili1AddDefVal){
 					ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
 				}
@@ -900,7 +921,7 @@ public class Ili2Reader implements IFMEReader {
 			return ret;
 		}
 		ViewableWrapper wrapper=null;
-		if(formatMode==MODE_XTF){
+		if(formatMode==MODE_XTF || formatMode==MODE_ITF2){
 			Viewable aclass=(Viewable)tag2class.get(tag);
 			if(aclass==null){
 				EhiLogger.logError("line "+iomObj.getobjectline()+": unknonw class <"+tag+">; ignored");
@@ -1717,7 +1738,7 @@ public class Ili2Reader implements IFMEReader {
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 			}else{
 				Type type=geomattr.getDomainResolvingAliases();
-				if(formatMode==MODE_XTF){
+				if(formatMode==MODE_XTF || formatMode==MODE_ITF2){
 					if (type instanceof PolylineType){
 						ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
 					}else if(type instanceof SurfaceType){
