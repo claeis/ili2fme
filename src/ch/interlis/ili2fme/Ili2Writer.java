@@ -417,7 +417,7 @@ public class Ili2Writer implements IFMEWriter {
 				if(formatMode==MODE_XTF){
 					ioxWriter=new ch.interlis.iom_j.xtf.XtfWriter(outputFile,iliTd);
 				}else if(formatMode==MODE_GML){
-						ioxWriter=new ch.interlis.iom_j.iligml.IligmlWriter(outputFile,iliTd);
+						ioxWriter=new ch.interlis.iom_j.iligml.IligmlWriter(new java.io.OutputStreamWriter(outputFile),iliTd);
 				}else if(formatMode==MODE_XRF){
 					ioxWriter=null; // TODO new ch.interlis.iom_j.xtf.Xtf24Writer(outputFile,iliTd);
 				}else{
