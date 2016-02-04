@@ -16,6 +16,11 @@
 	<RegistrySearch Id='FmeHomeRegistry' Type='raw'
 		Root='HKLM' Key='SOFTWARE\Safe Software Inc.\Feature Manipulation Engine' Name='FME_HOME' />
     </Property>
+	<!-- Property Id="FILEEXISTS">
+	    <DirectorySearch Id="CheckFileDir" Path="[INSTALLDIR]" Depth="0">
+		<FileSearch Id="CheckFile" Name="Lookfor.txt" />
+	    </DirectorySearch>
+	</Property -->    
     
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="FME_HOME" Name="FME_HOME">
@@ -33,7 +38,9 @@
           <Component Id="ili2c.jar" Guid="6227EF75-E49F-4A6D-B406-8D01309F90BB" KeyPath="yes">
             <File Id="ili2c.jar" Name="ili2c.jar" Source="$(var.basedir)\lib\ili2c.jar"  DiskId="1" />
             <File Id="ili2fme.jar" Name="ili2fme.jar" Source="$(var.basedir)\build\jar\ili2fme.jar" DiskId="1" />
-            <File Id="jts_1.8.jar" Name="jts-1.8.jar" Source="$(var.basedir)\lib\jts-1.8.jar" DiskId="1" />
+            <File Id="jts_1.14.0.jar" Name="jts-core-1.14.0.jar" Source="$(var.basedir)\lib\jts-core-1.14.0.jar" DiskId="1"/>
+            <RemoveFile Id='jts_1.8.jar' On='install' Name="jts-1.8.jar"/>            
+            <File Id="jdbm_2.4.jar" Name="jdbm-2.4.jar" Source="$(var.basedir)\lib\jdbm-2.4.jar" DiskId="1" />
           </Component>
           <Directory Id="interlis2_DIR" Name="interlis2">
             <Directory Id="ili22models_DIR" Name="ili22models">
@@ -103,6 +110,7 @@
     </Upgrade>
     <Media Id="1" EmbedCab="yes" Cabinet="disk1.cab" />
     <CustomAction Id='AlreadyUpdated' Error='ilifme has already been updated to $(var.version) or newer.' />
+        
    <InstallExecuteSequence>
     	 <Custom Action='AlreadyUpdated' After='FindRelatedProducts'>NEWERPRODUCTFOUND</Custom>
 	  <!-- <LaunchConditions After='AppSearch' /> -->
