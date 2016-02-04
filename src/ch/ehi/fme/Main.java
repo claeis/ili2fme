@@ -70,6 +70,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String XTF_BASKETS="XTF_BASKETS";
 	static public final String XTF_DELETEOBJECT="XTF_DELETEOBJECT";
 	static public final String XTF_ENUMS="XTF_ENUMS";
+	static public final String XTF_ERRORS="XTF_ERRORS";
 	// format attributes
 	static public final String XTF_ID="xtf_id";
 	static public final String XTF_BASKET="xtf_basket";
@@ -91,6 +92,9 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String XTF_OIDNAME="name";
 	static public final String XTF_OIDDOMAIN="oiddomain";
 	static public final String XTF_COMMENT="comment";
+	static public final String XTF_ERRORS_ILINAME="iliname";
+	static public final String XTF_ERRORS_MESSAGE="message";
+	static public final String XTF_ERRORS_TID="tid";
 	
 	// xtf types
 	static public final String ID_TYPE="xtf_char(200)";

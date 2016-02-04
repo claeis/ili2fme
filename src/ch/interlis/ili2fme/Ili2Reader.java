@@ -30,6 +30,7 @@ import java.util.Iterator;
 import COM.safe.fme.pluginbuilder.IFMEReader;
 import COM.safe.fmeobjects.IFMEFeature;
 import COM.safe.fme.pluginbuilder.IFMEMappingFile;
+import COM.safe.fmeobjects.IFMEGeometry;
 import COM.safe.fmeobjects.IFMESession;
 import COM.safe.fmeobjects.FMEException;
 import COM.safe.fmeobjects.IFMELogFile;
@@ -66,6 +67,7 @@ public class Ili2Reader implements IFMEReader {
 	private IFMESession session=null;
 	private boolean doPipeline=false;
 	private HashMap surfaceBuilders=null; // map<ViewableWrapper, IFMEFactoryPipeline>
+	private ArrayList<IoxInvalidDataException> dataerrs = null;
 	private String readerKeyword=null;
 	private ch.interlis.ili2c.metamodel.TransferDescription iliTd=null;
 	private ArrayList<String> iliModelv=null;
@@ -648,6 +650,12 @@ public class Ili2Reader implements IFMEReader {
 			}
 		}
 		if(doPipeline){
+			if(dataerrs!=null && dataerrs.size()>0){
+				IoxInvalidDataException dataerr=dataerrs.get(0);
+				mapDataErr(ret, dataerr);
+				dataerrs.remove(0);
+				return ret;
+			}
 			Iterator surfaceBuilderi=surfaceBuilders.keySet().iterator();
 			while(surfaceBuilderi.hasNext()){
 				//EhiLogger.debug("check pipeline for output");
@@ -774,6 +782,7 @@ public class Ili2Reader implements IFMEReader {
 				currentBid=be.getBid();
 				doPipeline=false;
 				surfaceBuilders=new HashMap();
+	        	dataerrs = null;
 				// map basket (to a feature! to get metainfo about basket)
 				String topic=be.getType();
 				EhiLogger.logState(topic+" "+currentBid+"...");
@@ -789,8 +798,8 @@ public class Ili2Reader implements IFMEReader {
 					skipBasket=false;
 					continue;
 				}
-				if(ioxReader instanceof ItfReader2){
-		        	ArrayList<IoxInvalidDataException> dataerrs = ((ItfReader2) ioxReader).getDataErrs();
+				if(dataerrs==null && ioxReader instanceof ItfReader2){
+		        	dataerrs = new ArrayList<IoxInvalidDataException>(((ItfReader2) ioxReader).getDataErrs());
 		        	if(dataerrs.size()>0){
 		        		for(IoxInvalidDataException dataerr:dataerrs){
 		        			if(ili1CheckPolygonBuilding){
@@ -802,7 +811,13 @@ public class Ili2Reader implements IFMEReader {
 		        		((ItfReader2) ioxReader).clearDataErrs();
 		        	}
 				}
-				
+				if(dataerrs!=null && dataerrs.size()>0){
+					IoxInvalidDataException dataerr=dataerrs.get(0);
+					mapDataErr(ret, dataerr);
+					dataerrs.remove(0);
+					doPipeline=true;
+					return ret;
+				}
 				// flush pipelines
 				Iterator surfaceBuilderi=surfaceBuilders.keySet().iterator();
 				while(surfaceBuilderi.hasNext()){
@@ -848,6 +863,32 @@ public class Ili2Reader implements IFMEReader {
 				return null;
 			}else{
 				// ignore other events
+			}
+		}
+	}
+	private void mapDataErr(IFMEFeature ret, IoxInvalidDataException dataerr) throws DataException {
+		ret.setFeatureType(Main.XTF_ERRORS);
+		ret.setStringAttribute(Main.XTF_ERRORS_MESSAGE, dataerr.getMessage());
+		if(dataerr.getIliqname()!=null){
+			ret.setStringAttribute(Main.XTF_ERRORS_ILINAME, dataerr.getIliqname());
+		}
+		IomObject geom=dataerr.getGeom();
+		if(geom!=null){
+			 IFMEGeometry fmeGeom=null;
+			 try{
+				 fmeGeom=Iox2fme.geom2FME(session,geom);
+				 ret.setGeometry(fmeGeom);
+			 }finally{
+				 if(fmeGeom!=null){
+					 fmeGeom.dispose();
+					 fmeGeom=null;
+				 }
+			 }
+		}
+		int idx=0;
+		for(String tid:dataerr.getTids()){
+			if(tid!=null){
+				ret.setStringAttribute(Main.XTF_ERRORS_TID+"{"+ Integer.toString(idx++) +"}", tid);
 			}
 		}
 	}
@@ -1693,7 +1734,16 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx==3 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+			if(formatFeatureTypeIdx==3){
+				ret.setFeatureType(Main.XTF_ERRORS);
+				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
+				ret.setSequencedAttribute(Main.XTF_ERRORS_MESSAGE,Main.ILINAME_TYPE);
+				ret.setSequencedAttribute(Main.XTF_ERRORS_ILINAME,Main.ILINAME_TYPE);
+				ret.setSequencedAttribute(Main.XTF_ERRORS_TID+"{}",Main.ID_TYPE);
+				formatFeatureTypeIdx++;
+				return ret;	
+			}
+			if(formatFeatureTypeIdx==4 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
 				ret.setFeatureType(Main.XTF_ENUMS);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
@@ -1704,7 +1754,7 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx>=3 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
+			if(formatFeatureTypeIdx>=4 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
 				if(formatFeatureTypeIdx==2){
 					enumDefi=enumDefs.iterator();
 				}

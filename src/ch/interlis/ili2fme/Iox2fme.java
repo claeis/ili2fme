@@ -317,5 +317,21 @@ public class Iox2fme {
 		}
 		return ret;
 	}
+	public static IFMEGeometry geom2FME(IFMESession session,IomObject obj)
+	throws DataException
+	{
+		if(obj==null){
+			return null;
+		}
+		String type=obj.getobjecttag();
+		if(type.equals("COORD")){
+			return coord2FME(session,obj);
+		}else if(type.equals("POLYLINE")){
+			return polyline2FME(session,obj,false);
+		}else if(type.equals("MULTISURFACE")){
+			return surface2FME(session,obj);
+		}
+		throw new DataException("unexpected type "+type);
+	}
 	
 }
