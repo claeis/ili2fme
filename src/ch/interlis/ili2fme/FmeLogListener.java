@@ -18,8 +18,8 @@
 package ch.interlis.ili2fme;
 
 import COM.safe.fmeobjects.IFMELogFile;
-
 import ch.ehi.basics.logging.*;
+
 import java.util.*;
 
 /** Bridge to log EhiLogger log-events to the FME-logging system. 
@@ -41,7 +41,7 @@ public class FmeLogListener implements LogListener {
 				fmeKind=IFMELogFile.FME_INFORM;
 				break;
 		}
-		ArrayList msgv=StdListener.formatOutput(event,true,true);
+		ArrayList msgv=StdListener.formatOutput(event,true,!EhiLogger.getInstance().getTraceFilter());
 		Iterator msgi=msgv.iterator();
 		while(msgi.hasNext()){
 			String msg=(String)msgi.next();
