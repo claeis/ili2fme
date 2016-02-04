@@ -1,3 +1,11 @@
+ili2fme 6.1.0 (2016-02-04) BETA
+-------------------------------
+- ili2c-4.5.21
+- ItfReader2: test result of ili1 polygon building (use param ILI1_CHECKCONVERT)
+- adapted to refactored ItfReader2 error reporting
+- skip stack trace output if trace messages not enabled
+- added XTF_ERRORS feature type (log of data errors)
+
 ili2fme 6.0.1 (2015-11-27) BETA
 ---------------------------
 - YOU MUST manually remove the $FME/plugins/jts-1.8.jar (because it conflicts with jts-1.13.jar)
