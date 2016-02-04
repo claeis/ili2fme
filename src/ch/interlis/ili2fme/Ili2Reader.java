@@ -665,9 +665,7 @@ public class Ili2Reader implements IFMEReader {
 				boolean eop=surfaceBuilder.getOutputFeature(ret);					
 				if(eop){
 					//EhiLogger.debug("return feature from pipeline");
-					if(ili1CheckPolygonBuilding){
-						checkConvertedFeature(ret,attr);
-					}
+					checkConvertedFeature(ret,attr);
 					return ret;
 				}
 				//EhiLogger.debug("end of pipeline; remove it");
@@ -944,7 +942,15 @@ public class Ili2Reader implements IFMEReader {
 						EhiLogger.logError(ex);
 					}
 			}
-			EhiLogger.logError("polygon building error: "+attr.toString()+", "+errmsg);
+			if(ili1CheckPolygonBuilding){
+				EhiLogger.logError("polygon building error: "+attr.toString()+", "+errmsg);
+			}else{
+				EhiLogger.logState("polygon building error: "+attr.toString()+", "+errmsg);
+			}
+			String geomAttrIliQName=attr.getContainer().getScopedName(null)+"."+attr.getName();
+			ret.setStringAttribute(Main.XTF_ERRORS_ILINAME, geomAttrIliQName);
+			ret.setStringAttribute(Main.XTF_ERRORS_MESSAGE, "polygon building error: "+errmsg);
+			ret.setFeatureType(Main.XTF_ERRORS);
 		}
 	}
 	private void mapBasket(IFMEFeature ret,StartBasketEvent be)
