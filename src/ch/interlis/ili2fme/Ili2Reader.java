@@ -50,6 +50,7 @@ import ch.interlis.iom_j.itf.ItfReader;
 import ch.interlis.iom_j.itf.ItfReader2;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iom_j.xtf.XtfUtility;
+import ch.interlis.iox_j.IoxInvalidDataException;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 
@@ -96,7 +97,7 @@ public class Ili2Reader implements IFMEReader {
 	private boolean ili1EnumAsItfCode=false;
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	private boolean checkUniqueOid=false;
-	private boolean ili1CheckConvert=false;
+	private boolean ili1CheckPolygonBuilding=false;
 	private boolean checkAttrType=false;
 	private boolean checkAttrMultiplicity=false;
 	private boolean trimValues=true;
@@ -232,7 +233,7 @@ public class Ili2Reader implements IFMEReader {
 				ili1ConvertSurface=(String)args.get(i);
 			}else if(arg.equals(Main.ILI1_CHECKCONVERT)){
 				i++;
-				ili1CheckConvert=FmeUtility.isTrue((String)args.get(i));
+				ili1CheckPolygonBuilding=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.CHECK_ATTRTYPE)){
 				i++;
 				checkAttrType=FmeUtility.isTrue((String)args.get(i));
@@ -297,7 +298,7 @@ public class Ili2Reader implements IFMEReader {
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_CONVERTSURFACE)){
 					ili1ConvertSurface=StringUtility.purge((String)ele.get(1));	
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_CHECKCONVERT)){
-					ili1CheckConvert=FmeUtility.isTrue((String)ele.get(1));
+					ili1CheckPolygonBuilding=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_ATTRTYPE)){
 					checkAttrType=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_ATTRMULTIPLICITY)){
@@ -352,7 +353,7 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("ili1EnumAsItfCode <"+ili1EnumAsItfCode+">");
 		EhiLogger.logState("ili1ConvertArea <"+(ili1ConvertArea!=null?ili1ConvertArea:"")+">");
 		EhiLogger.logState("ili1ConvertSurface <"+(ili1ConvertSurface!=null?ili1ConvertSurface:"")+">");
-		EhiLogger.logState("ili1CheckConvert <"+ili1CheckConvert+">");
+		EhiLogger.logState("ili1CheckConvert <"+ili1CheckPolygonBuilding+">");
 		
 		if(models==null){
 			//models=mappingFile.fetchString(readerKeyword+"_"+Ili2fme.MODELS);
@@ -655,7 +656,7 @@ public class Ili2Reader implements IFMEReader {
 				boolean eop=surfaceBuilder.getOutputFeature(ret);					
 				if(eop){
 					//EhiLogger.debug("return feature from pipeline");
-					if(ili1CheckConvert){
+					if(ili1CheckPolygonBuilding){
 						checkConvertedFeature(ret,attr);
 					}
 					return ret;
@@ -687,7 +688,7 @@ public class Ili2Reader implements IFMEReader {
 					ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
 				}
 			}else if(formatMode==MODE_ITF2){
-				ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile);
+				ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile,!ili1CheckPolygonBuilding);
 				((ItfReader2)ioxReader).setModel(iliTd);		
 				((ItfReader2)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);		
 				((ItfReader2)ioxReader).setRenumberTids(ili1RenumberTid);
@@ -788,6 +789,20 @@ public class Ili2Reader implements IFMEReader {
 					skipBasket=false;
 					continue;
 				}
+				if(ioxReader instanceof ItfReader2){
+		        	ArrayList<IoxInvalidDataException> dataerrs = ((ItfReader2) ioxReader).getDataErrs();
+		        	if(dataerrs.size()>0){
+		        		for(IoxInvalidDataException dataerr:dataerrs){
+		        			if(ili1CheckPolygonBuilding){
+			        			EhiLogger.logError(dataerr);
+		        			}else{
+			        			EhiLogger.logState(dataerr.getMessage());
+		        			}
+		        		}
+		        		((ItfReader2) ioxReader).clearDataErrs();
+		        	}
+				}
+				
 				// flush pipelines
 				Iterator surfaceBuilderi=surfaceBuilders.keySet().iterator();
 				while(surfaceBuilderi.hasNext()){
@@ -813,7 +828,7 @@ public class Ili2Reader implements IFMEReader {
 					// is not end of pipeline?
 					if(eop){
 						//EhiLogger.debug("return feature from pipeline");
-						if(ili1CheckConvert){
+						if(ili1CheckPolygonBuilding){
 							checkConvertedFeature(ret,attr);
 						}
 						doPipeline=true;
