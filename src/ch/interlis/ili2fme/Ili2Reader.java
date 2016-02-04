@@ -30,6 +30,7 @@ import java.util.Iterator;
 import COM.safe.fme.pluginbuilder.IFMEReader;
 import COM.safe.fmeobjects.IFMEFeature;
 import COM.safe.fme.pluginbuilder.IFMEMappingFile;
+import COM.safe.fmeobjects.IFMEArea;
 import COM.safe.fmeobjects.IFMEGeometry;
 import COM.safe.fmeobjects.IFMESession;
 import COM.safe.fmeobjects.FMEException;
@@ -1240,7 +1241,7 @@ public class Ili2Reader implements IFMEReader {
 					 if(value!=null){
 							ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_surface");
 							 if(doRichGeometry){
-								 IFMEDonut fmeSurface=null;
+								 IFMEArea fmeSurface=null;
 								 try{
 									 fmeSurface=Iox2fme.surface2FME(session,value);
 									 ret.setGeometry(fmeSurface);
@@ -1343,7 +1344,7 @@ public class Ili2Reader implements IFMEReader {
 						 if(value!=null){
 								ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_area");
 								 if(doRichGeometry){
-									 IFMEDonut fmeSurface=null;
+									 IFMEArea fmeSurface=null;
 									 try{
 										 fmeSurface=Iox2fme.surface2FME(session,value);
 										 ret.setGeometry(fmeSurface);

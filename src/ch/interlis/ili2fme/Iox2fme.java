@@ -256,14 +256,14 @@ public class Iox2fme {
 	 * @return FME Donut
 	 * @throws DataException
 	 */
-	public static IFMEDonut surface2FME(IFMESession session,IomObject obj) //SurfaceOrAreaType type)
+	public static IFMEArea surface2FME(IFMESession session,IomObject obj) //SurfaceOrAreaType type)
 	throws DataException
 	{
 		if(obj==null){
 			return null;
 		}
 		IFMEGeometryTools tools=session.geometryTools();
-		IFMEDonut ret=null;
+		IFMEArea ret=null;
 		//IFMEFeatureVector bndries=session.createFeatureVector();
 		boolean clipped=obj.getobjectconsistency()==IomConstants.IOM_INCOMPLETE;
 		if(clipped){
@@ -300,9 +300,13 @@ public class Iox2fme {
 						}
 					}
 					if(boundaryi==0){
-						ret=tools.createDonutByCurve(fmeBoundary);
+						if(boundaryc==1){
+							ret=tools.createPolygonByCurve(fmeBoundary);
+						}else{
+							ret=tools.createDonutByCurve(fmeBoundary);
+						}
 					}else{
-						ret.addInnerBoundaryCurve(fmeBoundary);
+						((IFMEDonut) ret).addInnerBoundaryCurve(fmeBoundary);
 					}
 				}finally{
 					if(fmeBoundary!=null){

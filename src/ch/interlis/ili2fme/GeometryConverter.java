@@ -149,7 +149,7 @@ public class GeometryConverter {
 	 public void surface2FME(IFMEFeature ret,String attrName,IomObject value)
 		throws DataException 
 	 {
-		 IFMEDonut fmeSurface=null;
+		 IFMEArea fmeSurface=null;
 		 try{
 			 fmeSurface=Iox2fme.surface2FME(session,value);
 			 setGeometry(ret, attrName, fmeSurface);
