@@ -1,3 +1,9 @@
+ili2fme 6.1.1 (2016-04-07)
+--------------------------
+- ili2c-4.5.22
+- show max memory
+- fixed NullPointerException if errors from ItfReader2 without TIDs
+
 ili2fme 6.1.0 (2016-02-04) BETA
 -------------------------------
 - ili2c-4.5.21

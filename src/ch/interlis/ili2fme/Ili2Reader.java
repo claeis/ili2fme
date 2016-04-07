@@ -884,10 +884,12 @@ public class Ili2Reader implements IFMEReader {
 				 }
 			 }
 		}
-		int idx=0;
-		for(String tid:dataerr.getTids()){
-			if(tid!=null){
-				ret.setStringAttribute(Main.XTF_ERRORS_TID+"{"+ Integer.toString(idx++) +"}", tid);
+		if(dataerr.getTids()!=null){
+			int idx=0;
+			for(String tid:dataerr.getTids()){
+				if(tid!=null){
+					ret.setStringAttribute(Main.XTF_ERRORS_TID+"{"+ Integer.toString(idx++) +"}", tid);
+				}
 			}
 		}
 	}
