@@ -80,7 +80,12 @@ public class Ili2Reader implements IFMEReader {
 	private IFMEFeature pendingSchemaFeature=null;
 	private boolean skipBasket=false;
 	private HashSet topicFilterv=null;
-	private int formatFeatureTypeIdx=0;
+	private int formatFeatureTypeIdx=FORMAT_FEATURETYPE_XTFTRANSFER;
+	private static final int FORMAT_FEATURETYPE_XTFTRANSFER = 0;
+	private static final int FORMAT_FEATURETYPE_XTFBASKETS = 1;
+	private static final int FORMAT_FEATURETYPE_XTFDELETEOBJECT = 2;
+	private static final int FORMAT_FEATURETYPE_XTFERRORS = 3;
+	private static final int FORMAT_FEATURETYPE_ENUMS = 4;
 	private String xtfFile=null; // null if ili-file given
 	private IoxReader ioxReader=null;
 	private java.io.InputStream inputFile=null;
@@ -1714,7 +1719,7 @@ public class Ili2Reader implements IFMEReader {
 		// first call?
 		if(transferViewablei==null){
 			// create XTF_TRANSFER class
-			if(formatFeatureTypeIdx==0){
+			if(formatFeatureTypeIdx==FORMAT_FEATURETYPE_XTFTRANSFER){
 				ret.setFeatureType(Main.XTF_TRANSFER);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_OIDSPACE+"{}."+Main.XTF_OIDNAME,Main.ILINAME_TYPE);
@@ -1724,7 +1729,7 @@ public class Ili2Reader implements IFMEReader {
 				return ret;	
 			}
 			// create XTF_BASKETS class
-			if(formatFeatureTypeIdx==1){
+			if(formatFeatureTypeIdx==FORMAT_FEATURETYPE_XTFBASKETS){
 				ret.setFeatureType(Main.XTF_BASKETS);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_TOPIC,getIliQNameType());
@@ -1735,7 +1740,7 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx==2){
+			if(formatFeatureTypeIdx==FORMAT_FEATURETYPE_XTFDELETEOBJECT){
 				ret.setFeatureType(Main.XTF_DELETEOBJECT);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_ID,Main.ID_TYPE);
@@ -1743,7 +1748,7 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx==3){
+			if(formatFeatureTypeIdx==FORMAT_FEATURETYPE_XTFERRORS){
 				ret.setFeatureType(Main.XTF_ERRORS);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_ERRORS_MESSAGE,Main.ILINAME_TYPE);
@@ -1752,7 +1757,7 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx==4 && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
+			if(formatFeatureTypeIdx==FORMAT_FEATURETYPE_ENUMS && createEnumTypes==CreateEnumFeatureTypes.SINGLETYPE){
 				ret.setFeatureType(Main.XTF_ENUMS);
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_ENUMTHIS,Main.ILINAME_TYPE);
@@ -1763,8 +1768,8 @@ public class Ili2Reader implements IFMEReader {
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
-			if(formatFeatureTypeIdx>=4 && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
-				if(formatFeatureTypeIdx==2){
+			if(formatFeatureTypeIdx>=FORMAT_FEATURETYPE_ENUMS && createEnumTypes==CreateEnumFeatureTypes.ONETYPEPERENUMDEF){
+				if(formatFeatureTypeIdx==FORMAT_FEATURETYPE_ENUMS){
 					enumDefi=enumDefs.iterator();
 				}
 				if(enumDefi!=null){
