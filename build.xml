@@ -30,7 +30,6 @@
       <classpath>
         <pathelement location="lib/ili2c.jar"/>
         <pathelement location="lib/jts-core-1.14.0.jar"/>
-        <pathelement location="lib/jdbm-2.4.jar"/>
         <pathelement location="lib/pluginbuilder.jar"/>
       </classpath>
     	<src path="${src}" />
@@ -49,7 +48,6 @@
       <classpath>
         <pathelement location="lib/ili2c.jar"/>
         <pathelement location="lib/jts-core-1.14.0.jar"/>
-        <pathelement location="lib/jdbm-2.4.jar"/>
         <pathelement location="lib/pluginbuilder.jar"/>
       </classpath>
     </javadoc>
@@ -102,7 +100,6 @@
     	<zipfileset dir="${basedir}/lib" prefix="${ant.project.name}-${buildnr}/${fme}/plugins/">
 	    	<patternset includes="ili2c.jar"/>
 	    	<patternset includes="jts-core-1.14.0.jar"/>
-	    	<patternset includes="jdbm-2.4.jar"/>
     	</zipfileset>
     	<zipfileset dir="${basedir}/other" prefix="${ant.project.name}-${buildnr}/${fme}/metafile/">
 	    	<patternset includes="ch.ehi.fme.Main.fmf"/>
