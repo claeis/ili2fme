@@ -40,7 +40,6 @@
             <File Id="ili2fme.jar" Name="ili2fme.jar" Source="$(var.basedir)\build\jar\ili2fme.jar" DiskId="1" />
             <File Id="jts_1.14.0.jar" Name="jts-core-1.14.0.jar" Source="$(var.basedir)\lib\jts-core-1.14.0.jar" DiskId="1"/>
             <RemoveFile Id='jts_1.8.jar' On='install' Name="jts-1.8.jar"/>            
-            <File Id="jdbm_2.4.jar" Name="jdbm-2.4.jar" Source="$(var.basedir)\lib\jdbm-2.4.jar" DiskId="1" />
           </Component>
           <Directory Id="interlis2_DIR" Name="interlis2">
             <Directory Id="ili22models_DIR" Name="ili22models">
