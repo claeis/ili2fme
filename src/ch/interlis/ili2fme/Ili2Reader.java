@@ -674,6 +674,7 @@ public class Ili2Reader implements IFMEReader {
 					return ret;
 				}
 				//EhiLogger.debug("end of pipeline; remove it");
+				surfaceBuilder.dispose();
 				surfaceBuilderi.remove();
 			}
 		}
