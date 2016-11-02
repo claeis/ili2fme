@@ -1,6 +1,10 @@
-ili2fme 6.1.5 (2016-10-xx)
+ili2fme 6.1.5 (2016-11-02)
 --------------------------
-- Reader: fixed FME message "Warning: not all Stashed Objects that were registered were dropped before shutdown"
+- ItfReader: fixed FME message "Warning: not all Stashed Objects that were registered were dropped before shutdown"
+- XtfWriter: fixed BLACKBOX output
+- XtfReader: fixed BLACKBOX parser
+- ili2c-4.5.27
+- iox-ili-1.13.5
 
 ili2fme 6.1.4 (2016-09-19)
 --------------------------
