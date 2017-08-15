@@ -41,13 +41,10 @@ import COM.safe.fmeobjects.FMEException;
 import COM.safe.fmeobjects.IFMELogFile;
 import COM.safe.fmeobjects.IFMEStringArray;
 import COM.safe.fmeobjects.IFMEText;
-
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.basics.tools.StringUtility;
 import ch.ehi.fme.*;
-
 import ch.interlis.ili2c.metamodel.*;
-
 import ch.interlis.iom.*;
 import ch.interlis.iom_j.xtf.OidSpace;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
@@ -107,7 +104,7 @@ public class Ili2Writer implements IFMEWriter {
 	// Open up the writer and pass it the destination directory to which files will
 	// be written (1st parameter) and a string array which may contain additional
 	// dataset parameters (2nd parameter).
-	public void open(ArrayList args) throws Exception {
+	public void open(ArrayList<String> args) throws Exception {
 		listener=Main.setupLogging(fmeLog);
 		//fmeLog.logMessageString("open()",IFMELogFile.FME_INFORM);
 		try{
@@ -1670,5 +1667,9 @@ public class Ili2Writer implements IFMEWriter {
 			Main.endLogging(listener);
 			listener=null;
 		}
+	}
+	@Override
+	public void addMappingFileDefLine(ArrayList<String> arg0) throws Exception {
+		
 	}
 }

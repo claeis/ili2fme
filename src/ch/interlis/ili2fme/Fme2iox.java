@@ -73,7 +73,7 @@ public class Fme2iox {
 		throws DataException 
 	{
 		IFMEPoint coord=null;
-		IFMEGeometryTools tools=session.geometryTools();
+		IFMEGeometryTools tools=session.getGeometryTools();
 		try{
 			coord=tools.createPoint();
 			if(seg instanceof IFMELine){

@@ -83,7 +83,7 @@ public class GeometryConverter {
 		}
 		try {
 			if(mode==GeometryEncoding.FME_BIN){
-				 ret.setBinaryAttribute(attrName, f.getBinaryAttribute(ATTR));
+				 ret.setByteArrayAttribute(attrName, f.getByteArrayAttribute(ATTR));
 			}else{
 				 ret.setStringAttribute(attrName, f.getStringAttribute(ATTR));
 			}
@@ -97,13 +97,14 @@ public class GeometryConverter {
 		try {
 			if(mode==GeometryEncoding.FME_XML){
 				String val=src.getStringAttribute(srcAttr);
-				IFMEGeometry geom=((IFMEGeometryTools)session.geometryTools()).createGeometryFromXML(val);
+				IFMEGeometry geom=((IFMEGeometryTools)session.getGeometryTools()).createGeometryFromXML(val);
 				return geom;
 			}
 			initPipe();
 			f.setFeatureType(DUMMY_TYPE);
 			if(mode==GeometryEncoding.FME_BIN){
-				f.setBinaryAttribute(DUMMY_ATTR, src.getBinaryAttribute(srcAttr));
+				//f.setBinaryAttribute(DUMMY_ATTR, src.getBinaryAttribute(srcAttr));
+				f.setByteArrayAttribute(DUMMY_ATTR, src.getByteArrayAttribute(srcAttr));
 			}else{
 				String val=src.getStringAttribute(srcAttr);
 				f.setStringAttribute(DUMMY_ATTR, val);

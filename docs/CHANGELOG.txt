@@ -1,3 +1,11 @@
+ili2fme 6.2.0 (2016-11-02)
+--------------------------
+- link with pluginbuilder.jar of FME 2017.1
+- replaced setBinaryAttribute() with setByteArrayAttribute() to avoid platform default charset dependency
+- replaced getBinaryAttribute() with getByteArrayAttribute() to avoid platform default charset dependency
+- replaced deprecated geometryTools() with getGeometryTools()
+- ili2c-4.7.3
+
 ili2fme 6.1.5 (2016-11-02)
 --------------------------
 - ItfReader: fixed FME message "Warning: not all Stashed Objects that were registered were dropped before shutdown"

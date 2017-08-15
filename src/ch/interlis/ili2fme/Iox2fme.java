@@ -58,7 +58,7 @@ public class Iox2fme {
 			throw new DataException("failed to read C2 <"+c2+">",ex);
 		}
 		IFMEPoint coord=null;
-		IFMEGeometryTools tools=session.geometryTools();
+		IFMEGeometryTools tools=session.getGeometryTools();
 		if(c3==null){
 			coord=tools.createPointXY(xCoord, yCoord);
 		}else{
@@ -105,7 +105,7 @@ public class Iox2fme {
 			}catch(Exception ex){
 				throw new DataException("failed to read A2 <"+a2+">",ex);
 			}
-			IFMEGeometryTools tools=session.geometryTools();
+			IFMEGeometryTools tools=session.getGeometryTools();
 			IFMEPoint startPoint=null;
 			IFMEPoint arcPoint=null;
 			IFMEPoint endPoint=null;
@@ -183,7 +183,7 @@ public class Iox2fme {
 		if(polylineObj==null){
 			return null;
 		}
-		IFMEGeometryTools tools=session.geometryTools();
+		IFMEGeometryTools tools=session.getGeometryTools();
 		IFMEPath ret=tools.createPath();
 		// is POLYLINE?
 		if(isSurfaceOrArea){
@@ -262,7 +262,7 @@ public class Iox2fme {
 		if(obj==null){
 			return null;
 		}
-		IFMEGeometryTools tools=session.geometryTools();
+		IFMEGeometryTools tools=session.getGeometryTools();
 		IFMEArea ret=null;
 		//IFMEFeatureVector bndries=session.createFeatureVector();
 		boolean clipped=obj.getobjectconsistency()==IomConstants.IOM_INCOMPLETE;
