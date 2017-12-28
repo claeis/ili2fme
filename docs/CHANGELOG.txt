@@ -4,7 +4,7 @@ ili2fme 6.2.1 (2017-10-20)
 - iox-ili 1.19.8
 
 
-ili2fme 6.2.0 (2016-11-02)
+ili2fme 6.2.0 (2017-08-15)
 --------------------------
 - link with pluginbuilder.jar of FME 2017.1
 - replaced setBinaryAttribute() with setByteArrayAttribute() to avoid platform default charset dependency
