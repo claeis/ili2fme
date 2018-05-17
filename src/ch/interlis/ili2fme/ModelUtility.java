@@ -437,7 +437,11 @@ public class ModelUtility {
 		while (iter.hasNext()) {
 			ViewableTransferElement obj = (ViewableTransferElement)iter.next();
 			if (obj.obj instanceof AttributeDef) {
-				attrv.add(obj);
+			    if(((AttributeDef)obj.obj).getDomain() instanceof ObjectType){
+			        // skip it
+			    }else {
+	                attrv.add(obj);
+			    }
 			}
 			if(obj.obj instanceof RoleDef){
 				RoleDef role = (RoleDef) obj.obj;
