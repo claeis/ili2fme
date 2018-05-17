@@ -312,7 +312,7 @@ public class ModelUtility {
 				ViewableTransferElement attro=(ViewableTransferElement)attrv.get(i);
 				if(attro.obj instanceof AttributeDef){
 					AttributeDef attr=(AttributeDef)attro.obj;
-					Type type=attr.getDomainResolvingAliases();
+					Type type=attr.getDomainResolvingAll();
 					if (type instanceof PolylineType 
 						|| type instanceof SurfaceOrAreaType
 						|| type instanceof CoordType){

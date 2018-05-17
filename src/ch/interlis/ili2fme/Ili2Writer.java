@@ -542,7 +542,7 @@ public class Ili2Writer implements IFMEWriter {
 			ViewableWrapper wrapper=(ViewableWrapper)fmeFeatureTypev.get(lineTableName);
 			AttributeDef attr=wrapper.getGeomAttr4FME();
 			String iomAttrName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableGeomAttrName(attr);
-			Type type = attr.getDomainResolvingAliases();
+			Type type = attr.getDomainResolvingAll();
 			IFMEFeature feature=session.createFeature();
 			while(lineTableBuilder.getOutputFeature(feature)){
 				// process feature
@@ -577,7 +577,7 @@ public class Ili2Writer implements IFMEWriter {
 			AttributeDef attr=wrapper.getGeomAttr4FME();
 			String iomAttrName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableGeomAttrName(attr);
 			String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(attr);
-			Type type = attr.getDomainResolvingAliases();
+			Type type = attr.getDomainResolvingAll();
 			
 			for(int featurei=0;featurei<featurec;featurei++){
 				IFMEFeature feature=null;
@@ -792,7 +792,7 @@ public class Ili2Writer implements IFMEWriter {
 								}else{
 									ViewableWrapper wrapper=(ViewableWrapper)fmeFeatureTypev.get(className);
 									
-									if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof AreaType){
+									if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof AreaType){
 										// build line table from polygons/donuts
 										String lineTableName =
 											v.getContainer().getScopedName(
@@ -809,7 +809,7 @@ public class Ili2Writer implements IFMEWriter {
 									EhiLogger.logState(className+"...");
 									writeBasket(className,false);
 									
-									if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof SurfaceType){
+									if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceType){
 										// build line table from polygons/donuts
 										String lineTableName =
 											v.getContainer().getScopedName(
@@ -1186,7 +1186,7 @@ public class Ili2Writer implements IFMEWriter {
 		}
 		if(formatMode==MODE_ITF){
 			// if SURFACE helper table
-			if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof SurfaceType){
+			if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceType){
 				//add ref to main table
 				String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
 				IomObject structvalue=iomObj.addattrobj(fkName,"REF");
@@ -1285,7 +1285,7 @@ public class Ili2Writer implements IFMEWriter {
 	private void mapAttributeValue(IFMEFeature obj, String attrPrefix, IomObject iomObj, ViewableWrapper wrapper, String geomattr, AttributeDef attr) 
 		throws Exception, DataException, FMEException, Iox2jtsException 
 	{
-		Type type = attr.getDomainResolvingAliases();
+		Type type = attr.getDomainResolvingAll();
 		 String attrName=attr.getName();
 		 if(attrPrefix==null){
 			 attrPrefix="";

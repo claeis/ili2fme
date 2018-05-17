@@ -1021,7 +1021,7 @@ public class Ili2Reader implements IFMEReader {
 		}
 		if(formatMode==MODE_ITF){
 			// if SURFACE helper table
-			if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAliases() instanceof SurfaceType){
+			if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceType){
 				//add ref to main table
 				String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
 				IomObject structvalue=iomObj.getattrobj(fkName,0);
@@ -1131,7 +1131,7 @@ public class Ili2Reader implements IFMEReader {
 		if(prefix==null){
 			prefix="";
 		}
-		Type type = attr.getDomainResolvingAliases();
+		Type type = attr.getDomainResolvingAll();
 		String attrName=attr.getName();
 		if (type instanceof CompositionType){
 		 int valuec=iomObj.getattrvaluecount(attrName);
@@ -1452,7 +1452,7 @@ public class Ili2Reader implements IFMEReader {
 			String lineTableName=mainTableName+"_"+geomAttrName;
 			IFMEFactoryPipeline surfaceBuilder=null;
 			EhiLogger.traceState("create PolygonBuilder pipeline for "+lineTableName);
-			Type attrType=geomAttr.getDomainResolvingAliases();
+			Type attrType=geomAttr.getDomainResolvingAll();
 			if(attrType instanceof AreaType){
 				PrecisionDecimal maxOverlaps=((AreaType)attrType).getMaxOverlap();
 				if(ili1ConvertArea!=null){
@@ -1812,7 +1812,7 @@ public class Ili2Reader implements IFMEReader {
 			if(geomattr==null){
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 			}else{
-				Type type=geomattr.getDomainResolvingAliases();
+				Type type=geomattr.getDomainResolvingAll();
 				if(formatMode==MODE_XTF || formatMode==MODE_ITF2){
 					if (type instanceof PolylineType){
 						ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
@@ -1982,7 +1982,7 @@ public class Ili2Reader implements IFMEReader {
 		if(attrNamePrefix==null){
 			attrNamePrefix="";
 		}
-		Type type=attr.getDomainResolvingAliases();
+		Type type=attr.getDomainResolvingAll();
 		if (type instanceof PolylineType 
 			|| type instanceof SurfaceOrAreaType
 			|| type instanceof CoordType){
