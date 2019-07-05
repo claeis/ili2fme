@@ -1,3 +1,8 @@
+ili2fme 7.0.0 (2019-07-05) BETA
+-------------------------------
+- refactored polygon building
+- new Reader option to select linetable mapping: ILI1_LINETABLES (Polygon, Raw, Polygon+Raw) 
+
 ili2fme 6.3.0 (2019-04-24)
 --------------------------
 - ili2c-5.0.0

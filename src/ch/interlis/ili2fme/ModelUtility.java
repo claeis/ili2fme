@@ -34,7 +34,7 @@ public class ModelUtility {
 	private ModelUtility(){};
 	/** @return map<String fmeFeatureTypeName, ViewableWrapper wrapper>
 	 */
-	public static HashMap getItfTransferViewables(ch.interlis.ili2c.metamodel.TransferDescription td)
+	public static HashMap<String,ViewableWrapper> getItfTransferViewables(ch.interlis.ili2c.metamodel.TransferDescription td)
 	{
 		HashMap ret = new HashMap();
 		Iterator modeli = td.iterator();
@@ -130,7 +130,7 @@ public class ModelUtility {
 	}
 	/** @return map<String fmeFeatureTypeName, ViewableWrapper wrapper>
 	 */
-	public static HashMap getItf2TransferViewables(ch.interlis.ili2c.metamodel.TransferDescription td)
+	public static HashMap<String,ViewableWrapper> getItf2TransferViewables(ch.interlis.ili2c.metamodel.TransferDescription td)
 	{
 		HashMap ret = new HashMap();
 		Iterator modeli = td.iterator();
@@ -197,7 +197,7 @@ public class ModelUtility {
 	}
 	/** @return map<String fmeFeatureTypeName, ViewableWrapper wrapper>
 	 */
-	public static HashMap getXtfTransferViewables(ch.interlis.ili2c.metamodel.TransferDescription td,int inheritanceMappingStrategy)
+	public static HashMap<String,ViewableWrapper> getXtfTransferViewables(ch.interlis.ili2c.metamodel.TransferDescription td,int inheritanceMappingStrategy)
 	{
 		HashSet leaveclassv=new HashSet();
 		// for all models

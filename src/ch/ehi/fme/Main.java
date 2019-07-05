@@ -40,20 +40,24 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	// ili2fme arguments
 	static public final String MODELS="MODELS";
 	static public final String MODEL_DIR="MODEL_DIR";
-	static public final String CREATE_LINETABLES="CREATE_LINETABLES";
+    
+    // new TODO
+    static public final String ILI1_LINETABLES="ILI1_LINETABLES"; // Polygon%Raw%Polygon+Raw
+    static public final String ILI1_LINETABLES_POLYGON="Polygon";
+    static public final String ILI1_LINETABLES_POLYGON_RAW="Polygon+Raw";
+    static public final String ILI1_LINETABLES_RAW="Raw";
+    static public final String VALIDATE="VALIDATE";
+    static public final String VALIDATE_MULTIPLICITY="VALIDATE_MULTIPLICITY";
+    static public final String VALIDATE_CONFIG="VALIDATE_CONFIG";
+    // new TODO
+    
 	static public final String USE_LINETABLES="USE_LINETABLES";
-	static public final String SKIP_POLYGONBUILDING="SKIP_POLYGONBUILDING";
 	static public final String INHERITANCE_MAPPING="INHERITANCE_MAPPING";
 	static public final String CREATEFEATURETYPE4ENUM="CREATEFEATURETYPE4ENUM";
 	static public final String TRACEMSGS="TRACEMSGS";
 	static public final String ILI1_ADDDEFVAL="ILI1_ADDDEFVAL";
-	static public final String ILI1_CONVERTAREA="ILI1_CONVERTAREA";
-	static public final String ILI1_CONVERTSURFACE="ILI1_CONVERTSURFACE";
-	static public final String ILI1_CHECKCONVERT="ILI1_CHECKCONVERT";
 	static public final String ILI1_ENUMASITFCODE="ILI1_ENUMASITFCODE";
 	static public final String CHECK_UNIQUEOID="CHECK_UNIQUEOID";
-	static public final String CHECK_ATTRTYPE="CHECK_ATTRTYPE";
-	static public final String CHECK_ATTRMULTIPLICITY="CHECK_ATTRMULTIPLICITY";
 	static public final String TRIM_VALUES="TRIM_VALUES";
 	static public final String ILI1_RENUMBERTID="ILI1_RENUMBERTID"; 
 	static public final String XTFDIR_PLACEHOLDER="%XTF_DIR";

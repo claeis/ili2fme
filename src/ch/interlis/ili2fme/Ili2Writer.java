@@ -85,8 +85,8 @@ public class Ili2Writer implements IFMEWriter {
 	private String epsgCode=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	private GeometryConverter geomConv=null;
-	private boolean checkAttrType=false;
-	private boolean checkAttrMultiplicity=false;
+	private boolean validate=false;
+	private boolean validateMultiplicity=false;
 	private boolean checkUniqueOid=false;
 	private boolean trimValues=true;
 	private HashMap checkoids=null; // map<String tid,String info>
@@ -171,12 +171,12 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
 				i++;
 				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
-			}else if(arg.equals(Main.CHECK_ATTRTYPE)){
+			}else if(arg.equals(Main.VALIDATE)){
 				i++;
-				checkAttrType=FmeUtility.isTrue((String)args.get(i));
-			}else if(arg.equals(Main.CHECK_ATTRMULTIPLICITY)){
+				validate=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.VALIDATE_MULTIPLICITY)){
 				i++;
-				checkAttrMultiplicity=FmeUtility.isTrue((String)args.get(i));
+				validateMultiplicity=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.TRIM_VALUES)){
 				i++;
 				trimValues=FmeUtility.isTrue((String)args.get(i));
@@ -205,10 +205,10 @@ public class Ili2Writer implements IFMEWriter {
 					useLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.CHECK_UNIQUEOID)){
 					checkUniqueOid=FmeUtility.isTrue((String)ele.get(1));
-				}else if(val.equals(writerKeyword+"_"+Main.CHECK_ATTRTYPE)){
-					checkAttrType=FmeUtility.isTrue((String)ele.get(1));
-				}else if(val.equals(writerKeyword+"_"+Main.CHECK_ATTRMULTIPLICITY)){
-					checkAttrMultiplicity=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.VALIDATE)){
+					validate=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(writerKeyword+"_"+Main.VALIDATE_MULTIPLICITY)){
+					validateMultiplicity=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.TRIM_VALUES)){
 					trimValues=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.INHERITANCE_MAPPING)){
@@ -243,8 +243,8 @@ public class Ili2Writer implements IFMEWriter {
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
-		EhiLogger.logState("checkAttrType <"+checkAttrType+">");
-		EhiLogger.logState("checkAttrMultiplicity <"+checkAttrMultiplicity+">");
+		EhiLogger.logState("checkAttrType <"+validate+">");
+		EhiLogger.logState("checkAttrMultiplicity <"+validateMultiplicity+">");
 		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
 		EhiLogger.traceState("models <"+models+">");
