@@ -2,6 +2,7 @@ ili2fme 7.0.1 (2019-08-23) BETA
 -------------------------------
 - filter baskets (topic filter) in IoxReader
 - implement linetable reading
+- integrated ilivalidator
 - ili2c-5.0.1
 - iox-ili-1.20.12
 

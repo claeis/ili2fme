@@ -17,6 +17,7 @@
  */
 package ch.interlis.ili2fme;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HashMap;
@@ -42,14 +43,19 @@ import COM.safe.fmeobjects.IFMELogFile;
 import COM.safe.fmeobjects.IFMEStringArray;
 import COM.safe.fmeobjects.IFMEText;
 import ch.ehi.basics.logging.EhiLogger;
+import ch.ehi.basics.settings.Settings;
 import ch.ehi.basics.tools.StringUtility;
 import ch.ehi.fme.*;
 import ch.interlis.ili2c.metamodel.*;
 import ch.interlis.iom.*;
+import ch.interlis.iom_j.itf.ItfReader2;
 import ch.interlis.iom_j.xtf.OidSpace;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iox.*;
 import ch.interlis.iox_j.jts.Jts2iox;
+import ch.interlis.iox_j.logging.LogEventFactory;
+import ch.interlis.iox_j.validator.ValidationConfig;
+import ch.interlis.iox_j.PipelinePool;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 
 /** INTERLIS implementation of an FME-Writer.
@@ -85,7 +91,9 @@ public class Ili2Writer implements IFMEWriter {
 	private String epsgCode=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	private GeometryConverter geomConv=null;
+    private ch.interlis.iox_j.validator.Validator validator=null;
 	private boolean validate=false;
+    private String validationConfig=null;
 	private boolean validateMultiplicity=false;
 	private boolean checkUniqueOid=false;
 	private boolean trimValues=true;
@@ -174,6 +182,9 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.VALIDATE)){
 				i++;
 				validate=FmeUtility.isTrue((String)args.get(i));
+            }else if(arg.equals(Main.VALIDATE_CONFIG)){
+                i++;
+                validationConfig=(String)args.get(i);
 			}else if(arg.equals(Main.VALIDATE_MULTIPLICITY)){
 				i++;
 				validateMultiplicity=FmeUtility.isTrue((String)args.get(i));
@@ -207,6 +218,8 @@ public class Ili2Writer implements IFMEWriter {
 					checkUniqueOid=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.VALIDATE)){
 					validate=FmeUtility.isTrue((String)ele.get(1));
+                }else if(val.equals(writerKeyword+"_"+Main.VALIDATE_CONFIG)){
+                    validationConfig=StringUtility.purge((String)ele.get(1));   
 				}else if(val.equals(writerKeyword+"_"+Main.VALIDATE_MULTIPLICITY)){
 					validateMultiplicity=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.TRIM_VALUES)){
@@ -243,8 +256,9 @@ public class Ili2Writer implements IFMEWriter {
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
-		EhiLogger.logState("checkAttrType <"+validate+">");
-		EhiLogger.logState("checkAttrMultiplicity <"+validateMultiplicity+">");
+        EhiLogger.logState("validate <"+validate+">");
+        EhiLogger.logState("validationConfig <"+(validationConfig!=null?validationConfig:"")+">");
+        EhiLogger.logState("validateMultiplicity <"+validateMultiplicity+">");
 		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
 		EhiLogger.traceState("models <"+models+">");
@@ -420,11 +434,37 @@ public class Ili2Writer implements IFMEWriter {
 				}else{
 					ioxWriter=new ch.interlis.iom_j.itf.ItfWriter(outputFile,iliTd);
 				}
+	            if(validate){
+	                ValidationConfig modelConfig=new ValidationConfig();
+	                modelConfig.mergeIliMetaAttrs(iliTd);
+	                String configFilename=validationConfig;
+	                if(configFilename!=null){
+	                    try {
+	                        modelConfig.mergeConfigFile(new File(configFilename));
+	                    } catch (java.io.IOException e) {
+	                        EhiLogger.logError("failed to read validator config file <"+configFilename+">");
+	                    }
+	                }
+	                modelConfig.setConfigValue(ValidationConfig.PARAMETER, ValidationConfig.MULTIPLICITY, validateMultiplicity?ValidationConfig.ON:ValidationConfig.OFF);
+	                Settings config=new Settings();
+	                IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
+	                LogEventFactory errFactory=new LogEventFactory();
+	                errFactory.setDataSource(xtfFile);
+	                PipelinePool pipelinePool=new PipelinePool();
+	                validator=new ch.interlis.iox_j.validator.Validator(iliTd,modelConfig, errHandler, errFactory, pipelinePool,config);               
+	            }
 				if(startTransferEvent!=null){
+				    if(validator!=null) {
+				        validator.validate(startTransferEvent);
+				    }
 					ioxWriter.write(startTransferEvent);
 					//EhiLogger.debug("ioxWriter.write(startTransferEvent)");
 				}else{
-					ioxWriter.write(new ch.interlis.iox_j.StartTransferEvent(getStartTransferEventVersion(),null,null));
+				    ch.interlis.iox_j.StartTransferEvent startTransferEvent=new ch.interlis.iox_j.StartTransferEvent(getStartTransferEventVersion(),null,null);
+                    if(validator!=null) {
+                        validator.validate(startTransferEvent);
+                    }
+					ioxWriter.write(startTransferEvent);
 					//EhiLogger.debug("ioxWriter.write(new ...)");
 				}
 				if(formatMode==MODE_XTF || formatMode==MODE_GML){
@@ -436,7 +476,14 @@ public class Ili2Writer implements IFMEWriter {
 				}else{
 					writeItfBuffers();
 				}
-				ioxWriter.write(new ch.interlis.iox_j.EndTransferEvent());
+				ch.interlis.iox_j.EndTransferEvent endTransferEvent=new ch.interlis.iox_j.EndTransferEvent();
+                if(validator!=null) {
+                    validator.validate(endTransferEvent);
+                    validator.doSecondPass();
+                    validator.close();
+                    validator=null;
+                }
+				ioxWriter.write(endTransferEvent);
 				ioxWriter.flush();
 				ioxWriter.close();
 				ioxWriter=null;
@@ -462,9 +509,16 @@ public class Ili2Writer implements IFMEWriter {
 					basketEvent.setBid(newTid());
 				}
 				EhiLogger.logState(basketEvent.getType()+" "+basketEvent.getBid()+"...");
+				if(validator!=null) {
+				    validator.validate(basketEvent);
+				}
 				ioxWriter.write(basketEvent);
 				writeBasket(basketId,false);
-				ioxWriter.write(new ch.interlis.iox_j.EndBasketEvent());
+				ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
+                if(validator!=null) {
+                    validator.validate(basketEvent);
+                }
+				ioxWriter.write(endBasketEvent);
 			}
 		}
 	}
@@ -481,7 +535,11 @@ public class Ili2Writer implements IFMEWriter {
 					if(iomObj==null){
 						throw new DataException("iomObj==null with feature "+feature.toString());
 					}
-					ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+					ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
+					if(validator!=null) {
+					    validator.validate(objEvent);
+					}
+					ioxWriter.write(objEvent);
 				} catch (Exception e) {
 					feature.performFunction("@Log()");
 					if(e instanceof DataException){
@@ -552,7 +610,11 @@ public class Ili2Writer implements IFMEWriter {
 				// add line attributes
 				//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 				//addItfLineAttributes(iomObj, feature, wrapper, surfaceType);
-				ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+				ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
+				if(validator!=null) {
+				    validator.validate(objEvent);
+				}
+				ioxWriter.write(objEvent);
 			}
 			feature.dispose();
 			
@@ -615,7 +677,11 @@ public class Ili2Writer implements IFMEWriter {
 									// add line attributes
 									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 									//addItfLineAttributes(iomObj, shell, wrapper, surfaceType);
-									ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+									ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
+									if(validator!=null) {
+									    validator.validate(objEvent);
+									}
+									ioxWriter.write(objEvent);
 								}
 								
 								// holes
@@ -642,7 +708,11 @@ public class Ili2Writer implements IFMEWriter {
 									// add line attributes
 									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 									//addItfLineAttributes(iomObj, hole, wrapper, surfaceType);
-									ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+									ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
+									if(validator!=null) {
+									    validator.validate(objEvent);
+									}
+									ioxWriter.write(objEvent);
 								}
 							}else if(fmeGeom instanceof IFMESimpleArea){
 								IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
@@ -665,7 +735,11 @@ public class Ili2Writer implements IFMEWriter {
 								// add line attributes
 								//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 								//addItfLineAttributes(iomObj, fmeGeom, wrapper, surfaceType);
-								ioxWriter.write(new ch.interlis.iox_j.ObjectEvent(iomObj));
+								ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
+								if(validator!=null) {
+								    validator.validate(objEvent);
+								}
+								ioxWriter.write(objEvent);
 							}else if(fmeGeom instanceof IFMENull){
 								// skip it
 							}else{
@@ -726,6 +800,9 @@ public class Ili2Writer implements IFMEWriter {
 						// StartBasket
 						topicNr++;
 						StartBasketEvent basketEvent=new ch.interlis.iox_j.StartBasketEvent(topic.getScopedName(null),Integer.toString(topicNr));
+	                    if(validator!=null) {
+	                        validator.validate(basketEvent);
+	                    }
 						ioxWriter.write(basketEvent);
 						Iterator iter = topic.getViewables().iterator();
 						while (iter.hasNext()) {
@@ -825,7 +902,11 @@ public class Ili2Writer implements IFMEWriter {
 							}
 						}
 						// EndBasket
-						ioxWriter.write(new ch.interlis.iox_j.EndBasketEvent());
+						ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
+		                  if(validator!=null) {
+		                        validator.validate(endBasketEvent);
+		                    }
+						ioxWriter.write(endBasketEvent);
 					}
 				}
 			}
@@ -1644,6 +1725,10 @@ public class Ili2Writer implements IFMEWriter {
 			featurebufferv=null;
 		}
 
+		if(validator!=null) {
+		    validator.close();
+		    validator=null;
+		}
 		// close writer
 		if(ioxWriter!=null){
 			try{

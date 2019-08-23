@@ -17,6 +17,7 @@
  */
 package ch.interlis.ili2fme;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -41,6 +42,7 @@ import COM.safe.fmeobjects.IFMEPoint;
 import COM.safe.fmeobjects.IFMEPath;
 import COM.safe.fmeobjects.IFMEDonut;
 import ch.ehi.basics.logging.EhiLogger;
+import ch.ehi.basics.settings.Settings;
 import ch.ehi.basics.tools.StringUtility;
 import ch.ehi.fme.*;
 import ch.interlis.ili2c.metamodel.*;
@@ -54,8 +56,11 @@ import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iom_j.xtf.XtfUtility;
 import ch.interlis.iox_j.IoxIliReader;
 import ch.interlis.iox_j.IoxInvalidDataException;
+import ch.interlis.iox_j.PipelinePool;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
+import ch.interlis.iox_j.logging.LogEventFactory;
+import ch.interlis.iox_j.validator.ValidationConfig;
 
 /** INTERLIS implementation of an FME-Reader.
  * @author ce
@@ -100,7 +105,9 @@ public class Ili2Reader implements IFMEReader {
 	private boolean ili1EnumAsItfCode=false;
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	private boolean checkUniqueOid=false;
+    private ch.interlis.iox_j.validator.Validator validator=null;
 	private boolean validate=false;
+	private String validationConfig=null;
 	private boolean validateMultiplicity=false;
 	private boolean trimValues=true;
 	private boolean ili1RenumberTid=false;
@@ -228,6 +235,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.VALIDATE)){
 				i++;
 				validate=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.VALIDATE_CONFIG)){
+				i++;
+				validationConfig=(String)args.get(i);
 			}else if(arg.equals(Main.VALIDATE_MULTIPLICITY)){
 				i++;
 				validateMultiplicity=FmeUtility.isTrue((String)args.get(i));
@@ -284,6 +294,8 @@ public class Ili2Reader implements IFMEReader {
 					ili1AddDefVal=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.VALIDATE)){
 					validate=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.VALIDATE_CONFIG)){
+					validationConfig=StringUtility.purge((String)ele.get(1));	
 				}else if(val.equals(readerKeyword+"_"+Main.VALIDATE_MULTIPLICITY)){
 					validateMultiplicity=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.TRIM_VALUES)){
@@ -320,9 +332,9 @@ public class Ili2Reader implements IFMEReader {
 		}else{
 			System.setProperty("java.net.useSystemProxies", "true");
 		}
-		
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
 		EhiLogger.logState("validate <"+validate+">");
+        EhiLogger.logState("validationConfig <"+(validationConfig!=null?validationConfig:"")+">");
 		EhiLogger.logState("validateMultiplicity <"+validateMultiplicity+">");
 		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
@@ -674,10 +686,35 @@ public class Ili2Reader implements IFMEReader {
 			if(ioxReader instanceof IoxIliReader && topicFilterv!=null && !topicFilterv.isEmpty()) {
 			    ((IoxIliReader) ioxReader).setTopicFilter(topicFilterv.toArray(new String[topicFilterv.size()]));
 			}
+			if(validate){
+                ValidationConfig modelConfig=new ValidationConfig();
+                modelConfig.mergeIliMetaAttrs(iliTd);
+                String configFilename=validationConfig;
+                if(configFilename!=null){
+                    try {
+                        modelConfig.mergeConfigFile(new File(configFilename));
+                    } catch (java.io.IOException e) {
+                        EhiLogger.logError("failed to read validator config file <"+configFilename+">");
+                    }
+                }
+                modelConfig.setConfigValue(ValidationConfig.PARAMETER, ValidationConfig.MULTIPLICITY, validateMultiplicity?ValidationConfig.ON:ValidationConfig.OFF);
+			    Settings config=new Settings();
+                IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
+                LogEventFactory errFactory=new LogEventFactory();
+                errFactory.setDataSource(xtfFile);
+                PipelinePool pipelinePool=new PipelinePool();
+                validator=new ch.interlis.iox_j.validator.Validator(iliTd,modelConfig, errHandler, errFactory, pipelinePool,config);               
+                if(ioxReader instanceof ItfReader2){
+                    ((ItfReader2) ioxReader).setIoxDataPool(pipelinePool);
+                }
+			}
 		}
 		IoxEvent event;
 		while(true){
 			event=ioxReader.read();
+			if(validator!=null) {
+			    validator.validate(event);
+			}
 			//EhiLogger.debug("event "+event.getClass().getName());
 			if(event instanceof StartTransferEvent){
 				ret.setFeatureType(Main.XTF_TRANSFER);
@@ -2036,6 +2073,10 @@ public class Ili2Reader implements IFMEReader {
 		if(geomAttrIterator!=null){
 			geomAttrIterator.dispose();
 			geomAttrIterator=null;
+		}
+		if(validator!=null) {
+		    validator.close();
+		    validator=null;
 		}
 		if(ioxReader!=null){
 			try{

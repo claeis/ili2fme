@@ -40,14 +40,10 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	// ili2fme arguments
 	static public final String MODELS="MODELS";
 	static public final String MODEL_DIR="MODEL_DIR";
-    
-    // new TODO
     static public final String ILI1_LINETABLES="ILI1_LINETABLES"; // Polygon%Raw%Polygon+Raw
     static public final String VALIDATE="VALIDATE";
     static public final String VALIDATE_MULTIPLICITY="VALIDATE_MULTIPLICITY";
     static public final String VALIDATE_CONFIG="VALIDATE_CONFIG";
-    // new TODO
-    
 	static public final String USE_LINETABLES="USE_LINETABLES";
 	static public final String INHERITANCE_MAPPING="INHERITANCE_MAPPING";
 	static public final String CREATEFEATURETYPE4ENUM="CREATEFEATURETYPE4ENUM";
