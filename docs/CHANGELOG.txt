@@ -1,3 +1,8 @@
+ili2fme 7.0.1 (2019-08-23)
+-------------------------------
+- filter baskets (topic filter) in IoxReader
+- implement linetable reading
+
 ili2fme 7.0.0 (2019-07-05) BETA
 -------------------------------
 - refactored polygon building

@@ -43,9 +43,6 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
     
     // new TODO
     static public final String ILI1_LINETABLES="ILI1_LINETABLES"; // Polygon%Raw%Polygon+Raw
-    static public final String ILI1_LINETABLES_POLYGON="Polygon";
-    static public final String ILI1_LINETABLES_POLYGON_RAW="Polygon+Raw";
-    static public final String ILI1_LINETABLES_RAW="Raw";
     static public final String VALIDATE="VALIDATE";
     static public final String VALIDATE_MULTIPLICITY="VALIDATE_MULTIPLICITY";
     static public final String VALIDATE_CONFIG="VALIDATE_CONFIG";

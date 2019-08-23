@@ -52,6 +52,7 @@ import ch.interlis.iom_j.itf.ItfReader;
 import ch.interlis.iom_j.itf.ItfReader2;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iom_j.xtf.XtfUtility;
+import ch.interlis.iox_j.IoxIliReader;
 import ch.interlis.iox_j.IoxInvalidDataException;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
@@ -77,7 +78,7 @@ public class Ili2Reader implements IFMEReader {
 	private HashSet<ViewableWrapper> seenFmeTypes=null;  // set<ViewableWrapper>
 	private IFMEFeature pendingSchemaFeature=null;
 	private boolean skipBasket=false;
-	private HashSet topicFilterv=null;
+	private HashSet<String> topicFilterv=null;
 	private int formatFeatureTypeIdx=FORMAT_FEATURETYPE_XTFTRANSFER;
 	private static final int FORMAT_FEATURETYPE_XTFTRANSFER = 0;
 	private static final int FORMAT_FEATURETYPE_XTFBASKETS = 1;
@@ -92,11 +93,8 @@ public class Ili2Reader implements IFMEReader {
 	private int formatMode=0;
 	private static final int MODE_XTF=1;
 	private static final int MODE_ITF=2;
-    private int itfMode=ITF_MODE_POLYGON;
-    private static final int ITF_MODE_POLYGON = 1;
-    private static final int ITF_MODE_RAW_AND_POLYGON = 2;
-    private static final int ITF_MODE_RAW = 3;
-	private boolean ili1AddDefVal=false;
+    private int itfMode=LinetableMapping.ILI1_LINETABLES_POLYGON;
+    private boolean ili1AddDefVal=false;
 	private boolean doRichGeometry=false;
 	private int  inheritanceMapping=InheritanceMapping.SUPERCLASS;
 	private boolean ili1EnumAsItfCode=false;
@@ -223,7 +221,7 @@ public class Ili2Reader implements IFMEReader {
 				topicsFilter=(String)args.get(i);
             }else if(arg.equals(Main.ILI1_LINETABLES)){
                 i++;
-                itfMode=mapIli1LintablesMode((String)args.get(i));
+                itfMode=LinetableMapping.valueOf((String)args.get(i));
 			}else if(arg.equals(Main.ILI1_ADDDEFVAL)){
 				i++;
 				ili1AddDefVal=FmeUtility.isTrue((String)args.get(i));
@@ -281,7 +279,7 @@ public class Ili2Reader implements IFMEReader {
 				}else if(val.equals(readerKeyword+"_"+Main.TOPICS_FILTER)){
 					topicsFilter=(String)ele.get(1);	
                 }else if(val.equals(readerKeyword+"_"+Main.ILI1_LINETABLES)){
-                    itfMode=mapIli1LintablesMode((String)ele.get(1));    
+                    itfMode=LinetableMapping.valueOf((String)ele.get(1));    
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ADDDEFVAL)){
 					ili1AddDefVal=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.VALIDATE)){
@@ -330,7 +328,7 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("geoAttrMapping <"+GeomAttrMapping.toString(geomAttrMapping)+">");
 		EhiLogger.logState("ili1RenumberTid <"+ili1RenumberTid+">");
-		EhiLogger.logState("lineTables <"+itfMode+">"); // TODO create mapping to string
+		EhiLogger.logState("lineTables <"+LinetableMapping.toString(itfMode)+">");
 		EhiLogger.logState("inheritanceMapping <"+InheritanceMapping.toString(inheritanceMapping)+">");
 		EhiLogger.logState("createEnumTypes <"+CreateEnumFeatureTypes.toString(createEnumTypes)+">");
 		EhiLogger.logState("ili1AddDefVal <"+ili1AddDefVal+">");
@@ -349,7 +347,7 @@ public class Ili2Reader implements IFMEReader {
 				topicFilter[i]=ch.ehi.basics.tools.StringUtility.purge(topicFilter[i]);
 				if(topicFilter[i]!=null){
 					if(topicFilterv==null){
-						topicFilterv=new HashSet();
+						topicFilterv=new HashSet<String>();
 					}
 					EhiLogger.logState("topicFilter <"+topicFilter[i]+">");
 					topicFilterv.add(topicFilter[i]);
@@ -388,7 +386,7 @@ public class Ili2Reader implements IFMEReader {
 		}
 		if(xtfExt!=null && xtfExt.equals("itf")){
             formatMode=MODE_ITF;
-			if(itfMode==ITF_MODE_RAW){
+			if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW){
                 EhiLogger.logState("use raw ITF reader");
 			}
 		}else if(xtfExt!=null && xtfExt.equals("gml")){
@@ -519,7 +517,7 @@ public class Ili2Reader implements IFMEReader {
 		if(formatMode==MODE_XTF){
 			transferViewables=ModelUtility.getXtfTransferViewables(iliTd,inheritanceMapping);
 		}else if(formatMode==MODE_ITF){
-		    if(itfMode==ITF_MODE_POLYGON) {
+		    if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGON) {
 	            transferViewables=ModelUtility.getItf2TransferViewables(iliTd);
 		    }else {
 	            transferViewables=ModelUtility.getItfTransferViewables(iliTd);
@@ -541,7 +539,7 @@ public class Ili2Reader implements IFMEReader {
 		if(formatMode==MODE_XTF){
 			tag2class=ch.interlis.ili2c.generator.XSDGenerator.getTagMap(iliTd);
 		}else if(formatMode==MODE_ITF){
-		    if(itfMode==ITF_MODE_POLYGON) {
+		    if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGON) {
 	            tag2class=ch.interlis.iom_j.itf.ModelUtilities.getTagMap2(iliTd);
 		    }else {
 	            tag2class=ch.interlis.iom_j.itf.ModelUtilities.getTagMap(iliTd);
@@ -566,14 +564,6 @@ public class Ili2Reader implements IFMEReader {
 		// ASSERT: ready to scan schema or read data
 	}
 
-	private int mapIli1LintablesMode(String mode) {
-        if(Main.ILI1_LINETABLES_RAW.equals(mode)){
-            return ITF_MODE_RAW;
-        }else if(Main.ILI1_LINETABLES_POLYGON_RAW.equals(mode)){
-            return ITF_MODE_RAW_AND_POLYGON;
-        }
-        return ITF_MODE_POLYGON;
-    }
     // Terminate the reader mid-stream.  Any special actions to shut
 	// down a reader not finished reading data should be taken in this
 	// method.  For most readers, nothing will be done.
@@ -658,7 +648,7 @@ public class Ili2Reader implements IFMEReader {
 			if(formatMode==MODE_XTF){
 				ioxReader=new ch.interlis.iom_j.xtf.XtfReader(inputFile);
 			}else if(formatMode==MODE_ITF){
-			    if(itfMode==ITF_MODE_RAW) {
+			    if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
 	                ioxReader=new ch.interlis.iom_j.itf.ItfReader(inputFile);
 	                ((ItfReader)ioxReader).setModel(iliTd);     
 	                ((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);      
@@ -674,9 +664,15 @@ public class Ili2Reader implements IFMEReader {
 	                if(ili1AddDefVal){
 	                    ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
 	                }
+	                if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW) {
+	                    ((ItfReader2)ioxReader).setReadLinetables(true);
+	                }
 			    }
 			}else{
 				throw new IllegalStateException("unexpected formatMode");
+			}
+			if(ioxReader instanceof IoxIliReader && topicFilterv!=null && !topicFilterv.isEmpty()) {
+			    ((IoxIliReader) ioxReader).setTopicFilter(topicFilterv.toArray(new String[topicFilterv.size()]));
 			}
 		}
 		IoxEvent event;
@@ -948,19 +944,23 @@ public class Ili2Reader implements IFMEReader {
                     //add ref to main table
                     String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
                     IomObject structvalue=iomObj.getattrobj(fkName,0);
-                    String refoid=structvalue.getobjectrefoid();
-                    ret.setStringAttribute(fkName,refoid);
+                    if(structvalue!=null) {
+                        String refoid=structvalue.getobjectrefoid();
+                        ret.setStringAttribute(fkName,refoid);
+                    }
                 }else if(type instanceof AreaType){
-                    if(itfMode==ITF_MODE_RAW_AND_POLYGON){
+                    if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW){
                         //add ref to main tables
-                        if(false) { // TODO
-                            String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
-                            IomObject structvalue=iomObj.getattrobj(fkName,0);
+                        String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
+                        IomObject structvalue=iomObj.getattrobj(fkName,0);
+                        if(structvalue!=null) {
                             String refoid=structvalue.getobjectrefoid();
                             ret.setStringAttribute(fkName,refoid);
-                            String fk2Name = getHelperTableMainTableRef2(wrapper.getGeomAttr4FME());
-                            structvalue=iomObj.getattrobj(fk2Name,0);
-                            refoid=structvalue.getobjectrefoid();
+                        }
+                        String fk2Name = ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef2(wrapper.getGeomAttr4FME());
+                        structvalue=iomObj.getattrobj(fk2Name,0);
+                        if(structvalue!=null) {
+                            String refoid=structvalue.getobjectrefoid();
                             ret.setStringAttribute(fk2Name,refoid);
                         }
                     }
@@ -1112,7 +1112,7 @@ public class Ili2Reader implements IFMEReader {
 			     if(!wrapper.isHelper()){
 	                 IomObject value=iomObj.getattrobj(attrName,0);
 	                 if(value!=null){
-                         if(formatMode==MODE_ITF && itfMode==ITF_MODE_RAW) {
+                         if(formatMode==MODE_ITF && itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
                              if(type instanceof AreaType) {
                                  ret.setStringAttribute(Main.XTF_GEOMTYPE,"xtf_coord");
                                  if(doRichGeometry){
@@ -1424,7 +1424,7 @@ public class Ili2Reader implements IFMEReader {
 						    }else {
 						        throw new IllegalStateException();
 						    }
-							if(itfMode==ITF_MODE_RAW_AND_POLYGON){
+							if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW){
                                 // add main table (MT) feature type
                                 pendingSchemaFeature=session.createFeature();
                                 ret.clone(pendingSchemaFeature);
@@ -1437,7 +1437,7 @@ public class Ili2Reader implements IFMEReader {
                                 }
                                 String featureType=ret.getFeatureType();
                                 pendingSchemaFeature.setFeatureType(featureType+"_MT");
-							}else if(itfMode==ITF_MODE_RAW) {
+							}else if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
                                 // change feature type that represents the main table
                                 if(type instanceof SurfaceType) {
                                     ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
@@ -1450,7 +1450,7 @@ public class Ili2Reader implements IFMEReader {
 							}
 						}else{
 							// helper table
-                            if(itfMode==ITF_MODE_RAW || itfMode==ITF_MODE_RAW_AND_POLYGON){
+                            if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW || itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW){
                                 String featureType=ret.getFeatureType();
                                 ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
                                 //add reference attr to main table
@@ -1459,10 +1459,10 @@ public class Ili2Reader implements IFMEReader {
                                     String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
                                     ret.setSequencedAttribute(fkName,Main.ID_TYPE);
                                 }else if(type instanceof AreaType){
-                                    if(itfMode==ITF_MODE_RAW_AND_POLYGON){
+                                    if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW){
                                         String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
                                         ret.setSequencedAttribute(fkName,Main.ID_TYPE);
-                                        String fk2Name = getHelperTableMainTableRef2(wrapper.getGeomAttr4FME());
+                                        String fk2Name = ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef2(wrapper.getGeomAttr4FME());
                                         ret.setSequencedAttribute(fk2Name,Main.ID_TYPE);
                                     }
                                 }else {
@@ -1495,10 +1495,6 @@ public class Ili2Reader implements IFMEReader {
 		transferViewablei=null;
 		return null;
 	}
-    private String getHelperTableMainTableRef2(AttributeDef geomAttr) {
-        String fk2Name="_itf_ref2_" + geomAttr.getContainer().getName(); // TODO move to iox-ili
-        return fk2Name;
-    }
 	private String mapEnumDefName(Object enumDef) {
 		String enumTypeName=null;
 		if(enumDef instanceof AttributeDef){
