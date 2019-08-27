@@ -447,6 +447,7 @@ public class Ili2Writer implements IFMEWriter {
 	                }
 	                modelConfig.setConfigValue(ValidationConfig.PARAMETER, ValidationConfig.MULTIPLICITY, validateMultiplicity?ValidationConfig.ON:ValidationConfig.OFF);
 	                Settings config=new Settings();
+                    config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
 	                IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
 	                LogEventFactory errFactory=new LogEventFactory();
 	                errFactory.setDataSource(xtfFile);

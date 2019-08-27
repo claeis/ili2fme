@@ -705,6 +705,9 @@ public class Ili2Reader implements IFMEReader {
                 }
                 modelConfig.setConfigValue(ValidationConfig.PARAMETER, ValidationConfig.MULTIPLICITY, validateMultiplicity?ValidationConfig.ON:ValidationConfig.OFF);
 			    Settings config=new Settings();
+			    if(formatMode==MODE_ITF && itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
+	                config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
+			    }
                 IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
                 LogEventFactory errFactory=new LogEventFactory();
                 errFactory.setDataSource(xtfFile);
@@ -719,7 +722,20 @@ public class Ili2Reader implements IFMEReader {
 		while(true){
 			event=ioxReader.read();
 			if(validator!=null) {
-			    validator.validate(event);
+			    // if ITF and POLYGON+RAW; skip line table features
+                if(formatMode==MODE_ITF && itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW &&  (event instanceof ObjectEvent)) {
+                    IomObject iomObj=((ObjectEvent) event).getIomObject();
+                    String tag=iomObj.getobjecttag();
+                    ViewableWrapper wrapper = transferViewables.get(tag);
+                    // help table?
+                    if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceOrAreaType){
+                        // helper table: skip it
+                    }else {
+                        validator.validate(event);
+                    }
+                }else {
+                    validator.validate(event);
+                }
 			}
 			//EhiLogger.debug("event "+event.getClass().getName());
 			if(event instanceof StartTransferEvent){
