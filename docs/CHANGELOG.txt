@@ -1,6 +1,7 @@
 LATEST
 -------------------------------
 - fix ClassCastException: ch.ehi.iox.adddefval.ItfAddDefValueReader in Ili2Reader.myread()
+- fix missing raw main table features (*_MT)
 
 ili2fme 7.0.1 (2019-08-23) BETA
 -------------------------------

@@ -82,6 +82,7 @@ public class Ili2Reader implements IFMEReader {
 	private Iterator<String> transferViewablei=null;
 	private HashSet<ViewableWrapper> seenFmeTypes=null;  // set<ViewableWrapper>
 	private IFMEFeature pendingSchemaFeature=null;
+    private IFMEFeature pendingMaintableFeature=null;
 	private boolean skipBasket=false;
 	private HashSet<String> topicFilterv=null;
 	private int formatFeatureTypeIdx=FORMAT_FEATURETYPE_XTFTRANSFER;
@@ -645,6 +646,12 @@ public class Ili2Reader implements IFMEReader {
             dataerrs.remove(0);
             return ret;
         }
+        if(pendingMaintableFeature!=null) {
+            ret.dispose();
+            ret=pendingMaintableFeature;
+            pendingMaintableFeature=null;
+            return ret;
+        }
 		if(geomAttrIterator!=null){
 			if(geomAttrIterator.hasNext()){
 				geomAttrIterator.next(ret);
@@ -764,6 +771,7 @@ public class Ili2Reader implements IFMEReader {
 						// read next object from transferfile
 						continue;
 					}
+										
 					if(geomAttrMapping==GeomAttrMapping.REPEAT_FEATRUE){
 						ViewableWrapper wrapper=transferViewables.get(iomObj.getobjecttag());
 						if(wrapper.getViewable()!=null){
@@ -1188,6 +1196,43 @@ public class Ili2Reader implements IFMEReader {
                                  }
                              }else{
                                 setSurface(ret,value,(SurfaceOrAreaType)type);
+                             }
+                             if(formatMode==MODE_ITF && itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW) {
+                                 // add main table (MT) feature
+                                 pendingMaintableFeature=session.createFeature();
+                                 try {
+                                    ret.clone(pendingMaintableFeature);
+                                } catch (FMEException e) {
+                                    throw new IllegalStateException(e);
+                                }
+                                 if(type instanceof SurfaceType) {
+                                     pendingMaintableFeature.setStringAttribute(Main.XTF_GEOMTYPE, "xtf_none");
+                                     pendingMaintableFeature.setGeometryType(IFMEFeature.FME_GEOM_UNDEFINED);
+                                 }else if(type instanceof AreaType){
+                                     pendingMaintableFeature.setStringAttribute(Main.XTF_GEOMTYPE, "xtf_coord");
+                                     value=iomObj.getattrobj(ItfReader2.SAVED_GEOREF_PREFIX+attrName,0);
+                                     if(value!=null) {
+                                         if(doRichGeometry){
+                                             IFMEPoint point=null;
+                                             try{
+                                                 point=Iox2fme.coord2FME(session,value);
+                                                 pendingMaintableFeature.setGeometry(point);
+                                             }finally{
+                                                 if(point!=null){
+                                                     point.dispose();
+                                                     point=null;
+                                                 }
+                                             }
+                                         }else{
+                                             pendingMaintableFeature.setGeometryType(IFMEFeature.FME_GEOM_POINT);
+                                             addCoord(pendingMaintableFeature,value);
+                                         }
+                                     }
+                                 }else {
+                                     throw new IllegalStateException();
+                                 }
+                                 String featureType=ret.getFeatureType();
+                                 pendingMaintableFeature.setFeatureType(featureType+"_MT");
                              }
                          }
 	                 }
