@@ -1,3 +1,7 @@
+LATEST
+-------------------------------
+- fix ClassCastException: ch.ehi.iox.adddefval.ItfAddDefValueReader in Ili2Reader.myread()
+
 ili2fme 7.0.1 (2019-08-23) BETA
 -------------------------------
 - filter baskets (topic filter) in IoxReader

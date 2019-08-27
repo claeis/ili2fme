@@ -665,26 +665,25 @@ public class Ili2Reader implements IFMEReader {
 	                ((ItfReader)ioxReader).setModel(iliTd);     
 	                ((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);      
 	                ((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
-	                if(ili1AddDefVal){
-	                    ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
-	                }
 			    }else {
 	                ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile,false);
 	                ((ItfReader2)ioxReader).setModel(iliTd);        
 	                ((ItfReader2)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);     
 	                ((ItfReader2)ioxReader).setRenumberTids(ili1RenumberTid);
-	                if(ili1AddDefVal){
-	                    ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
-	                }
-	                if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW) {
-	                    ((ItfReader2)ioxReader).setReadLinetables(true);
-	                }
+                    if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW) {
+                        ((ItfReader2)ioxReader).setReadLinetables(true);
+                    }
 			    }
 			}else{
 				throw new IllegalStateException("unexpected formatMode");
 			}
 			if(ioxReader instanceof IoxIliReader && topicFilterv!=null && !topicFilterv.isEmpty()) {
 			    ((IoxIliReader) ioxReader).setTopicFilter(topicFilterv.toArray(new String[topicFilterv.size()]));
+			}
+			if(formatMode==MODE_ITF) {
+                if(ili1AddDefVal){
+                    ioxReader=new ch.ehi.iox.adddefval.ItfAddDefValueReader(ioxReader,iliTd,ili1EnumAsItfCode);
+                }
 			}
 			if(validate){
                 ValidationConfig modelConfig=new ValidationConfig();
