@@ -1,5 +1,8 @@
 LATEST
 -------------------------------
+
+ili2fme 7.0.2 (2019-08-28)
+-------------------------------
 - fix ClassCastException: ch.ehi.iox.adddefval.ItfAddDefValueReader in Ili2Reader.myread()
 - fix missing raw main table features (*_MT)
 - switch validator to ITF raw mode if ILI1_LINETABLES=Raw
