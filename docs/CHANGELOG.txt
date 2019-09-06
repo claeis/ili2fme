@@ -1,6 +1,11 @@
 LATEST
 -------------------------------
 
+ili2fme 7.0.3 (2019-09-06)
+-------------------------------
+- ili2c-5.0.2
+- iox-ili-1.20.13
+
 ili2fme 7.0.2 (2019-08-28)
 -------------------------------
 - fix ClassCastException: ch.ehi.iox.adddefval.ItfAddDefValueReader in Ili2Reader.myread()
