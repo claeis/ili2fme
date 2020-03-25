@@ -1,5 +1,7 @@
 language: java
 
+os: windows
+
 jdk:
   - openjdk8
 
@@ -8,9 +10,13 @@ branches:
     - master
     - stable
 
+before_install:
+- |-  
+   choco install wixtoolset --version=3.8.1128.0
+   
 install: true
 
-before_script:
+  
 
 script: 
   - gradle build 
