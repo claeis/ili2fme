@@ -1,0 +1,27 @@
+language: java
+
+jdk:
+  - openjdk8
+
+branches:
+  only:
+    - master
+    - stable
+
+install: true
+
+before_script:
+
+script: 
+  - gradle build 
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; gradle -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=sftp://ftp.interlis.ch' upload
+    on:
+      branch: master
+  - provider: script
+    skip_cleanup: true
+    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; gradle -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=sftp://ftp.interlis.ch' '-Drelease=' upload
+    on:
+      branch: stable

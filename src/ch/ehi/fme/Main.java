@@ -160,29 +160,19 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		return ret;
 	}
 	private static String version=null;
-	public static String getVersion() {
-		  if(version==null){
-		java.util.ResourceBundle resVersion = java.util.ResourceBundle.getBundle("ch/interlis/ili2fme/Version");
-			// Major version numbers identify significant functional changes.
-			// Minor version numbers identify smaller extensions to the functionality.
-			// Micro versions are even finer grained versions.
-			StringBuffer ret=new StringBuffer(20);
-		ret.append(resVersion.getString("versionMajor"));
-			ret.append('.');
-		ret.append(resVersion.getString("versionMinor"));
-			ret.append('.');
-		ret.append(resVersion.getString("versionMicro"));
-			ret.append('-');
-                String branch=ch.ehi.basics.tools.StringUtility.purge(resVersion.getString("versionBranch"));
-                if(branch!=null){
-                   ret.append(branch);
-                   ret.append('-');
-                }
-		ret.append(resVersion.getString("versionDate"));
-			version=ret.toString();
-		  }
-		  return version;
-	}
+
+    public static String getVersion() {
+        if (version == null) {
+            java.util.ResourceBundle resVersion = java.util.ResourceBundle.getBundle("ch/interlis/ili2fme/Version");
+            StringBuffer ret = new StringBuffer(20);
+            ret.append(resVersion.getString("version"));
+            ret.append('-');
+            ret.append(resVersion.getString("versionCommit"));
+            version = ret.toString();
+        }
+        return version;
+    }
+
 	private static final boolean doFMELog=true;
 	private static final boolean doFileLog=false;
 	private static java.util.HashMap fmeListeners=new java.util.HashMap();

@@ -1,0 +1,210 @@
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+apply plugin: 'maven'
+
+version '7.0.7'+System.getProperty('release','-SNAPSHOT')
+group 'ch.interlis'
+
+
+sourceCompatibility = "1.6" 
+targetCompatibility = "1.6"
+compileJava.options.encoding = 'US-ASCII'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use jcenter for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+    maven {
+        url "http://jars.interlis.ch"
+    }
+    flatDir { dirs 'lib' }
+    flatDir { dirs '$extractedIli2cJar' }
+}
+
+Properties properties = new Properties()
+File propFile=project.rootProject.file('user.properties')
+if(propFile.exists()){
+	properties.load(propFile.newDataInputStream())
+}
+def git = System.getProperty('git',properties.get('git','git'))
+def wix_candle = System.getProperty('wix_candle',properties.get('wix_candle','candle.exe'))
+def wix_light = System.getProperty('wix_light',properties.get('wix_light','light.exe'))
+def repos_pwd = System.getProperty('repos_pwd',properties.get('repos_pwd','repos_pwd'))
+def repos_usr = System.getProperty('repos_usr',properties.get('repos_usr','repos_usr'))
+def repos_url = System.getProperty('repos_url',properties.get('repos_url','repos_url'))
+
+
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine git, 'rev-parse', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+def generatedResources = "$buildDir/generated-resources/main"
+def extractedIli2cJar = "$buildDir/ili2cJar"
+
+sourceSets {
+    main {
+    	output.dir(generatedResources, builtBy: 'generateMyResources')
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+task generateMyResources {
+	def versionPropsFile = new File(generatedResources,"ch/interlis/ili2fme/Version.properties")
+    outputs.files "$versionPropsFile"
+	doLast {
+		def versionProps = new Properties()
+		versionProps.setProperty('version', "$project.version")
+		versionProps.setProperty('versionCommit', getGitHash())
+		versionPropsFile.getParentFile().mkdirs();
+		versionProps.store(versionPropsFile.newWriter(), null);
+	}
+}
+
+
+configurations {
+    deployerJars
+    ili2cTool { transitive = false }
+}
+
+dependencies {
+   compile name:"ili2c"
+   compile name:"jts-core-1.14.0"
+   compile name:"pluginbuilder"
+   ili2cTool("ch.interlis:ili2c-tool:5.0.7+"){
+		artifact {
+			  //useful when some artifact properties unconventional
+			  name = 'ili2c-tool' //artifact name different than module name
+			  extension = 'zip'
+			  type = 'zip'
+			  classifier = 'bindist'
+		}
+   }
+    deployerJars "org.apache.maven.wagon:wagon-ftp:3.3.3"
+    deployerJars "org.apache.maven.wagon:wagon-ssh:3.3.3"
+}
+
+jar {
+  enabled = true
+  manifest {
+    attributes(
+      "Main-Class": 'ch.interlis.ili2fme.AboutDialog',
+      "Class-Path": configurations.runtimeClasspath.collect { it.getName() }.join(' '))
+  }
+}
+
+task getIli2cToolJar(type: Copy){
+	from {
+		zipTree(configurations.ili2cTool.singleFile).matching { include '**/ili2c.jar' }.singleFile
+	}
+	into "$extractedIli2cJar"
+}
+
+compileJava.dependsOn getIli2cToolJar
+
+task bindist(type: Zip){
+	group = BasePlugin.BUILD_GROUP
+    description = 'Assembles the binary distribution of this project'
+	
+	baseName = project.name
+	destinationDir = file('dist')
+	from jar
+	into('libs'){
+		from configurations.runtimeClasspath
+		//def jars=[]
+		//subprojects.each {
+        //	jars+=it.libsDir
+        //}
+        //from jars
+	}
+}
+
+task('msi') {
+	group = BasePlugin.BUILD_GROUP
+    description = 'Assembles the MSI distribution of this project'
+    
+	def msiFile = new File("dist","${project.name}-${project.version}.msi")
+    outputs.files "$msiFile"
+    
+    doLast {
+    	def strippedVersion="${project.version}".replace("-SNAPSHOT","")
+    	def basedir=projectDir
+		exec {
+			commandLine "${wix_candle}", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "$buildDir/wix/ili2fme.wixobj", "setup/ili2fme.wxs"
+		}
+		exec {
+			commandLine "${wix_light}","-b", "setup", "-pdbout", "$buildDir/wix/ili2fme.wixpdb", "-out", "$msiFile", "$buildDir/wix/ili2fme.wixobj"
+		}
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc{
+	failOnError = false
+	options.addBooleanOption 'Xdoclint:none', true
+	//options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+	archives(bindist.archivePath) {
+        type 'zip'
+        classifier 'bindist'
+        builtBy bindist
+    }
+	archives(files(msi.outputs).singleFile) {
+        type 'msi'
+        classifier 'bindist'
+        builtBy msi
+    }
+}
+
+def githubRepoUrl = 'https://github.com/claeis/ili2fme'
+
+def pomConfig = {
+    licenses {
+        license {
+            name "LGPL 2.1"
+            url "https://github.com/claeis/ili2fme/blob/master/docs/LICENSE.lgpl"
+        }
+    }
+    developers {
+        developer {
+            id "claeis"
+            name "Claude Eisenhut"
+            email "ce@eisenhutinformatik.ch"
+        }
+    }
+
+    scm {
+        url githubRepoUrl
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+        	configuration = configurations.deployerJars
+			repository(url: repos_url){
+            	authentication(userName: repos_usr, password: repos_pwd)
+            }
+        }
+    }
+}
