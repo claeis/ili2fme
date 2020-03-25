@@ -1,9 +1,9 @@
-language: java
+language: shell
 
 os: windows
 
-jdk:
-  - openjdk8
+#jdk:
+#  - openjdk8
 
 branches:
   only:
@@ -12,6 +12,7 @@ branches:
 
 before_install:
 - |-  
+   choco install openjdk8
    choco install wixtoolset --version=3.8.1128.0
    
 install: true
