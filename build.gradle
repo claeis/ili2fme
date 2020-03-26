@@ -28,6 +28,7 @@ if(propFile.exists()){
 	properties.load(propFile.newDataInputStream())
 }
 def git = System.getProperty('git',properties.get('git','git'))
+def windir = System.getProperty('windir',properties.get('windir',""))
 def wix_candle = System.getProperty('wix_candle',properties.get('wix_candle','candle.exe'))
 def wix_light = System.getProperty('wix_light',properties.get('wix_light','light.exe'))
 def repos_pwd = System.getProperty('repos_pwd',properties.get('repos_pwd','repos_pwd'))
@@ -136,11 +137,17 @@ task('msi') {
     doLast {
     	def strippedVersion="${project.version}".replace("-SNAPSHOT","")
     	def basedir=projectDir
+    	def candleCmd=["${wix_candle}", "-v", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "OUT/ILI2FME.WIXOBJ", "setup/ili2fme.wxs"]
+    	def lightCmd=["${wix_light}","-v", "-sval","-b", "setup", "-pdbout", "OUT/ILI2FME.WIXPDB", "-out", "$msiFile", "OUT/ILI2FME.WIXOBJ"]
+    	if(windir==""){
+    		candleCmd.add(0,"wine")
+    		lightCmd.add(0,"wine")
+    	}	
 		exec {
-			commandLine "wine","${wix_candle}", "-v", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "OUT/ILI2FME.WIXOBJ", "setup/ili2fme.wxs"
+			commandLine candleCmd
 		}
 		exec {
-			commandLine "wine","${wix_light}","-v", "-sval","-b", "setup", "-pdbout", "$buildDir/wix/ili2fme.wixpdb", "-out", "$msiFile", "OUT/ILI2FME.WIXOBJ"
+			commandLine lightCmd
 		}
     }
 }
