@@ -6,7 +6,7 @@ addons:
       - winehq-stable
 
 jdk:
-¨  - openjdk8
+   - openjdk8
 
 branches:
   only:
