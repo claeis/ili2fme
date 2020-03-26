@@ -137,10 +137,10 @@ task('msi') {
     	def strippedVersion="${project.version}".replace("-SNAPSHOT","")
     	def basedir=projectDir
 		exec {
-			commandLine "${wix_candle}", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "$buildDir/wix/ili2fme.wixobj", "setup/ili2fme.wxs"
+			commandLine "wine", "${wix_candle}", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "$buildDir/wix/ili2fme.wixobj", "setup/ili2fme.wxs"
 		}
 		exec {
-			commandLine "${wix_light}","-b", "setup", "-pdbout", "$buildDir/wix/ili2fme.wixpdb", "-out", "$msiFile", "$buildDir/wix/ili2fme.wixobj"
+			commandLine "wine", "${wix_light}","-b", "setup", "-pdbout", "$buildDir/wix/ili2fme.wixpdb", "-out", "$msiFile", "$buildDir/wix/ili2fme.wixobj"
 		}
     }
 }

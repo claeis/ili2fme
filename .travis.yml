@@ -1,26 +1,23 @@
-language: shell
+language: java
 
-os: windows
+addons:
+  apt:
+    packages:
+      - winehq-stable
 
-#jdk:
-#  - openjdk8
+jdk:
+¨  - openjdk8
 
 branches:
   only:
     - master
     - stable
 
-before_install:
-- |-  
-   choco install openjdk8
-   choco install wixtoolset
-   
 install: true
 
-  
-
 script: 
-  - gradle build 
+  - gradle build
+  
 deploy:
   - provider: script
     skip_cleanup: true
