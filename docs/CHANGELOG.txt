@@ -1,6 +1,7 @@
 LATEST
 -------------------------------
 - switch build tool to gradle
+- switch msi to x64 (#16)
 
 ili2fme 7.0.6 (2020-02-03)
 -------------------------------

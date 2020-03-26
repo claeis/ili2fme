@@ -137,7 +137,7 @@ task('msi') {
     doLast {
     	def strippedVersion="${project.version}".replace("-SNAPSHOT","")
     	def basedir=projectDir
-    	def candleCmd=["${wix_candle}", "-v", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "OUT/ILI2FME.WIXOBJ", "setup/ili2fme.wxs"]
+    	def candleCmd=["${wix_candle}", "-v", "-arch=x64", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "OUT/ILI2FME.WIXOBJ", "setup/ili2fme.wxs"]
     	def lightCmd=["${wix_light}","-v", "-sval","-b", "setup", "-pdbout", "OUT/ILI2FME.WIXPDB", "-out", "$msiFile", "OUT/ILI2FME.WIXOBJ"]
     	if(windir==""){
     		candleCmd.add(0,"wine")
