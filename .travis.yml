@@ -11,6 +11,7 @@ addons:
     packages:
       - wine32
       - wine-stable
+      - winetricks
 
 jdk:
    - openjdk8
@@ -23,6 +24,8 @@ branches:
 install: true
 
 script: 
+  - set WINE_MONO_VERSION=0.0.8;mkdir -p /usr/share/wine/mono && curl -SL 'http://sourceforge.net/projects/wine/files/Wine%20Mono/$WINE_MONO_VERSION/wine-mono-$WINE_MONO_VERSION.msi/download' -o /usr/share/wine/mono/wine-mono-$WINE_MONO_VERSION.msi && chmod +x /usr/share/wine/mono/wine-mono-$WINE_MONO_VERSION.msi
+  - winetricks --unattended dotnet40 dotnet_verifier
   - (mkdir -p build/wix ; cd build/wix ; curl -SL "http://wixtoolset.org/downloads/v3.9.1006.0/wix39-binaries.zip" -o wix39-binaries.zip ; unzip wix39-binaries.zip; rm -f wix39-binaries.zip)
   - gradle -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe build
   
