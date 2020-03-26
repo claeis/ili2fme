@@ -143,6 +143,11 @@ task('msi') {
     		candleCmd.add(0,"wine")
     		lightCmd.add(0,"wine")
     	}	
+    	copy {
+    		from jar
+    		into 'build/jar'
+    		rename '.+','ili2fme.jar'
+    	}
 		exec {
 			commandLine candleCmd
 		}
