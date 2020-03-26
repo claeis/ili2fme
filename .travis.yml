@@ -31,11 +31,11 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; gradle -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=sftp://ftp.interlis.ch' upload
+    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; gradle -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' upload
     on:
       branch: master
   - provider: script
     skip_cleanup: true
-    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; gradle -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=sftp://ftp.interlis.ch' '-Drelease=' upload
+    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; gradle -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' '-Drelease=' upload
     on:
       branch: stable
