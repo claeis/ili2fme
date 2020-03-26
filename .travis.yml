@@ -9,6 +9,7 @@ addons:
   apt:
     update: true
     packages:
+      - wine32
       - wine-stable
 
 jdk:
@@ -22,7 +23,8 @@ branches:
 install: true
 
 script: 
-  - gradle build
+  - mkdir wix ; cd wix ; curl -SL "http://wixtoolset.org/downloads/v3.9.1006.0/wix39-binaries.zip" -o wix39-binaries.zip ; unzip wix39-binaries.zip; rm -f wix39-binaries.zip
+  - gradle -Dwix_candle=wix/candle.exe -Dwix_light=wix/light.exe build
   
 deploy:
   - provider: script
