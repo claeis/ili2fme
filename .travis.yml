@@ -7,7 +7,7 @@ addons:
   apt:
     update: true
     packages:
-      - winehq-stable
+      - wine-stable
 
 jdk:
    - openjdk8
