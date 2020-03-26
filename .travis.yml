@@ -23,8 +23,8 @@ branches:
 install: true
 
 script: 
-  - mkdir wix ; cd wix ; curl -SL "http://wixtoolset.org/downloads/v3.9.1006.0/wix39-binaries.zip" -o wix39-binaries.zip ; unzip wix39-binaries.zip; rm -f wix39-binaries.zip
-  - gradle -Dwix_candle=wix/candle.exe -Dwix_light=wix/light.exe build
+  - mkdir -p build/wix ; cd build/wix ; curl -SL "http://wixtoolset.org/downloads/v3.9.1006.0/wix39-binaries.zip" -o wix39-binaries.zip ; unzip wix39-binaries.zip; rm -f wix39-binaries.zip
+  - gradle -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe build
   
 deploy:
   - provider: script
