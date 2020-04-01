@@ -105,6 +105,7 @@ jar {
   }
 }
 
+/*
 asciidoctor {
     sourceDir  file('docs')
     outputDir  file('build/docs')
@@ -126,7 +127,7 @@ asciidoctorPdf {
 	  //'imagesoutdir' => './images'
 	}  	
 }
-
+*/
 
 task getIli2cToolJar(type: Copy){
 	from {
@@ -143,14 +144,30 @@ task bindist(type: Zip){
 	
 	baseName = project.name
 	destinationDir = file('dist')
-	from jar
-	into('libs'){
-		from configurations.runtimeClasspath
-		//def jars=[]
-		//subprojects.each {
-        //	jars+=it.libsDir
-        //}
-        //from jars
+	
+	def fme="FME Suite"
+	
+	from(jar) {
+		rename '.+','ili2fme.jar'
+        into "${fme}/plugins/"
+	}
+	from(configurations.runtimeClasspath){
+        into "${fme}/plugins/"
+	}
+	from("other"){
+		include "ch.ehi.fme.Main.fmf"
+        into "${fme}/metafile/"
+	}
+	from("other"){
+		include "interlis2.db"
+        into "${fme}/formatsinfo/"
+	}
+	from("other"){
+	    include "ilimodels/*.ili", "ili22models/*.ili","converter/*.fmi","iligml/**/*.xsd"
+        into "${fme}/plugins/interlis2/"
+	}
+	from ("$projectDir"){
+	    include "docs/LICENSE.*","docs/README.txt","docs/CHANGELOG.txt","docs/interlis2.pdf"
 	}
 }
 
