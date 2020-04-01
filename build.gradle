@@ -1,6 +1,10 @@
-// Apply the java plugin to add support for Java
-apply plugin: 'java'
-apply plugin: 'maven'
+plugins {
+	id "java"
+	id "maven"
+	id 'org.asciidoctor.jvm.convert' version '3.1.0'
+	id 'org.asciidoctor.jvm.pdf' version '3.1.0'
+}
+
 
 version '7.0.7'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
@@ -79,7 +83,7 @@ dependencies {
    compile name:"ili2c"
    compile name:"jts-core-1.14.0"
    compile name:"pluginbuilder"
-   ili2cTool("ch.interlis:ili2c-tool:5.0.7+"){
+   ili2cTool("ch.interlis:ili2c-tool:5.0.8"){
 		artifact {
 			  //useful when some artifact properties unconventional
 			  name = 'ili2c-tool' //artifact name different than module name
@@ -100,6 +104,29 @@ jar {
       "Class-Path": configurations.runtimeClasspath.collect { it.getName() }.join(' '))
   }
 }
+
+asciidoctor {
+    sourceDir  file('docs')
+    outputDir  file('build/docs')
+	resources {
+	  from('docs') {
+		include 'media/*.png'
+	  }
+	}
+}
+
+asciidoctorPdf {
+    sourceDir  file('docs')
+	sources {
+		include 'ili2fme.adoc' //, 'another.adoc', 'third.adoc'
+	} 
+  	outputDir  file('build/docs')
+	attributes {
+	  imagesdir= 'docs'
+	  //'imagesoutdir' => './images'
+	}  	
+}
+
 
 task getIli2cToolJar(type: Copy){
 	from {
