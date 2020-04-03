@@ -105,7 +105,6 @@ jar {
   }
 }
 
-/*
 asciidoctor {
     sourceDir  file('docs')
     outputDir  file('build/docs')
@@ -122,12 +121,12 @@ asciidoctorPdf {
 		include 'ili2fme.adoc' //, 'another.adoc', 'third.adoc'
 	} 
   	outputDir  file('build/docs')
-	attributes {
+  	baseDirFollowsSourceDir()
+	/*attributes {
 	  imagesdir= 'docs'
 	  //'imagesoutdir' => './images'
-	}  	
+	} */ 	
 }
-*/
 
 task getIli2cToolJar(type: Copy){
 	from {
