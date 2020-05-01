@@ -82,7 +82,7 @@ configurations {
 dependencies {
    compile name:"ili2c"
    compile name:"jts-core-1.14.0"
-   compile name:"pluginbuilder"
+   compileOnly name:"pluginbuilder"
    ili2cTool("ch.interlis:ili2c-tool:5.0.8"){
 		artifact {
 			  //useful when some artifact properties unconventional
