@@ -1,0 +1,96 @@
+=== Usage
+
+[qanda]
+I am getting the following error: “missing model Roads”::
+In the folder of your data-file or your folder ${FME}/plugins/interlis2/ilimodels there is no .ili-file containing a “MODEL Roads”. Move the file Roads.ili to the folder of your data-file or the folder ${FME}/plugins/interlis2/ilimodels.
+
+My destination format is INTERLIS and I’m getting the following error: “model name not specified”::
+You must change the Parameter “MODELS” to “%DATA” or the name of the INTERLIS model (without extension .ili) that you intend to write (on the Destination Dataset).
+
+My destination format is INTERLIS and I’m getting the following error: “missing mandatory attribute xtf_class.”::
+The appropriate feature types are expected by the writer, as if the same model would have been read by the INTERLIS 2 reader. That means: Every feature type must have the Attributes xtf_id, xtf_class, xtf_basket. There must be a feature type XTF_BASKET with attributes xtf_id and xtf_topic.
+
+My destination format is INTERLIS and I’m getting the following error: “missing mandatory attribute xtf_basket.”::
+The appropriate feature types are expected by the writer, as if the same model would have been read by the INTERLIS 2 reader. That means: Every feature type must have the Attributes xtf_id, xtf_class, xtf_basket. There must be a feature type XTF_BASKETS with attributes xtf_id and xtf_topic.
+
+I have an INTERLIS model “Roads.ili”. Should I place into the folder ${FME}/plugins/interlis2/ilimodels?::
+Yes, if you read or write data according to that model more than once. (ili2fme will also look in the folder of your data-file for INTERLIS models.)
+
+Is the ordering of the model names as a value of the FME-keyword “Ili2fme_Models” significant?::
+No, any ordering will do.
+
+If a model imports other models (like “Units” or “CoordSys”), should I name all models as value of the  FME-keyword “Ili2fme_Models”?::
+No, but all required models (including indirectly imported ones), all required .ili-files, should be in the folder of your data-file or the folder $(FME)/plugins/interlis2/ilimodels.
+
+If a model imports other models (like “Units” or “CoordSys”), which one should I name as value of  the  FME-keyword “Ili2fme_Models”?::
+Use the most specific one (the one that imports directly or indirectly all the other ones). The imported models will be used automatically.
+
+If a model extends another one, which one should I name as value of  the  FME-keyword “Ili2fme_Models”, the base model or the extended one?::
+Use the extended one. The base model will be used automatically.
+
+I would like to convert to a particular INTERLIS model. How can I import the feature types?::
+Import the INTERLIS model file (file with the extension .ili), instead of a INTERLIS data file. (You have to change the Filetype in the file selector dialog to “All Files” to see the ili-files.)
+
+Is it possible to merge the output of ili2fme with an existing file?::
+No, not directly. But you can read the existing file into the same workbench, setup the merging inside the workbench and write the result of the merging. In that way, you are able to fully control how the existing and the new data is merged.
+
+=== Mapping
+
+[qanda]
+How to map  XTF_ID, XTF_CLASS, XTF_BASKET if INTERLIS is the destination format?::
+XTF_ID is the XML attribute TID and should be unique across all feature types. Typically the value of the primary key of the source feature. 
+XTF_CLASS the qualified name of the destination INTERLIS-class. Typically a constant like "ModelName.TopicName.ClassName" (the actual value depends on your INTERLIS model).
+XTF_BASKET is the foreign key of a feature of type XTF_BASKETS.
+
+How to specify at export the kind of transfer (FULL, INITIAL, UPDATE) and the kind of feature operation (INSERT, UPDATE, DELETE)?::
+The kind of transfer is indicated by values in the attributes “xtf_startstate” and “xtf_endstate” of the format feature type “XTF_BASKETS”. If “xtf_endstate” is not set, its an FULL transfer. If “xtf_endstate” is set and “xtf_startstate” is not set, it’s an INITIAL transfer. If “xtf_endstate” and “xtf_startstate” are set, it’s an INITIAL transfer.
+The values INSERT, UPDATE, DELETE are required for incremental transfer. Use the format attribute “xtf_operation”.
+
+What is the purpose of the feature type "XTF_DELETEOBJECT"?::
+It’s a shortcut to signal “this object is no longer in the basket”.
+
+What is the purpose of the format attribute “xtf_operation“? Which are the possible values?::
+This format attribute indicates the kind of change to the object. Possible values are: INSERT, UPDATE, DELETE. It’s only used with incremental transfer mode.
+
+What is the purpose of the format attribute “xtf_consistency”? Which are the possible values?::
+Possible values are: COMPLETE, INCOMPLETE, INCONSISTENT, ADAPTED.
+
+If an attribute is of type enumeration (like „color: (red,green,blue);“: Is it possible to get the values (0,1,2,...) instead of the resolved names?::
+- XTF file: No. In INTERLIS 2 the resolved name is the value. In INTERLIS 2 there is no mapping of an enumeration to a numeric.
+- ITF file: Yes. Set the parameter ILI1_ENUMASITFCODE to "Yes". (But this is not recommended, because it is more difficult to detect errors in the mapping script, and the mapping script becomes incompatible to INTERLIS 2 (XTF).)
+
+How are foreign keys mapped?::
+The value of the REF XML-attribute of the role (association end) gets the property value of the feature, that contains the role.
+
+How are 1-1 associations mapped?::
+Like defined by the INTERLIS 2-encoding rules. The end class of the second role (association end) gets the property with the reference/foreign key. The property gets the name of the first role.
+
+How are BAG/LIST-attributes mapped?::
+BAG/LIST-attributes are mapped as list attribute.
+
+How is inheritance mapped?::
+ili2fme uses a super or subclass strategy.
+
+My INTERLIS model contains a lot of classes, but in FME, I see only a few of them as feature types. Why?::
+ili2fme uses by default a super type strategy to map the inheritance tree of the INTERLIS classes. Only root classes in INTERLIS become feature types in FME. You may consider changing the mapping strategy to subclass.
+
+How can I read the TID of records out of INTERLIS 1 transfer files (files with extension .itf)?::
+The TID is accessible threw the XTF_ID attribute in each feature type.
+
+My INTERLIS model contains a class with more than one geometry attribute. How is this class mapped to an FME feature type?::
+ili2fme uses the first geometry attribute of the INTERLIS class as geometry of the FME feature type. Any further geometry attributes are mapped as ordinary FME attributes. The encoding of the FME attributes containing geometry can be controlled by the ili2fme parameter GEOMETRY_ENCODING.
+
+=== Configuration
+
+[qanda]
+Which version of ili2fme is installed?::
+Run FME Viewer and open an INTERLIS data file. The version of ili2fme will be written to the log window of FME (e.g. "ili2fme-5.1.0-20090311").
+
+Why does FME report: ``No Reader named 'ch.ehi.fme.Main' is available in this FME version``?::
+This may have several reasons:
+-	No JAVA installed
+-	Wrong Version of JAVA installed (ili2fme requires at least JAVA 1.6.0)
+-	Wrong FME edition (normally ili2fme requires at least FME Professional)
+-	Maybe jvm.dll is not found by FME. 
+-	Maybe a required JAR file is missing in $(FME)/plugins. The following JAR files are required: ili2fme.jar, ili2c.jar, jts-core-1.14.0.jar, pluginbuilder.jar
+FME uses standard registry entries to find JAVA. Check your JAVA installation (Open a command prompt and enter “java –version”). 

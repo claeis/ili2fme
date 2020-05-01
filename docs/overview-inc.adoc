@@ -1,0 +1,7 @@
+The INTERLIS 2 reader and writer module (ili2fme) provides FME with
+access to INTERLIS 2 and INTERLIS 1 transfer files.
+
+This documentation assumes you are familiar with FME and the INTERLIS 1 and 2
+formats. For more information about FME, please read the 
+https://knowledge.safe.com/page/documentation/index.html[FME documentation]. 
+For more information about INTERLIS, go to https://www.interlis.ch/.

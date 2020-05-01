@@ -1,0 +1,55 @@
+= Swiss INTERLIS (ili2fme) Reader/Writer
+
+
+include::overview-inc.adoc[]
+
+An alternative guide can be found https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html[here].
+
+This documentation describes version 7.0.x of ili2fme. The current
+version of ili2fme is available at
+http://www.ili2fme.ch/.
+
+[NOTE]
+====
+* Please note that Safe Software
+distributes the ili2fme format with FME as a convenience.
+* The https://www.safe.com/pricing/fme-desktop/[Licensing
+options] for this format begin with FME Desktop Professional Edition.
+====
+
+== Overview
+
+Features read from an INTERLIS file consist of a series of attribute
+values. The attribute values may have no geometry. The attribute names
+are as defined in the INTERLIS model.
+
+The feature type of each INTERLIS feature is the qualified INTERLIS name
+(for INTERLIS 2, the qualified name of the class; for INTERLIS 1, the
+qualified name of the table). The mapping of the inheritance hierarchy
+is done with a super or sub-type strategy.
+
+ili2fme can read and write INTERLIS 1 and 2. However, in most cases you
+will need an FME script or FME Workbench to write INTERLIS.
+
+Additional documentation is available at
+http://www.ili2fme.ch/.
+
+The ili2fme is owned by
+http://www.eisenhutinformatik.ch/[Eisenhut Informatik AG] and
+is licensed under the LGPL (Lesser GNU Public License). Safe does not
+provide warranties of any kind, express or implied, as to
+noninfringement of third party rights, merchantability, or fitness for
+any particular purpose with respect to the ili2fme. In no event shall
+Safe be liable for indirect, special, incidental, or consequential
+damages or loss of profit or business opportunity related to the use of
+the ili2fme. Please visit our website at http://www.safe.com/foss for further
+details. Please send comments about ili2fme to
+mailto:info@eisenhutinformatik.ch.
+
+include::guide-inc.adoc[]
+
+include::reference-inc.adoc[]
+
+== FAQ
+
+include::faq-inc.adoc[]

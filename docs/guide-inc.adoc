@@ -1,0 +1,119 @@
+== Quick Facts
+
+https://docs.safe.com/fme/html/FME_Desktop_Documentation/FME_ReadersWriters/QuickFacts/about_quick_facts.htm[About Quick Facts Tables]
+
+[options="header=false"]
+|===
+|Format Type Identifier |ch.ehi.fme.Main
+|Long Format Name |Swiss INTERLIS (ili2fme)
+|Reader/Writer |Both
+|Licensing Level |Professional and above
+|Dependencies |None
+|Dataset Type |File
+|Feature Type |Class name
+|Typical File Extensions |.xtf, .xml, .itf, .ili
+|Automated Translation Support |Automated reading
+|User-Defined Attributes |Yes
+|Coordinate System Support |No
+|Generic Color Support |No
+|Spatial Index |Never
+|Schema Required |Yes
+|Transaction Support |No
+|Geometry Type |xtf_geomtype
+|===
+
+=== Geometry Support
+
+[options="header"]
+|===
+|Geometry |Supported?
+|aggregate |no
+|circles |stroked
+|circular arc |yes
+|donut polygon |yes
+|elliptical arc |stroked
+|ellipses |stroked
+|line |yes
+|none |yes
+|point |yes
+|polygon |yes
+|raster |no
+|solid |yes
+|surface |yes
+|text |no
+|z-values |yes
+|===
+
+== Use Cases
+
+=== Reading INTERLIS 1-Data
+
+To read INTERLIS 1-data, the Model (.ili) must be known to FME.
+It can be stored:
+
+- in a model repository on the internet
+- in $(FME)\plugins\interlis2\ilimodels
+- in a special model directory you specify
+- in the same directory than your data 
+
+Then you can select an INTERLIS 1-datafile (.itf) and open it with FME (Viewer, Workbench, Universal Translator) and use it.
+
+- All the enumerations from the ITFs will be converted to texts (values).
+- If more than one geometry exists, the first geometry will be used as FME geometry, the other ones will be stored as Hex Well Known Binary in Attributes. 
+
+=== Reading INTERLIS 2-Data
+
+Reading INTERLIS 2-data is essentially the same than reading INTERLIS 1-data with the following differences:
+
+- The data comes in XTF-files (and not ITF-files)
+- If your data models contain EXTENDS, FME will show all the data in a single "superstructure" â€“ feature type. You will have to use an AttributeFilter on XTF_CLASS to separate the different classes in Workbench. Since ili2fme-4.4.0, the data model may also be imported with a "subclass"-strategy rather than a `superclass`- strategy. When "subclass" is chosen, a feature type is created for each concrete extended class, whereas one feature type is created per parent class when "superclass" is chosen. 
+
+=== Writing INTERLIS 1-Data
+
+To write INTERLIS 1-data, the process is the following
+Prerequisites: the INTERLIS model (.ili) has to exist before!
+
+- Set up a Workbench
+- Define an `Swiss INTERLIS (ili2fme)` destination dataset
+- Import the feature type definitions from your ILI-model (Destination Data -> Import FeatureTypes -> Browse to your ILI-file; define the appropriate ili2fme parameters)
+- Define a transfer identification for each feature, by setting the format attribute "xtf_id" (e.g. generate it with a counter or map a format attribute like OBJECTID / FID or similar)
+- Route your features to the destination feature types (connect the arrows)
+- GO!
+
+NOTE: If the `xtf_class` format attribute is set, its value supersedes the name of the feature type. This may lead to unexpected results if your features come from an INTERLIS dataset, and `xtf_class` is still set (to the source class instead of the target class). 
+
+=== Writing INTERLIS 2-Data
+
+To write out INTERLIS 2-data, you will have to follow these steps in addition to the ones explained for INTERLIS 1:
+
+- Create one feature of feature type `XTF_BASKETS` for each TOPIC (With a Creator / NullGeometryCreator + AttributeCreator)
+- Reference this basket in each feature type of the topic, by setting the format attribute "xtf_basket" (e.g. by attaching a constant).
+- Write all herited classes to a "superstructure" feature type. (or choose a subclass-strategy)
+- Define the qualified INTERLIS class name of each class, by setting the format attribute "xtf_class" in each feature type 
+
+[NOTE]
+====
+- you should define the appropriate ili2fme parameters when importing the feature types (such as "superclass" or "subclass" inheritance mapping strategy)
+- `XTF_BASKETS` features must be created by hand in a common transformation with an INTERLIS 2 writer.
+- `xtf_basket` format attributes must be set by hand in a common transformation with an INTERLIS 2 writer.
+- `xtf_id` format attributes must be set/mapped in a common transformation with an INTERLIS 2 writer.
+- You always need to provide fully qualified class names of the target INTERLIS model. For example, the correct parameter might be: "Fallbeispiel.Raumplanung.Bauzone".
+- If the `xtf_class` format attribute is set, its value supersedes the name of the feature type. This may lead to unexpected results if your features come from an INTERLIS dataset, and `xtf_class` is still set (to the source class instead of the target class).
+====
+
+=== Writing GML-Data
+
+Starting with version 5.0.0 ili2fme is able to write GML, according to the ILIGML specification. To write out GML, just follow the steps explained for INTERLIS 2, but select a file to write with extension ".gml".
+
+=== Reading and writing INTERLIS-Data
+
+When you read and write INTERLIS data, read the sections on reading and writing. In addition, you always (even if writing INTERLIS 1) have to 
+
+- set the xtf_class format attribute on every destination feature type to the qualified INTERLIS class name (use an AttributeCreator transformer)!
+
+== INTERLIS-Models
+
+Normally ili2fme will read the required INTERLIS-Models as required by your data. Only when you "Import features types" (a FME Workbench menu item) you should specify a model file (a file with the extension ".ili"). 
+You can specify the places that ili2fme should look after the required models by setting the parameter MODEL_DIR.
+If a file folder doesn't contain a file named "ilisite.xml" or "ilimodels.xml", ili2fme will scan all files with an extension ".ili". If the folder contains multiple files with extension ".ili" that contain an INTERLIS models with the same name, you will get unexpected results.
+If a file folder contains a file named "ilisite.xml" or "ilimodels.xml", ili2fme will use the folder as an INTERLIS model repository. "ilimodels.xml" lists models and associates them with files. "ilisite.xml" contains links to other model repositories.
