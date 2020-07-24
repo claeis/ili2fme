@@ -50,6 +50,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String TRACEMSGS="TRACEMSGS";
 	static public final String ILI1_ADDDEFVAL="ILI1_ADDDEFVAL";
 	static public final String ILI1_ENUMASITFCODE="ILI1_ENUMASITFCODE";
+    public static final Object ILI1_IGNOREPOLYGONBUILDINGERRORS ="ILI1_IGNOREPOLYGONBUILDINGERRORS";
 	static public final String CHECK_UNIQUEOID="CHECK_UNIQUEOID";
 	static public final String TRIM_VALUES="TRIM_VALUES";
 	static public final String ILI1_RENUMBERTID="ILI1_RENUMBERTID"; 

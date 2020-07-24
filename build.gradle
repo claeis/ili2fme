@@ -86,7 +86,7 @@ dependencies {
    compile name:"ili2c"
    compile name:"jts-core-1.14.0"
    compileOnly name:"pluginbuilder"
-   ili2cTool("ch.interlis:ili2c-tool:5.1.1"){
+   ili2cTool("ch.interlis:ili2c-tool:5.1.2+"){
 		artifact {
 			  //useful when some artifact properties unconventional
 			  name = 'ili2c-tool' //artifact name different than module name

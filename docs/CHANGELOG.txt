@@ -1,5 +1,9 @@
 LATEST
 -------------------------------
+- new reader parameter "ITF Ignore Polygon Building Errors"
+- ili2c-5.1.2-SNAPSHOT
+- iox-ili-1.21.1-SNAPSHOT
+
 
 ili2fme 7.0.8 (2020-05-01)
 -------------------------------

@@ -105,6 +105,7 @@ public class Ili2Reader implements IFMEReader {
 	private boolean doRichGeometry=false;
 	private int  inheritanceMapping=InheritanceMapping.SUPERCLASS;
 	private boolean ili1EnumAsItfCode=false;
+	private boolean ili1IgnorePolygonBuildingErrors=true;
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	private boolean checkUniqueOid=false;
     private ch.interlis.iox_j.validator.Validator validator=null;
@@ -246,6 +247,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.TRIM_VALUES)){
 				i++;
 				trimValues=FmeUtility.isTrue((String)args.get(i));
+            }else if(arg.equals(Main.ILI1_IGNOREPOLYGONBUILDINGERRORS)){
+                i++;
+                ili1IgnorePolygonBuildingErrors=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.ILI1_ENUMASITFCODE)){
 				i++;
 				ili1EnumAsItfCode=FmeUtility.isTrue((String)args.get(i));
@@ -310,6 +314,8 @@ public class Ili2Reader implements IFMEReader {
 					geometryEncoding=GeometryEncoding.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.GEOM_ATTR_MAPPING)){
 					geomAttrMapping=GeomAttrMapping.valueOf((String)ele.get(1));
+                }else if(val.equals(readerKeyword+"_"+Main.ILI1_IGNOREPOLYGONBUILDINGERRORS)){
+                    ili1IgnorePolygonBuildingErrors=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ENUMASITFCODE)){
 					ili1EnumAsItfCode=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_UNIQUEOID)){
@@ -338,6 +344,7 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("validate <"+validate+">");
         EhiLogger.logState("validationConfig <"+(validationConfig!=null?validationConfig:"")+">");
 		EhiLogger.logState("validateMultiplicity <"+validateMultiplicity+">");
+        EhiLogger.logState("ili1IgnorePolygonBuildingErrors <"+ili1IgnorePolygonBuildingErrors+">");
 		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("geoAttrMapping <"+GeomAttrMapping.toString(geomAttrMapping)+">");
@@ -674,7 +681,7 @@ public class Ili2Reader implements IFMEReader {
 	                ((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);      
 	                ((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
 			    }else {
-	                ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile,false);
+	                ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile,ili1IgnorePolygonBuildingErrors);
 	                ((ItfReader2)ioxReader).setModel(iliTd);        
 	                ((ItfReader2)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);     
 	                ((ItfReader2)ioxReader).setRenumberTids(ili1RenumberTid);
@@ -826,13 +833,15 @@ public class Ili2Reader implements IFMEReader {
 					continue;
 				}
 				if(dataerrs==null && ioxReader instanceof ItfReader2){
-		        	dataerrs = new ArrayList<IoxInvalidDataException>(((ItfReader2) ioxReader).getDataErrs());
-		        	if(dataerrs.size()>0){
-		        		for(IoxInvalidDataException dataerr:dataerrs){
-                            EhiLogger.logError(dataerr);
-		        		}
-		        		((ItfReader2) ioxReader).clearDataErrs();
-		        	}
+				    if(!ili1IgnorePolygonBuildingErrors) {
+	                    dataerrs = new ArrayList<IoxInvalidDataException>(((ItfReader2) ioxReader).getDataErrs());
+	                    if(dataerrs.size()>0){
+	                        for(IoxInvalidDataException dataerr:dataerrs){
+	                            EhiLogger.logError(dataerr);
+	                        }
+	                    }
+				    }
+                    ((ItfReader2) ioxReader).clearDataErrs();
 				}
 				if(dataerrs!=null && dataerrs.size()>0){
 					IoxInvalidDataException dataerr=dataerrs.get(0);

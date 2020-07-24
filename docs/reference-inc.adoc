@@ -39,6 +39,14 @@ An ilivalidator configuration file to fine tune the validation. See
 https://github.com/claeis/ilivalidator/blob/master/docs/ilivalidator.rst#konfiguration
 for further information.
 
+ITF Ignore Polygon Building Errors::
+This setting is independent of an enabled or disabled validation 
+and pplies only to INTERLIS 1 datasets.
+	Yes::: The reader will ignore AREA/SURFACE errors, that would result 
+	in incomplete data.
+	No::: The reader will report AREA/SURFACE errors, that would result 
+	in incomplete data.
+
 Geometry Encoding::
 Defines the encoding of geometry attributes, which are not used as FME
 geometry (only the first geometry attribute becomes an FME geometry).
