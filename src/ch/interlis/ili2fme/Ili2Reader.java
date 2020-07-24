@@ -61,6 +61,7 @@ import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 import ch.interlis.iox_j.logging.LogEventFactory;
 import ch.interlis.iox_j.validator.ValidationConfig;
+import ch.interlis.iox_j.validator.Validator;
 
 /** INTERLIS implementation of an FME-Reader.
  * @author ce
@@ -713,9 +714,12 @@ public class Ili2Reader implements IFMEReader {
                 }
                 modelConfig.setConfigValue(ValidationConfig.PARAMETER, ValidationConfig.MULTIPLICITY, validateMultiplicity?ValidationConfig.ON:ValidationConfig.OFF);
 			    Settings config=new Settings();
-			    if(formatMode==MODE_ITF && itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
-	                config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
-			    }
+                if(formatMode==MODE_ITF) {
+                    Validator.initItfValidation(config);
+                    if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
+                        config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
+                    }
+                }
                 IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
                 LogEventFactory errFactory=new LogEventFactory();
                 errFactory.setDataSource(xtfFile);

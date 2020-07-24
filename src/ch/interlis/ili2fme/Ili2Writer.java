@@ -55,6 +55,7 @@ import ch.interlis.iox.*;
 import ch.interlis.iox_j.jts.Jts2iox;
 import ch.interlis.iox_j.logging.LogEventFactory;
 import ch.interlis.iox_j.validator.ValidationConfig;
+import ch.interlis.iox_j.validator.Validator;
 import ch.interlis.iox_j.PipelinePool;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 
@@ -447,7 +448,10 @@ public class Ili2Writer implements IFMEWriter {
 	                }
 	                modelConfig.setConfigValue(ValidationConfig.PARAMETER, ValidationConfig.MULTIPLICITY, validateMultiplicity?ValidationConfig.ON:ValidationConfig.OFF);
 	                Settings config=new Settings();
-                    config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
+                    if(formatMode==MODE_ITF) {
+                        config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
+                        Validator.initItfValidation(config);
+                    }
 	                IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
 	                LogEventFactory errFactory=new LogEventFactory();
 	                errFactory.setDataSource(xtfFile);

@@ -1,6 +1,7 @@
 LATEST
 -------------------------------
 - new reader parameter "ITF Ignore Polygon Building Errors"
+- ITF validation: allow TID per table
 - ili2c-5.1.2-SNAPSHOT
 - iox-ili-1.21.1-SNAPSHOT
 
