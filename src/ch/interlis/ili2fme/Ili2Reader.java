@@ -1042,7 +1042,7 @@ public class Ili2Reader implements IFMEReader {
 		}
 		if(formatMode==MODE_ITF){
 			// if SURFACE helper table
-            if(wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceOrAreaType){
+            if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceOrAreaType){
                 if(wrapper.isHelper()){
                     if(v6_createLineTableFeatures!=null && v6_createLineTableFeatures) {
                         String featureType=ret.getFeatureType();
