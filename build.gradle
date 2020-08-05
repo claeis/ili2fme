@@ -22,8 +22,6 @@ repositories {
     maven {
         url "http://jars.interlis.ch"
     }
-    flatDir { dirs 'lib' }
-    flatDir { dirs '$extractedIli2cJar' }
 }
 
 Properties properties = new Properties()
@@ -53,6 +51,7 @@ def getGitHash = { ->
 
 def generatedResources = "$buildDir/generated-resources/main"
 def extractedIli2cJar = "$buildDir/ili2cJar"
+def extractedJtsJar = "$buildDir/jtsJar"
 
 sourceSets {
     main {
@@ -60,6 +59,7 @@ sourceSets {
         java {
             srcDirs = ['src']
         }
+        compileClasspath += project.configurations.compileOnly
     }
 }
 
@@ -80,12 +80,15 @@ configurations {
     deployerJars
     ftpAntTask
     ili2cTool { transitive = false }
+    jtsJar { transitive = false }
 }
 
+
 dependencies {
-   compile name:"ili2c"
-   compile name:"jts-core-1.14.0"
-   compileOnly name:"pluginbuilder"
+   compileOnly "ch.interlis:ili2c-tool:5.1.2+"
+   compileOnly "com.vividsolutions:jts-core:1.14.0"
+   compileOnly files("lib/pluginbuilder.jar")
+   jtsJar "com.vividsolutions:jts-core:1.14.0"
    ili2cTool("ch.interlis:ili2c-tool:5.1.2+"){
 		artifact {
 			  //useful when some artifact properties unconventional
@@ -105,7 +108,8 @@ jar {
   manifest {
     attributes(
       "Main-Class": 'ch.interlis.ili2fme.AboutDialog',
-      "Class-Path": configurations.runtimeClasspath.collect { it.getName() }.join(' '))
+      "Class-Path": 'ili2c.jar jts-core-1.14.0.jar'
+    )
   }
 }
 
@@ -141,10 +145,16 @@ task getIli2cToolJar(type: Copy){
 	}
 	into "$extractedIli2cJar"
 }
+task getJtsJar(type: Copy){
+	from {
+		configurations.jtsJar.singleFile
+	}
+	into "$extractedJtsJar"
+}
 
 compileJava.dependsOn getIli2cToolJar
 
-task bindist(type: Zip){
+task bindist(type: Zip,dependsOn: getJtsJar){
 	group = BasePlugin.BUILD_GROUP
     description = 'Assembles the binary distribution of this project'
 	
@@ -157,7 +167,10 @@ task bindist(type: Zip){
 		rename '.+','ili2fme.jar'
         into "${fme}/plugins/"
 	}
-	from(configurations.runtimeClasspath){
+	from(getIli2cToolJar){
+        into "${fme}/plugins/"
+	}
+	from(getJtsJar){
         into "${fme}/plugins/"
 	}
 	from("other"){
@@ -177,7 +190,7 @@ task bindist(type: Zip){
 	}
 }
 
-task('msi') {
+task('msi',dependsOn: getJtsJar) {
 	group = BasePlugin.BUILD_GROUP
     description = 'Assembles the MSI distribution of this project'
     
