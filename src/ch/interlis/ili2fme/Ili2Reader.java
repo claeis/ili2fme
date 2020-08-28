@@ -61,6 +61,7 @@ import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 import ch.interlis.iox_j.logging.LogEventFactory;
 import ch.interlis.iox_j.validator.ValidationConfig;
+import ch.interlis.iox_j.validator.Validator;
 
 /** INTERLIS implementation of an FME-Reader.
  * @author ce
@@ -101,10 +102,13 @@ public class Ili2Reader implements IFMEReader {
 	private static final int MODE_XTF=1;
 	private static final int MODE_ITF=2;
     private int itfMode=LinetableMapping.ILI1_LINETABLES_POLYGON;
+	private Boolean v6_createLineTableFeatures=null;
+	private Boolean v6_skipPolygonBuilding=null;
     private boolean ili1AddDefVal=false;
 	private boolean doRichGeometry=false;
 	private int  inheritanceMapping=InheritanceMapping.SUPERCLASS;
 	private boolean ili1EnumAsItfCode=false;
+	private boolean ili1IgnorePolygonBuildingErrors=false;
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	private boolean checkUniqueOid=false;
     private ch.interlis.iox_j.validator.Validator validator=null;
@@ -228,6 +232,12 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.TOPICS_FILTER)){
 				i++;
 				topicsFilter=(String)args.get(i);
+			}else if(arg.equals(Main.CREATE_LINETABLES)){
+				i++;
+				v6_createLineTableFeatures=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.SKIP_POLYGONBUILDING)){
+				i++;
+				v6_skipPolygonBuilding=FmeUtility.isTrue((String)args.get(i));
             }else if(arg.equals(Main.ILI1_LINETABLES)){
                 i++;
                 itfMode=LinetableMapping.valueOf((String)args.get(i));
@@ -246,6 +256,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.TRIM_VALUES)){
 				i++;
 				trimValues=FmeUtility.isTrue((String)args.get(i));
+            }else if(arg.equals(Main.ILI1_IGNOREPOLYGONBUILDINGERRORS)){
+                i++;
+                ili1IgnorePolygonBuildingErrors=FmeUtility.isTrue((String)args.get(i));
 			}else if(arg.equals(Main.ILI1_ENUMASITFCODE)){
 				i++;
 				ili1EnumAsItfCode=FmeUtility.isTrue((String)args.get(i));
@@ -290,6 +303,10 @@ public class Ili2Reader implements IFMEReader {
 					modeldir=(String)ele.get(1);	
 				}else if(val.equals(readerKeyword+"_"+Main.TOPICS_FILTER)){
 					topicsFilter=(String)ele.get(1);	
+				}else if(val.equals(readerKeyword+"_"+Main.CREATE_LINETABLES)){
+					v6_createLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.SKIP_POLYGONBUILDING)){
+					v6_skipPolygonBuilding=FmeUtility.isTrue((String)ele.get(1));
                 }else if(val.equals(readerKeyword+"_"+Main.ILI1_LINETABLES)){
                     itfMode=LinetableMapping.valueOf((String)ele.get(1));    
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ADDDEFVAL)){
@@ -310,6 +327,8 @@ public class Ili2Reader implements IFMEReader {
 					geometryEncoding=GeometryEncoding.valueOf((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.GEOM_ATTR_MAPPING)){
 					geomAttrMapping=GeomAttrMapping.valueOf((String)ele.get(1));
+                }else if(val.equals(readerKeyword+"_"+Main.ILI1_IGNOREPOLYGONBUILDINGERRORS)){
+                    ili1IgnorePolygonBuildingErrors=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ENUMASITFCODE)){
 					ili1EnumAsItfCode=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.CHECK_UNIQUEOID)){
@@ -334,10 +353,29 @@ public class Ili2Reader implements IFMEReader {
 		}else{
 			System.setProperty("java.net.useSystemProxies", "true");
 		}
+        if(v6_createLineTableFeatures!=null) {
+            EhiLogger.logState("v6_createLineTables <"+v6_createLineTableFeatures+">");
+            if(v6_skipPolygonBuilding!=null) {
+                EhiLogger.logState("v6_skipPolygonBuilding <"+v6_skipPolygonBuilding+">");
+            }
+            if(v6_createLineTableFeatures) {
+                if(v6_skipPolygonBuilding) {
+                    itfMode=LinetableMapping.ILI1_LINETABLES_RAW;
+                }else {
+                    itfMode=LinetableMapping.ILI1_LINETABLES_POLYGONRAW;
+                    ili1IgnorePolygonBuildingErrors=true;
+                }
+            }else {
+                itfMode=LinetableMapping.ILI1_LINETABLES_POLYGON;
+                ili1IgnorePolygonBuildingErrors=true;
+            }
+            validate=false;
+        }
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
 		EhiLogger.logState("validate <"+validate+">");
         EhiLogger.logState("validationConfig <"+(validationConfig!=null?validationConfig:"")+">");
 		EhiLogger.logState("validateMultiplicity <"+validateMultiplicity+">");
+        EhiLogger.logState("ili1IgnorePolygonBuildingErrors <"+ili1IgnorePolygonBuildingErrors+">");
 		EhiLogger.logState("trimValues <"+trimValues+">");
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("geoAttrMapping <"+GeomAttrMapping.toString(geomAttrMapping)+">");
@@ -674,7 +712,7 @@ public class Ili2Reader implements IFMEReader {
 	                ((ItfReader)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);      
 	                ((ItfReader)ioxReader).setRenumberTids(ili1RenumberTid);
 			    }else {
-	                ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile,false);
+	                ioxReader=new ch.interlis.iom_j.itf.ItfReader2(inputFile,ili1IgnorePolygonBuildingErrors);
 	                ((ItfReader2)ioxReader).setModel(iliTd);        
 	                ((ItfReader2)ioxReader).setReadEnumValAsItfCode(ili1EnumAsItfCode);     
 	                ((ItfReader2)ioxReader).setRenumberTids(ili1RenumberTid);
@@ -706,9 +744,12 @@ public class Ili2Reader implements IFMEReader {
                 }
                 modelConfig.setConfigValue(ValidationConfig.PARAMETER, ValidationConfig.MULTIPLICITY, validateMultiplicity?ValidationConfig.ON:ValidationConfig.OFF);
 			    Settings config=new Settings();
-			    if(formatMode==MODE_ITF && itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
-	                config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
-			    }
+                if(formatMode==MODE_ITF) {
+                    Validator.initItfValidation(config);
+                    if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
+                        config.setValue(ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES, ch.interlis.iox_j.validator.Validator.CONFIG_DO_ITF_LINETABLES_DO);
+                    }
+                }
                 IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
                 LogEventFactory errFactory=new LogEventFactory();
                 errFactory.setDataSource(xtfFile);
@@ -826,13 +867,15 @@ public class Ili2Reader implements IFMEReader {
 					continue;
 				}
 				if(dataerrs==null && ioxReader instanceof ItfReader2){
-		        	dataerrs = new ArrayList<IoxInvalidDataException>(((ItfReader2) ioxReader).getDataErrs());
-		        	if(dataerrs.size()>0){
-		        		for(IoxInvalidDataException dataerr:dataerrs){
-                            EhiLogger.logError(dataerr);
-		        		}
-		        		((ItfReader2) ioxReader).clearDataErrs();
-		        	}
+				    if(!ili1IgnorePolygonBuildingErrors) {
+	                    dataerrs = new ArrayList<IoxInvalidDataException>(((ItfReader2) ioxReader).getDataErrs());
+	                    if(dataerrs.size()>0){
+	                        for(IoxInvalidDataException dataerr:dataerrs){
+	                            EhiLogger.logError(dataerr);
+	                        }
+	                    }
+				    }
+                    ((ItfReader2) ioxReader).clearDataErrs();
 				}
 				if(dataerrs!=null && dataerrs.size()>0){
 					IoxInvalidDataException dataerr=dataerrs.get(0);
@@ -999,38 +1042,49 @@ public class Ili2Reader implements IFMEReader {
 		}
 		if(formatMode==MODE_ITF){
 			// if SURFACE helper table
-			if(wrapper.isHelper() && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceOrAreaType){
-			    SurfaceOrAreaType type=(SurfaceOrAreaType)wrapper.getGeomAttr4FME().getDomainResolvingAll();
-                if(type instanceof SurfaceType) {
-                    //add ref to main table
-                    String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
-                    IomObject structvalue=iomObj.getattrobj(fkName,0);
-                    if(structvalue!=null) {
-                        String refoid=structvalue.getobjectrefoid();
-                        ret.setStringAttribute(fkName,refoid);
+            if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceOrAreaType){
+                if(wrapper.isHelper()){
+                    if(v6_createLineTableFeatures!=null && v6_createLineTableFeatures) {
+                        String featureType=ret.getFeatureType();
+                        ret.setFeatureType(featureType+"_LT");
                     }
-                }else if(type instanceof AreaType){
-                    if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW){
-                        //add ref to main tables
+                    SurfaceOrAreaType type=(SurfaceOrAreaType)wrapper.getGeomAttr4FME().getDomainResolvingAll();
+                    if(type instanceof SurfaceType) {
+                        //add ref to main table
                         String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
                         IomObject structvalue=iomObj.getattrobj(fkName,0);
                         if(structvalue!=null) {
                             String refoid=structvalue.getobjectrefoid();
                             ret.setStringAttribute(fkName,refoid);
                         }
-                        String fk2Name = ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef2(wrapper.getGeomAttr4FME());
-                        structvalue=iomObj.getattrobj(fk2Name,0);
-                        if(structvalue!=null) {
-                            String refoid=structvalue.getobjectrefoid();
-                            ret.setStringAttribute(fk2Name,refoid);
+                    }else if(type instanceof AreaType){
+                        if(itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW){
+                            //add ref to main tables
+                            String fkName=ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef(wrapper.getGeomAttr4FME());
+                            IomObject structvalue=iomObj.getattrobj(fkName,0);
+                            if(structvalue!=null) {
+                                String refoid=structvalue.getobjectrefoid();
+                                ret.setStringAttribute(fkName,refoid);
+                            }
+                            String fk2Name = ch.interlis.iom_j.itf.ModelUtilities.getHelperTableMainTableRef2(wrapper.getGeomAttr4FME());
+                            structvalue=iomObj.getattrobj(fk2Name,0);
+                            if(structvalue!=null) {
+                                String refoid=structvalue.getobjectrefoid();
+                                ret.setStringAttribute(fk2Name,refoid);
+                            }
                         }
+                    }else {
+                        throw new IllegalStateException();
                     }
                 }else {
-                    throw new IllegalStateException();
+                    if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
+                        if(v6_createLineTableFeatures!=null && v6_createLineTableFeatures) {
+                            String featureType=ret.getFeatureType();
+                            ret.setFeatureType(featureType+"_MT");
+                        }
+                    }
                 }
-				
-				
-			}
+            }
 		}
 		AttributeDef geomattr=isStruct ? null : wrapper.getGeomAttr4FME();
 		if(geomattr!=null){
@@ -1551,12 +1605,18 @@ public class Ili2Reader implements IFMEReader {
                                 }else {
                                     throw new IllegalStateException();
                                 }
-                                String featureType=ret.getFeatureType();
+                                if(v6_createLineTableFeatures!=null && v6_createLineTableFeatures) {
+                                    String featureType=ret.getFeatureType();
+                                    ret.setFeatureType(featureType+"_MT");
+                                }
 							}
 						}else{
 							// helper table
                             if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW || itfMode==LinetableMapping.ILI1_LINETABLES_POLYGONRAW){
-                                String featureType=ret.getFeatureType();
+                                if(v6_createLineTableFeatures!=null && v6_createLineTableFeatures) {
+                                    String featureType=ret.getFeatureType();
+                                    ret.setFeatureType(featureType+"_LT");
+                                }
                                 ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
                                 //add reference attr to main table
                                 //String fkName=wrapper.getGeomAttr4FME().getContainer().getName();

@@ -1,6 +1,15 @@
 LATEST
 -------------------------------
 
+ili2fme 7.0.9 (2020-08-28)
+-------------------------------
+- new reader parameter "ITF Ignore Polygon Building Errors"
+- ITF reader: add ili2fme-6.x compatibility mode (enabled if reader parameter CREATE_LINETABLES present)
+- ITF validation: allow TID per table
+- ili2c-5.1.2
+- iox-ili-1.21.1
+
+
 ili2fme 7.0.8 (2020-05-01)
 -------------------------------
 - ili2c-5.1.1

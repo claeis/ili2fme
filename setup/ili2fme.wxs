@@ -36,9 +36,9 @@
         </Directory>
         <Directory Id="plugins_DIR" Name="plugins">
           <Component Id="ili2c.jar" Guid="6227EF75-E49F-4A6D-B406-8D01309F90BB" KeyPath="yes">
-            <File Id="ili2c.jar" Name="ili2c.jar" Source="$(var.basedir)\lib\ili2c.jar"  DiskId="1" />
+            <File Id="ili2c.jar" Name="ili2c.jar" Source="$(var.basedir)\build\ili2cJar\ili2c.jar"  DiskId="1" />
             <File Id="ili2fme.jar" Name="ili2fme.jar" Source="$(var.basedir)\build\jar\ili2fme.jar" DiskId="1" />
-            <File Id="jts_1.14.0.jar" Name="jts-core-1.14.0.jar" Source="$(var.basedir)\lib\jts-core-1.14.0.jar" DiskId="1"/>
+            <File Id="jts_1.14.0.jar" Name="jts-core-1.14.0.jar" Source="$(var.basedir)\build\jtsJar\jts-core-1.14.0.jar" DiskId="1"/>
             <RemoveFile Id='jts_1.8.jar' On='install' Name="jts-1.8.jar"/>            
           </Component>
           <Directory Id="interlis2_DIR" Name="interlis2">
