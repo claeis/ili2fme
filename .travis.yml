@@ -26,7 +26,7 @@ install: true
 script: 
   - winetricks --unattended dotnet40 dotnet_verifier
   - (mkdir -p build/wix ; cd build/wix ; curl -SL "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip" -o wix311-binaries.zip ; unzip wix311-binaries.zip; rm -f wix311-binaries.zip)
-  - gradle -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe build
+  - gradle -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe build sourcesJar asciidoctorPdf
   
 deploy:
   - provider: script
