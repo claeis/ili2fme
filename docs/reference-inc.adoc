@@ -41,7 +41,7 @@ for further information.
 
 ITF Ignore Polygon Building Errors::
 This setting is independent of an enabled or disabled validation 
-and pplies only to INTERLIS 1 datasets.
+and applies only to INTERLIS 1 datasets.
 	Yes::: The reader will ignore AREA/SURFACE errors, that would result 
 	in incomplete data.
 	No::: The reader will report AREA/SURFACE errors, that would result 

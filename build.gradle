@@ -6,7 +6,7 @@ plugins {
 }
 
 
-version '7.0.11'+System.getProperty('release','-SNAPSHOT')
+version '7.0.12'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
 
 
@@ -65,11 +65,15 @@ sourceSets {
 
 task generateMyResources {
 	def versionPropsFile = new File(generatedResources,"ch/interlis/ili2fme/Version.properties")
+	def version="$project.version"
+	def hash=getGitHash()
+	inputs.property("version","$project.version")
+	inputs.property("hash",getGitHash())
     outputs.files "$versionPropsFile"
 	doLast {
 		def versionProps = new Properties()
-		versionProps.setProperty('version', "$project.version")
-		versionProps.setProperty('versionCommit', getGitHash())
+		versionProps.setProperty('version', version)
+		versionProps.setProperty('versionCommit', hash)
 		versionPropsFile.getParentFile().mkdirs();
 		versionProps.store(versionPropsFile.newWriter(), null);
 	}
@@ -85,11 +89,13 @@ configurations {
 
 
 dependencies {
-   compileOnly "ch.interlis:ili2c-tool:5.1.4"
+    implementation group: 'ch.interlis', name: 'iox-ili', version: '1.21.4'
+    implementation group: 'ch.interlis', name: 'ili2c-tool', version: "5.1.5"
+    implementation group: 'ch.interlis', name: 'ili2c-core', version: "5.1.5"
    compileOnly "com.vividsolutions:jts-core:1.14.0"
    compileOnly files("lib/pluginbuilder.jar")
    jtsJar "com.vividsolutions:jts-core:1.14.0"
-   ili2cTool("ch.interlis:ili2c-tool:5.1.4"){
+   ili2cTool("ch.interlis:ili2c-tool:5.1.5"){
 		artifact {
 			  //useful when some artifact properties unconventional
 			  name = 'ili2c-tool' //artifact name different than module name
