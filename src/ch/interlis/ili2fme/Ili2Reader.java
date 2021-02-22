@@ -754,6 +754,9 @@ public class Ili2Reader implements IFMEReader {
                 LogEventFactory errFactory=new LogEventFactory();
                 errFactory.setDataSource(xtfFile);
                 PipelinePool pipelinePool=new PipelinePool();
+                if(formatMode==MODE_ITF) {
+                    Validator.initItfValidation(config);
+                }
                 validator=new ch.interlis.iox_j.validator.Validator(iliTd,modelConfig, errHandler, errFactory, pipelinePool,config);               
                 if(ioxReader instanceof ItfReader2){
                     ((ItfReader2) ioxReader).setIoxDataPool(pipelinePool);
@@ -810,10 +813,12 @@ public class Ili2Reader implements IFMEReader {
 				IomObject iomObj=oe.getIomObject();
 				if(checkoids!=null){
 					String oid=iomObj.getobjectoid();
-					if(checkoids.containsKey(oid)){
-						EhiLogger.logError(iomObj.getobjecttag()+" at line "+iomObj.getobjectline()+": duplicate oid "+oid+" (same as at line "+((Integer)checkoids.get(oid)).toString()+")");
-					}else{
-						checkoids.put(oid, new Integer(iomObj.getobjectline()));
+					if(oid!=null) {
+	                    if(checkoids.containsKey(oid)){
+	                        EhiLogger.logError(iomObj.getobjecttag()+" at line "+iomObj.getobjectline()+": duplicate oid "+oid+" (same as at line "+((Integer)checkoids.get(oid)).toString()+")");
+	                    }else{
+	                        checkoids.put(oid, new Integer(iomObj.getobjectline()));
+	                    }
 					}
 				}
 				//EhiLogger.debug("iomObj "+iomObj.toString());
