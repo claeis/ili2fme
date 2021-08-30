@@ -1339,7 +1339,7 @@ public class Ili2Reader implements IFMEReader {
                                      }
                                  }
                              }else{
-                                setPolyline(ret,value,false,getP((SurfaceType)type));
+                                setPolyline(ret,value,false,getP((SurfaceOrAreaType)type));
                              }
                             // add line attributes
                             SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
