@@ -2,6 +2,7 @@ LATEST
 -------------------------------
 - ITF validation (reader): allow unique TID per table
 - ITF raw reader: fixed type cast exception
+- Writer validation: fixed wrong duplicate BID error (#18)
 
 ili2fme 7.0.12 (2020-12-28)
 -------------------------------

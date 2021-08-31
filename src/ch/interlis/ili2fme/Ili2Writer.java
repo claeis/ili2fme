@@ -252,7 +252,6 @@ public class Ili2Writer implements IFMEWriter {
 		}else{
 			System.setProperty("java.net.useSystemProxies", "true");
 		}
-		EhiLogger.logState("maxHeapSize "+Runtime.getRuntime().maxMemory());
 
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
@@ -457,6 +456,7 @@ public class Ili2Writer implements IFMEWriter {
 	                errFactory.setDataSource(xtfFile);
 	                PipelinePool pipelinePool=new PipelinePool();
 	                validator=new ch.interlis.iox_j.validator.Validator(iliTd,modelConfig, errHandler, errFactory, pipelinePool,config);               
+	                validator.setAutoSecondPass(false);
 	            }
 				if(startTransferEvent!=null){
 				    if(validator!=null) {
@@ -508,20 +508,20 @@ public class Ili2Writer implements IFMEWriter {
 			Iterator basketi=basketv.keySet().iterator();
 			while(basketi.hasNext()){
 				String basketId=(String)basketi.next();
-				ch.interlis.iox_j.StartBasketEvent basketEvent=(ch.interlis.iox_j.StartBasketEvent)basketv.get(basketId);
+				ch.interlis.iox_j.StartBasketEvent startBasketEvent=(ch.interlis.iox_j.StartBasketEvent)basketv.get(basketId);
 				if(autoXtfBaskets){
 					// auto generate BID
-					basketEvent.setBid(newTid());
+					startBasketEvent.setBid(newTid());
 				}
-				EhiLogger.logState(basketEvent.getType()+" "+basketEvent.getBid()+"...");
+				EhiLogger.logState(startBasketEvent.getType()+" "+startBasketEvent.getBid()+"...");
 				if(validator!=null) {
-				    validator.validate(basketEvent);
+				    validator.validate(startBasketEvent);
 				}
-				ioxWriter.write(basketEvent);
+				ioxWriter.write(startBasketEvent);
 				writeBasket(basketId,false);
 				ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
                 if(validator!=null) {
-                    validator.validate(basketEvent);
+                    validator.validate(endBasketEvent);
                 }
 				ioxWriter.write(endBasketEvent);
 			}
