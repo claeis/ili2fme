@@ -56,10 +56,12 @@ import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iom_j.xtf.XtfUtility;
 import ch.interlis.iox_j.IoxIliReader;
 import ch.interlis.iox_j.IoxInvalidDataException;
+import ch.interlis.iox_j.IoxUtility;
 import ch.interlis.iox_j.PipelinePool;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 import ch.interlis.iox_j.logging.LogEventFactory;
+import ch.interlis.iox_j.utility.ReaderFactory;
 import ch.interlis.iox_j.validator.ValidationConfig;
 import ch.interlis.iox_j.validator.Validator;
 
@@ -475,55 +477,8 @@ public class Ili2Reader implements IFMEReader {
 			}
 		}else if(models.equals(Main.DATA_PLACEHOLDER) || models.equals(Main.DEPRECATED_XTF_PLACEHOLDER)){
 			// get model names out of transfer file
-			iliModelv=new ArrayList<String>();
-			StartBasketEvent be=null;
-			XtfStartTransferEvent xtfStart=null;
-			try{
-				inputFile=openInputFile(xtfFile);
-				if(formatMode==MODE_XTF){
-					ioxReader=new ch.interlis.iom_j.xtf.XtfReader(inputFile);
-				}else if(formatMode==MODE_ITF){
-					//  just try to find out modelname; no need to build polygons
-					ioxReader=new ch.interlis.iom_j.itf.ItfReader(inputFile);
-				}else{
-					throw new IllegalStateException("unexpected formatMode");
-				}
-
-				// get first basket
-				IoxEvent event;
-				do{
-					event=ioxReader.read();
-					if(event instanceof StartBasketEvent){
-						be=(StartBasketEvent)event;
-						break;
-					}else if(event instanceof XtfStartTransferEvent){
-						xtfStart=(XtfStartTransferEvent)event;
-					}
-				}while(!(event instanceof EndTransferEvent));
-				
-			}finally{
-				if(ioxReader!=null){
-					ioxReader.close();
-					ioxReader=null;
-				}
-				if(inputFile!=null){
-					inputFile.close();
-					inputFile=null;
-				}
-				
-			}
+			iliModelv=new ArrayList<String>(ch.interlis.iox_j.utility.IoxUtility.getModels(new java.io.File(xtfFile)));
 			
-			// no baskets?
-			if(be==null){
-				// no models!
-				iliTd=null;
-				throw new IllegalArgumentException("no baskets in xtf-file");
-			}
-			String model[]=be.getType().split("\\.");
-			iliModelv.add(model[0]);
-			if(xtfStart!=null){
-				XtfUtility.addModels(iliModelv,xtfStart);
-			}
 			for(String modelName:iliModelv){
 				EhiLogger.logState("model from xtf <"+modelName+">");
 			}
@@ -704,7 +659,10 @@ public class Ili2Reader implements IFMEReader {
 			inputFile=openInputFile(xtfFile);
 			
 			if(formatMode==MODE_XTF){
-				ioxReader=new ch.interlis.iom_j.xtf.XtfReader(inputFile);
+				ioxReader=new ReaderFactory().createReader(new java.io.File(xtfFile),new LogEventFactory());
+	            if(ioxReader instanceof IoxIliReader) {
+                    ((IoxIliReader)ioxReader).setModel(iliTd);     
+	            }
 			}else if(formatMode==MODE_ITF){
 			    if(itfMode==LinetableMapping.ILI1_LINETABLES_RAW) {
 	                ioxReader=new ch.interlis.iom_j.itf.ItfReader(inputFile);

@@ -1,8 +1,14 @@
 LATEST
 -------------------------------
+
+ili2fme 7.0.13 (2021-09-14)
+-------------------------------
 - ITF validation (reader): allow unique TID per table
 - ITF raw reader: fixed type cast exception
 - Writer validation: fixed wrong duplicate BID error (#18)
+- Reader: fix detection of xtf24 format
+- ili2c-5.2.3
+- iox-ili-1.21.7
 
 ili2fme 7.0.12 (2020-12-28)
 -------------------------------
