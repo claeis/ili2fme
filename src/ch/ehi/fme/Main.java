@@ -146,9 +146,11 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 				String readerKeyword)
 		throws Exception 
 	{
-		logFile.logMessageString("ili2fme-"+getVersion(),IFMELogFile.FME_INFORM);
-		logFile.logMessageString("ili2c-"+ch.interlis.ili2c.Main.getVersion(),IFMELogFile.FME_INFORM);
-		logFile.logMessageString("java.version "+System.getProperty("java.version"),IFMELogFile.FME_INFORM);
+        logFile.logMessageString("ili2fme-"+getVersion(),IFMELogFile.FME_INFORM);
+        logFile.logMessageString("ili2c-"+ch.interlis.ili2c.Main.getVersion(),IFMELogFile.FME_INFORM);
+        logFile.logMessageString("iox-ili-"+ch.interlis.iox_j.IoxUtility.getVersion(),IFMELogFile.FME_INFORM);
+        logFile.logMessageString("java.version "+System.getProperty("java.version"),IFMELogFile.FME_INFORM);
+        logFile.logMessageString("maxMemory "+java.lang.Runtime.getRuntime().maxMemory()/1024L+" KB",IFMELogFile.FME_INFORM);
 		//ch.interlis.ili2fme.DebugUtil.patchPoint(logFile);
 		Ili2Writer ret=null;
 		try{

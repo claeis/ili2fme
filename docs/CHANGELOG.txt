@@ -1,6 +1,15 @@
 LATEST
 -------------------------------
 
+ili2fme 7.0.13 (2021-09-14)
+-------------------------------
+- ITF validation (reader): allow unique TID per table
+- ITF raw reader: fixed type cast exception
+- Writer validation: fixed wrong duplicate BID error (#18)
+- Reader: fix detection of xtf24 format
+- ili2c-5.2.3
+- iox-ili-1.21.7
+
 ili2fme 7.0.12 (2020-12-28)
 -------------------------------
 - ili2c-5.1.5
@@ -20,7 +29,7 @@ ili2fme 7.0.9 (2020-08-28)
 -------------------------------
 - new reader parameter "ITF Ignore Polygon Building Errors"
 - ITF reader: add ili2fme-6.x compatibility mode (enabled if reader parameter CREATE_LINETABLES present)
-- ITF validation: allow TID per table
+- ITF validation (writer): allow unique TID per table
 - ili2c-5.1.2
 - iox-ili-1.21.1
 
