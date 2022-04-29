@@ -14,12 +14,14 @@ http://models.interlis.ch/).
 Multiple folders or repositories may be separated by semicolons (;).
 
 Topics Filter::
-These are the qualified names of INTERLIS topics to read (for example,
+These are the qualified names of INTERLIS topics to read data from (for example,
 DM01.Bodenbedeckung). You can enter multiple topic names, separated by
-semicolons (;). If set, other topics will be ignored.
+semicolons (;). If set, the data of other topics will be ignored.
 +
-This parameter can remain empty. If it is not set, all topics will be
+This parameter can remain empty. If it is not set, data of all topics will be
 read.
++
+NOTE: The Topics Filter parameter does not affect the number of FME Feature Types that are created during initial reader setup in FME Workbench. This aspect is based on the option _Inheritance Mapping Strategy_ (see below), the Workflow Option in the _Add Reader_ dialog and the selected Feature Types in the _Select Feature Types_ dialog.
 
 Check TID/OID Uniqueness::
   Yes::: The reader will check if the TIDs/OIDs are unique.
