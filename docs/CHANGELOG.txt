@@ -1,5 +1,8 @@
 LATEST
 -------------------------------
+- ITF writer: fix missing tables and superfluous topics (#24) 
+- ili2c-5.2.7+
+- iox-ili-1.21.11+
 
 ili2fme 7.0.15 (2022-04-29)
 -------------------------------
