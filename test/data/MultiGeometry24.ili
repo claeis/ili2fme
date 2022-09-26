@@ -1,0 +1,68 @@
+INTERLIS 2.4;
+
+MODEL Beispiel3 (de) AT "https://models.geow.cloud" VERSION "2022-09-08" =
+ 
+IMPORTS UNQUALIFIED INTERLIS;
+IMPORTS GeometryCHLV95_V1, GeometryCHLV95_V2;
+
+DOMAIN
+
+  STRUCTURE PointStructure =
+    Point: GeometryCHLV95_V1.Coord2;
+  END PointStructure;
+
+  STRUCTURE MultiPoint =
+    Points: BAG {1..*} OF PointStructure;
+  END MultiPoint;
+
+  STRUCTURE LineStructure =
+    Line: GeometryCHLV95_V1.MultiLine;
+  END LineStructure;
+
+  STRUCTURE MultiPolyline =
+    Lines: BAG {1..*} OF LineStructure;
+  END MultiPolyline;
+
+  STRUCTURE SurfaceStructure =
+    Surface: GeometryCHLV95_V1.MultiSurface ;
+  END SurfaceStructure;
+
+  STRUCTURE MultiSurface =
+    Surfaces: BAG {1..*} OF SurfaceStructure;
+  END MultiSurface;
+
+  TOPIC Netz =
+
+    !! Multi-Geometrie Definition gemäss 2.3
+    CLASS NetzPunkt1 =
+      Geometrie: MultiPoint;
+    END NetzPunkt1;
+
+    CLASS NetzLinie1 =
+      Geometrie: MultiPolyline;
+    END NetzLinie1;
+
+    CLASS NetzFlaecheSurface1 =
+      Geometrie: MultiSurface;
+    END NetzFlaecheSurface1;
+
+    !! Multi-Geometrie Definition gemäss 2.4 
+    CLASS NetzPunkt2 =
+      Geometrie: GeometryCHLV95_V2.MultiPoint;
+    END NetzPunkt2;
+
+    CLASS NetzLinie2 =
+      Geometrie: GeometryCHLV95_V2.MultiLine;
+    END NetzLinie2;
+
+    CLASS NetzLinie2_Directed =
+      Geometrie: GeometryCHLV95_V2.MultiDirectedLine;
+    END NetzLinie2_Directed;
+
+    CLASS NetzFlaecheSurface2 =
+      Geometrie: GeometryCHLV95_V2.MultiSurface;
+    END NetzFlaecheSurface2;
+
+  END Netz;
+
+END Beispiel3 .
