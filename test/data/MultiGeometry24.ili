@@ -33,7 +33,7 @@ DOMAIN
 
   TOPIC Netz =
 
-    !! Multi-Geometrie Definition gemäss 2.3
+    !!Multi-Geometrie Definition gemäss 2.3
     CLASS NetzPunkt1 =
       Geometrie: MultiPoint;
     END NetzPunkt1;
@@ -46,7 +46,7 @@ DOMAIN
       Geometrie: MultiSurface;
     END NetzFlaecheSurface1;
 
-    !! Multi-Geometrie Definition gemäss 2.4 
+    !!Multi-Geometrie Definition gemäss 2.4 
     CLASS NetzPunkt2 =
       Geometrie: GeometryCHLV95_V2.MultiPoint;
     END NetzPunkt2;
