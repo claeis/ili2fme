@@ -6,7 +6,7 @@ plugins {
 }
 
 
-version '7.0.16'+System.getProperty('release','-SNAPSHOT')
+version '7.0.17'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
 
 
