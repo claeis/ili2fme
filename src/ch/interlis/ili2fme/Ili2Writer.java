@@ -518,16 +518,16 @@ public class Ili2Writer implements IFMEWriter {
 				    validator.validate(startBasketEvent);
 				}
 				ioxWriter.write(startBasketEvent);
-				writeBasket(basketId,false);
-				ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
+				writeBasket(basketId,false,null);
+                ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
                 if(validator!=null) {
                     validator.validate(endBasketEvent);
                 }
-				ioxWriter.write(endBasketEvent);
+                ioxWriter.write(endBasketEvent);
 			}
 		}
 	}
-	private void writeBasket(String bufferKey,boolean autoTid) throws Exception, IoxException {
+	private StartBasketEvent writeBasket(String bufferKey,boolean autoTid,StartBasketEvent startBasketEvent) throws Exception, IoxException {
 		//EhiLogger.debug("bufferKey "+bufferKey);
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(bufferKey);
 		int featurec=featurev.entries();
@@ -540,6 +540,14 @@ public class Ili2Writer implements IFMEWriter {
 					if(iomObj==null){
 						throw new DataException("iomObj==null with feature "+feature.toString());
 					}
+                    if(startBasketEvent!=null) {
+                        if(validator!=null) {
+                            validator.validate(startBasketEvent);
+                        }
+                        ioxWriter.write(startBasketEvent);
+                        startBasketEvent=null;
+                    }
+					
 					ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
 					if(validator!=null) {
 					    validator.validate(objEvent);
@@ -558,10 +566,11 @@ public class Ili2Writer implements IFMEWriter {
 		}
 		// do not dispose featurev here; because it is used again when writing the line table of SURFACEs to ITF
 		// dispose it in cleanup()
+        return startBasketEvent;
 	}
 	/** use FME features of AREA mainTable to build and write IOM objects of line table.
 	 */
-	private void writeItfLineTableArea(String mainTableName,String lineTableName) throws Exception, IoxException {
+	private StartBasketEvent writeItfLineTableArea(String mainTableName,String lineTableName,StartBasketEvent startBasketEvent) throws Exception, IoxException {
 		//EhiLogger.debug("bufferKey "+bufferKey);
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(mainTableName);
 		int featurec=featurev.entries();
@@ -615,6 +624,13 @@ public class Ili2Writer implements IFMEWriter {
 				// add line attributes
 				//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 				//addItfLineAttributes(iomObj, feature, wrapper, surfaceType);
+                if(startBasketEvent!=null) {
+                    if(validator!=null) {
+                        validator.validate(startBasketEvent);
+                    }
+                    ioxWriter.write(startBasketEvent);
+                    startBasketEvent=null;
+                }
 				ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
 				if(validator!=null) {
 				    validator.validate(objEvent);
@@ -626,14 +642,14 @@ public class Ili2Writer implements IFMEWriter {
 			// cleanup
 			lineTableBuilder.dispose();
 		}
-		
+        return startBasketEvent;
 	}
 	private String newTid() {
 		return Integer.toString(++maxTid);
 	}
 	/** use FME features of SURFACE mainTable to build and write IOM objects of line table.
 	 */
-	private void writeItfLineTableSurface(String mainTableName,String lineTableName) throws Exception, IoxException {
+	private StartBasketEvent writeItfLineTableSurface(String mainTableName,String lineTableName,StartBasketEvent startBasketEvent) throws Exception, IoxException {
 		//EhiLogger.debug("bufferKey "+bufferKey);
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(mainTableName);
 		int featurec=featurev.entries();
@@ -682,6 +698,13 @@ public class Ili2Writer implements IFMEWriter {
 									// add line attributes
 									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 									//addItfLineAttributes(iomObj, shell, wrapper, surfaceType);
+				                    if(startBasketEvent!=null) {
+				                        if(validator!=null) {
+				                            validator.validate(startBasketEvent);
+				                        }
+				                        ioxWriter.write(startBasketEvent);
+				                        startBasketEvent=null;
+				                    }
 									ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
 									if(validator!=null) {
 									    validator.validate(objEvent);
@@ -713,6 +736,13 @@ public class Ili2Writer implements IFMEWriter {
 									// add line attributes
 									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 									//addItfLineAttributes(iomObj, hole, wrapper, surfaceType);
+				                    if(startBasketEvent!=null) {
+				                        if(validator!=null) {
+				                            validator.validate(startBasketEvent);
+				                        }
+				                        ioxWriter.write(startBasketEvent);
+				                        startBasketEvent=null;
+				                    }
 									ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
 									if(validator!=null) {
 									    validator.validate(objEvent);
@@ -740,6 +770,13 @@ public class Ili2Writer implements IFMEWriter {
 								// add line attributes
 								//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
 								//addItfLineAttributes(iomObj, fmeGeom, wrapper, surfaceType);
+			                    if(startBasketEvent!=null) {
+			                        if(validator!=null) {
+			                            validator.validate(startBasketEvent);
+			                        }
+			                        ioxWriter.write(startBasketEvent);
+			                        startBasketEvent=null;
+			                    }
 								ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
 								if(validator!=null) {
 								    validator.validate(objEvent);
@@ -769,9 +806,8 @@ public class Ili2Writer implements IFMEWriter {
 					}
 				}
 			}
-						
 		}
-		
+        return startBasketEvent;
 	}
 	private void addItfLineAttributes(IomObject iomObj, IFMEFeature feature, ViewableWrapper wrapper, SurfaceOrAreaType surfaceType) throws Exception, DataException, FMEException, Iox2jtsException {
 		Table lineAttrTable=surfaceType.getLineAttributeStructure();
@@ -804,11 +840,7 @@ public class Ili2Writer implements IFMEWriter {
 						Topic topic = (Topic) tObj;
 						// StartBasket
 						topicNr++;
-						StartBasketEvent basketEvent=new ch.interlis.iox_j.StartBasketEvent(topic.getScopedName(null),Integer.toString(topicNr));
-	                    if(validator!=null) {
-	                        validator.validate(basketEvent);
-	                    }
-						ioxWriter.write(basketEvent);
+						StartBasketEvent startBasketEvent=new ch.interlis.iox_j.StartBasketEvent(topic.getScopedName(null),Integer.toString(topicNr));
 						Iterator iter = topic.getViewables().iterator();
 						while (iter.hasNext()) {
 							Object obj = iter.next();
@@ -841,14 +873,14 @@ public class Ili2Writer implements IFMEWriter {
 														+ attr.getName();
 												// area helper table
 												EhiLogger.logState(helperTableName+"...");
-												writeBasket(helperTableName,true);
+												startBasketEvent=writeBasket(helperTableName,true,startBasketEvent);
 											}
 										}
 									}
 									
 									// main table
 									EhiLogger.logState(className+"...");
-									writeBasket(className,false);
+									startBasketEvent=writeBasket(className,false,startBasketEvent);
 
 									// add helper tables of surface attributes
 									attri = v.getAttributes();
@@ -867,7 +899,7 @@ public class Ili2Writer implements IFMEWriter {
 														+ attr.getName();
 												// surface helper table
 												EhiLogger.logState(helperTableName+"...");
-												writeBasket(helperTableName,true);
+												startBasketEvent=writeBasket(helperTableName,true,startBasketEvent);
 											}
 										}
 									}
@@ -884,12 +916,12 @@ public class Ili2Writer implements IFMEWriter {
 												+ "_"
 												+ wrapper.getGeomAttr4FME().getName();
 										EhiLogger.logState(lineTableName+"...");
-										writeItfLineTableArea(className,lineTableName);
+										startBasketEvent=writeItfLineTableArea(className,lineTableName,startBasketEvent);
 									}
 									
 									// main table
 									EhiLogger.logState(className+"...");
-									writeBasket(className,false);
+									startBasketEvent=writeBasket(className,false,startBasketEvent);
 									
 									if(wrapper.getGeomAttr4FME()!=null && wrapper.getGeomAttr4FME().getDomainResolvingAll() instanceof SurfaceType){
 										// build line table from polygons/donuts
@@ -900,18 +932,20 @@ public class Ili2Writer implements IFMEWriter {
 												+ v.getName()
 												+ "_"
 												+ wrapper.getGeomAttr4FME().getName();
-										writeItfLineTableSurface(className,lineTableName);
+										startBasketEvent=writeItfLineTableSurface(className,lineTableName,startBasketEvent);
 									}
 								}
 								
 							}
 						}
 						// EndBasket
-						ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
-		                  if(validator!=null) {
-		                        validator.validate(endBasketEvent);
-		                    }
-						ioxWriter.write(endBasketEvent);
+						if(startBasketEvent==null) {
+	                        ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
+	                          if(validator!=null) {
+	                                validator.validate(endBasketEvent);
+	                            }
+	                        ioxWriter.write(endBasketEvent);
+						}
 					}
 				}
 			}
