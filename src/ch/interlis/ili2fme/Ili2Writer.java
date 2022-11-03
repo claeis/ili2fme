@@ -83,7 +83,6 @@ public class Ili2Writer implements IFMEWriter {
 	private static final int MODE_XRF=4;
 	private int  inheritanceMapping=InheritanceMapping.SUPERCLASS;
 	private boolean useLineTableFeatures=true;
-	private boolean doRichGeometry=true;
 	private boolean scanXtfBaskets=true;
 	private boolean autoXtfBaskets=true;
 	private ArrayList modeldirv=null;
@@ -666,138 +665,132 @@ public class Ili2Writer implements IFMEWriter {
 				IFMEFeature feature=null;
 				
 				// process feature
-				try{
-					feature=featurev.getAt(featurei);
-					boolean is3D=3==((CoordType)((SurfaceOrAreaType)type).getControlPointDomain().getType()).getDimensions().length;
-					if(doRichGeometry){
-						IFMEGeometry fmeGeom=null;
-						try{
-							fmeGeom=feature.getGeometry();
-							if(fmeGeom instanceof IFMEDonut){
-								IFMEDonut fmeDonut=(IFMEDonut)fmeGeom;
-								// shell
-								{
-									IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
-
-									//add ref to main table
-									IomObject structvalue=iomObj.addattrobj(fkName,"REF");
-									structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
-									
-									IFMECurve shell=null;
-									try{
-										shell=fmeDonut.getOuterBoundaryAsCurve();
-										IomObject polyline=Fme2iox.FME2polyline(session,shell);
-										iomObj.addattrobj(iomAttrName,polyline);
-									}finally{
-										if(shell!=null){
-											shell.dispose();
-											shell=null;
-										}
-									}
-									
-									// add line attributes
-									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
-									//addItfLineAttributes(iomObj, shell, wrapper, surfaceType);
-				                    if(startBasketEvent!=null) {
-				                        if(validator!=null) {
-				                            validator.validate(startBasketEvent);
-				                        }
-				                        ioxWriter.write(startBasketEvent);
-				                        startBasketEvent=null;
-				                    }
-									ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
-									if(validator!=null) {
-									    validator.validate(objEvent);
-									}
-									ioxWriter.write(objEvent);
-								}
-								
-								// holes
-								int holec=fmeDonut.numInnerBoundaries();
-								for(int holei=0;holei<holec;holei++){
-									IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
-
-									//add ref to main table
-									IomObject structvalue=iomObj.addattrobj(fkName,"REF");
-									structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
-									
-									IFMECurve hole=null;
-									try{
-										hole=fmeDonut.getInnerBoundaryAsCurveAt(holei);
-										IomObject polyline=Fme2iox.FME2polyline(session,hole);
-										iomObj.addattrobj(iomAttrName,polyline);
-									}finally{
-										if(hole!=null){
-											hole.dispose();
-											hole=null;
-										}
-									}
-									
-									// add line attributes
-									//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
-									//addItfLineAttributes(iomObj, hole, wrapper, surfaceType);
-				                    if(startBasketEvent!=null) {
-				                        if(validator!=null) {
-				                            validator.validate(startBasketEvent);
-				                        }
-				                        ioxWriter.write(startBasketEvent);
-				                        startBasketEvent=null;
-				                    }
-									ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
-									if(validator!=null) {
-									    validator.validate(objEvent);
-									}
-									ioxWriter.write(objEvent);
-								}
-							}else if(fmeGeom instanceof IFMESimpleArea){
-								IomObject iomObj=new ch.interlis.iom_j.Iom_jObject(lineTableName,newTid());	
+				try {
+					feature = featurev.getAt(featurei);
+					boolean is3D = 3 == ((CoordType) ((SurfaceOrAreaType) type).getControlPointDomain().getType()).getDimensions().length;
+					IFMEGeometry fmeGeom = null;
+					try {
+						fmeGeom = feature.getGeometry();
+						if (fmeGeom instanceof IFMEDonut) {
+							IFMEDonut fmeDonut = (IFMEDonut) fmeGeom;
+							// shell
+							{
+								IomObject iomObj = new ch.interlis.iom_j.Iom_jObject(lineTableName, newTid());
 
 								//add ref to main table
-								IomObject structvalue=iomObj.addattrobj(fkName,"REF");
-								structvalue.setobjectrefoid(getStringAttribute(feature,Main.XTF_ID));
-								IFMECurve shell=null;
-								try{
-									shell=((IFMESimpleArea)fmeGeom).getBoundaryAsCurve();
-									IomObject polyline=Fme2iox.FME2polyline(session,shell);
-									iomObj.addattrobj(iomAttrName,polyline);
-								}finally{
-									if(shell!=null){
+								IomObject structvalue = iomObj.addattrobj(fkName, "REF");
+								structvalue.setobjectrefoid(getStringAttribute(feature, Main.XTF_ID));
+
+								IFMECurve shell = null;
+								try {
+									shell = fmeDonut.getOuterBoundaryAsCurve();
+									IomObject polyline = Fme2iox.FME2polyline(session, shell);
+									iomObj.addattrobj(iomAttrName, polyline);
+								} finally {
+									if (shell != null) {
 										shell.dispose();
-										shell=null;
+										shell = null;
 									}
 								}
-								
+
 								// add line attributes
 								//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
-								//addItfLineAttributes(iomObj, fmeGeom, wrapper, surfaceType);
-			                    if(startBasketEvent!=null) {
-			                        if(validator!=null) {
-			                            validator.validate(startBasketEvent);
-			                        }
-			                        ioxWriter.write(startBasketEvent);
-			                        startBasketEvent=null;
-			                    }
-								ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
-								if(validator!=null) {
-								    validator.validate(objEvent);
+								//addItfLineAttributes(iomObj, shell, wrapper, surfaceType);
+								if (startBasketEvent != null) {
+									if (validator != null) {
+										validator.validate(startBasketEvent);
+									}
+									ioxWriter.write(startBasketEvent);
+									startBasketEvent = null;
+								}
+								ch.interlis.iox_j.ObjectEvent objEvent = new ch.interlis.iox_j.ObjectEvent(iomObj);
+								if (validator != null) {
+									validator.validate(objEvent);
 								}
 								ioxWriter.write(objEvent);
-							}else if(fmeGeom instanceof IFMENull){
-								// skip it
-							}else{
-								feature.performFunction("@Log()");
-								throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
 							}
-						}finally{
-							if(fmeGeom!=null){
-								fmeGeom.dispose();
-								fmeGeom=null;
+
+							// holes
+							int holec = fmeDonut.numInnerBoundaries();
+							for (int holei = 0; holei < holec; holei++) {
+								IomObject iomObj = new ch.interlis.iom_j.Iom_jObject(lineTableName, newTid());
+
+								//add ref to main table
+								IomObject structvalue = iomObj.addattrobj(fkName, "REF");
+								structvalue.setobjectrefoid(getStringAttribute(feature, Main.XTF_ID));
+
+								IFMECurve hole = null;
+								try {
+									hole = fmeDonut.getInnerBoundaryAsCurveAt(holei);
+									IomObject polyline = Fme2iox.FME2polyline(session, hole);
+									iomObj.addattrobj(iomAttrName, polyline);
+								} finally {
+									if (hole != null) {
+										hole.dispose();
+										hole = null;
+									}
+								}
+
+								// add line attributes
+								//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
+								//addItfLineAttributes(iomObj, hole, wrapper, surfaceType);
+								if (startBasketEvent != null) {
+									if (validator != null) {
+										validator.validate(startBasketEvent);
+									}
+									ioxWriter.write(startBasketEvent);
+									startBasketEvent = null;
+								}
+								ch.interlis.iox_j.ObjectEvent objEvent = new ch.interlis.iox_j.ObjectEvent(iomObj);
+								if (validator != null) {
+									validator.validate(objEvent);
+								}
+								ioxWriter.write(objEvent);
 							}
+						} else if (fmeGeom instanceof IFMESimpleArea) {
+							IomObject iomObj = new ch.interlis.iom_j.Iom_jObject(lineTableName, newTid());
+
+							//add ref to main table
+							IomObject structvalue = iomObj.addattrobj(fkName, "REF");
+							structvalue.setobjectrefoid(getStringAttribute(feature, Main.XTF_ID));
+							IFMECurve shell = null;
+							try {
+								shell = ((IFMESimpleArea) fmeGeom).getBoundaryAsCurve();
+								IomObject polyline = Fme2iox.FME2polyline(session, shell);
+								iomObj.addattrobj(iomAttrName, polyline);
+							} finally {
+								if (shell != null) {
+									shell.dispose();
+									shell = null;
+								}
+							}
+
+							// add line attributes
+							//SurfaceOrAreaType surfaceType=(SurfaceOrAreaType)type;
+							//addItfLineAttributes(iomObj, fmeGeom, wrapper, surfaceType);
+							if (startBasketEvent != null) {
+								if (validator != null) {
+									validator.validate(startBasketEvent);
+								}
+								ioxWriter.write(startBasketEvent);
+								startBasketEvent = null;
+							}
+							ch.interlis.iox_j.ObjectEvent objEvent = new ch.interlis.iox_j.ObjectEvent(iomObj);
+							if (validator != null) {
+								validator.validate(objEvent);
+							}
+							ioxWriter.write(objEvent);
+						} else if (fmeGeom instanceof IFMENull) {
+							// skip it
+						} else {
+							feature.performFunction("@Log()");
+							throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
 						}
-					}else{
-						throw new java.lang.IllegalStateException("use RichGeometry");
-						//obj.getDonutParts(bndries);
-						// write parts as polyline
+					} finally {
+						if (fmeGeom != null) {
+							fmeGeom.dispose();
+							fmeGeom = null;
+						}
 					}
 				}finally{
 					if(feature!=null){
@@ -1430,28 +1423,24 @@ public class Ili2Writer implements IFMEWriter {
 			}
 			
 		}else if (type instanceof PolylineType){
-			if(geomattr!=null && attrName.equals(geomattr)){
-				boolean is3D=3==((CoordType)((PolylineType)type).getControlPointDomain().getType()).getDimensions().length;
-				if(doRichGeometry){
-					IFMEGeometry fmeGeom=null;
-					try{
-						fmeGeom=obj.getGeometry();
-						if(fmeGeom instanceof IFMECurve){
-							IomObject polyline=Fme2iox.FME2polyline(session,(IFMECurve)fmeGeom);
-							iomObj.addattrobj(attrName,polyline);
-						}else if(fmeGeom instanceof IFMENull){
-							// skip it
-						}else{
-							throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
-						}
-					}finally{
-						if(fmeGeom!=null){
-							fmeGeom.dispose();
-							fmeGeom=null;
-						}
+			if(geomattr!=null && attrName.equals(geomattr)) {
+				boolean is3D = 3 == ((CoordType) ((PolylineType) type).getControlPointDomain().getType()).getDimensions().length;
+				IFMEGeometry fmeGeom = null;
+				try {
+					fmeGeom = obj.getGeometry();
+					if (fmeGeom instanceof IFMECurve) {
+						IomObject polyline = Fme2iox.FME2polyline(session, (IFMECurve) fmeGeom);
+						iomObj.addattrobj(attrName, polyline);
+					} else if (fmeGeom instanceof IFMENull) {
+						// skip it
+					} else {
+						throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
 					}
-				}else{
-					mapClassicPolyline(obj, iomObj, attrName, is3D);
+				} finally {
+					if (fmeGeom != null) {
+						fmeGeom.dispose();
+						fmeGeom = null;
+					}
 				}
 			}else{
 				if(obj.attributeExists(attrPrefix+attrName)){
@@ -1468,27 +1457,23 @@ public class Ili2Writer implements IFMEWriter {
 			}
 		 }else if(type instanceof SurfaceOrAreaType){
 		 	if(formatMode==MODE_XTF  || formatMode==MODE_GML){
-				if(geomattr!=null && attrName.equals(geomattr)){
-					if(doRichGeometry){
-						IFMEGeometry fmeGeom=null;
-						try{
-							fmeGeom=obj.getGeometry();
-							if(fmeGeom instanceof IFMEArea){
-								IomObject surface=Fme2iox.FME2surface(session,(IFMEArea)fmeGeom);
-								iomObj.addattrobj(attrName,surface);
-							}else if(fmeGeom instanceof IFMENull){
-								// skip it
-							}else{
-								throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
-							}
-						}finally{
-							if(fmeGeom!=null){
-								fmeGeom.dispose();
-								fmeGeom=null;
-							}
+				if(geomattr!=null && attrName.equals(geomattr)) {
+					IFMEGeometry fmeGeom = null;
+					try {
+						fmeGeom = obj.getGeometry();
+						if (fmeGeom instanceof IFMEArea) {
+							IomObject surface = Fme2iox.FME2surface(session, (IFMEArea) fmeGeom);
+							iomObj.addattrobj(attrName, surface);
+						} else if (fmeGeom instanceof IFMENull) {
+							// skip it
+						} else {
+							throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
 						}
-					}else{
-						mapClassicSurface(obj, iomObj, type, attrName);
+					} finally {
+						if (fmeGeom != null) {
+							fmeGeom.dispose();
+							fmeGeom = null;
+						}
 					}
 				}else{
 					if(obj.attributeExists(attrPrefix+attrName)){
@@ -1515,77 +1500,59 @@ public class Ili2Writer implements IFMEWriter {
 					addItfLineAttributes(iomObj, obj, wrapper, surfaceType);
 				}else{
 					// main table
-					if(type instanceof AreaType){
-						if(geomattr!=null && attrName.equals(geomattr)){
-							if(doRichGeometry){
-								IFMEGeometry fmeGeom=null;
-								try{
-									fmeGeom=obj.getGeometry();
-									if(fmeGeom instanceof IFMEPoint){
-										IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
-										iomObj.addattrobj(attrName,coord);
-									}else if(fmeGeom instanceof IFMEText){
-										IomObject coord=Fme2iox.FME2coord(((IFMEText)fmeGeom).getLocationAsPoint());
-										iomObj.addattrobj(attrName,coord);
-									}else if(fmeGeom instanceof IFMENull){
-										// skip it
-									}else if(fmeGeom instanceof IFMEArea){
-										double valuev[]=obj.generatePointInPolygon(true);
-										IomObject coord=iomObj.addattrobj(attrName,"COORD");
-										coord.setattrvalue("C1",Double.toString(valuev[0]));
-										coord.setattrvalue("C2",Double.toString(valuev[1]));						
-									}else{
-										throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
-									}
-								}finally{
-									if(fmeGeom!=null){
-										fmeGeom.dispose();
-										fmeGeom=null;
-									}
+					if(type instanceof AreaType) {
+						if (geomattr != null && attrName.equals(geomattr)) {
+							IFMEGeometry fmeGeom = null;
+							try {
+								fmeGeom = obj.getGeometry();
+								if (fmeGeom instanceof IFMEPoint) {
+									IomObject coord = Fme2iox.FME2coord((IFMEPoint) fmeGeom);
+									iomObj.addattrobj(attrName, coord);
+								} else if (fmeGeom instanceof IFMEText) {
+									IomObject coord = Fme2iox.FME2coord(((IFMEText) fmeGeom).getLocationAsPoint());
+									iomObj.addattrobj(attrName, coord);
+								} else if (fmeGeom instanceof IFMENull) {
+									// skip it
+								} else if (fmeGeom instanceof IFMEArea) {
+									double valuev[] = obj.generatePointInPolygon(true);
+									IomObject coord = iomObj.addattrobj(attrName, "COORD");
+									coord.setattrvalue("C1", Double.toString(valuev[0]));
+									coord.setattrvalue("C2", Double.toString(valuev[1]));
+								} else {
+									throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
 								}
-							}else{
-								double valuev[]=obj.get3DCoordinate(0);
-								IomObject coord=iomObj.addattrobj(attrName,"COORD");
-								coord.setattrvalue("C1",Double.toString(valuev[0]));
-								coord.setattrvalue("C2",Double.toString(valuev[1]));						
+							} finally {
+								if (fmeGeom != null) {
+									fmeGeom.dispose();
+									fmeGeom = null;
+								}
 							}
 						}
 					}
 				}
 		 	}
 		 }else if(type instanceof CoordType){
-			if(geomattr!=null && attrName.equals(geomattr)){
-				if(doRichGeometry){
-					IFMEGeometry fmeGeom=null;
-					try{
-						fmeGeom=obj.getGeometry();
-						if(fmeGeom instanceof IFMEPoint){
-							IomObject coord=Fme2iox.FME2coord((IFMEPoint)fmeGeom);
-							iomObj.addattrobj(attrName,coord);
-						}else if(fmeGeom instanceof IFMEText){
-							IomObject coord=Fme2iox.FME2coord(((IFMEText)fmeGeom).getLocationAsPoint());
-							iomObj.addattrobj(attrName,coord);
-						}else if(fmeGeom instanceof IFMENull){
-							// skip it
-						}else{
-							throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
-						}
-					}finally{
-						if(fmeGeom!=null){
-							fmeGeom.dispose();
-							fmeGeom=null;
-						}
+			if(geomattr!=null && attrName.equals(geomattr)) {
+				IFMEGeometry fmeGeom = null;
+				try {
+					fmeGeom = obj.getGeometry();
+					if (fmeGeom instanceof IFMEPoint) {
+						IomObject coord = Fme2iox.FME2coord((IFMEPoint) fmeGeom);
+						iomObj.addattrobj(attrName, coord);
+					} else if (fmeGeom instanceof IFMEText) {
+						IomObject coord = Fme2iox.FME2coord(((IFMEText) fmeGeom).getLocationAsPoint());
+						iomObj.addattrobj(attrName, coord);
+					} else if (fmeGeom instanceof IFMENull) {
+						// skip it
+					} else {
+						throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
 					}
-				}else{
-					double valuev[]=obj.get3DCoordinate(0);
-					IomObject coord=iomObj.addattrobj(attrName,"COORD");
-					coord.setattrvalue("C1",Double.toString(valuev[0]));
-					coord.setattrvalue("C2",Double.toString(valuev[1]));
-					if(((CoordType)type).getDimensions().length==3){
-						coord.setattrvalue("C3",Double.toString(valuev[2]));
+				} finally {
+					if (fmeGeom != null) {
+						fmeGeom.dispose();
+						fmeGeom = null;
 					}
 				}
-				
 			}else{
 				if(obj.attributeExists(attrPrefix+attrName)){
 					if((type instanceof CoordType) && ((CoordType)type).getDimensions().length==1){
@@ -1619,100 +1586,32 @@ public class Ili2Writer implements IFMEWriter {
 		}
 	}
 	private void mapItfPolylineValueOfLineTable(IFMEFeature obj, IomObject iomObj, ViewableWrapper wrapper, Type type, String iomAttrName) throws DataException, FMEException, Exception, Iox2jtsException {
-		boolean is3D=3==((CoordType)((SurfaceOrAreaType)type).getControlPointDomain().getType()).getDimensions().length;
-		if(doRichGeometry){
-			IFMEGeometry fmeGeom=null;
-			try{
-				fmeGeom=obj.getGeometry();
-				if(fmeGeom instanceof IFMECurve){
-					IomObject polyline=Fme2iox.FME2polyline(session,(IFMECurve)fmeGeom);
-					iomObj.addattrobj(iomAttrName,polyline);
-				}else if(fmeGeom instanceof IFMESimpleArea){
-					IFMECurve shell=null;
-					try{
-						shell=((IFMESimpleArea)fmeGeom).getBoundaryAsCurve();
-						IomObject polyline=Fme2iox.FME2polyline(session,shell);
-						iomObj.addattrobj(iomAttrName,polyline);
-					}finally{
-						if(shell!=null){
-							shell.dispose();
-							shell=null;
-						}
+		IFMEGeometry fmeGeom = null;
+		try {
+			fmeGeom = obj.getGeometry();
+			if (fmeGeom instanceof IFMECurve) {
+				IomObject polyline = Fme2iox.FME2polyline(session, (IFMECurve) fmeGeom);
+				iomObj.addattrobj(iomAttrName, polyline);
+			} else if (fmeGeom instanceof IFMESimpleArea) {
+				IFMECurve shell = null;
+				try {
+					shell = ((IFMESimpleArea) fmeGeom).getBoundaryAsCurve();
+					IomObject polyline = Fme2iox.FME2polyline(session, shell);
+					iomObj.addattrobj(iomAttrName, polyline);
+				} finally {
+					if (shell != null) {
+						shell.dispose();
+						shell = null;
 					}
-				}else{
-					obj.performFunction("@Log()");
-					throw new DataException("unexpected geometry type "+fmeGeom.getClass().getName());
 				}
-			}finally{
-				if(fmeGeom!=null){
-					fmeGeom.dispose();
-					fmeGeom=null;
-				}
+			} else {
+				obj.performFunction("@Log()");
+				throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
 			}
-		}else{
-			mapClassicPolyline(obj, iomObj, iomAttrName, is3D);
-		}
-	}
-	private void mapClassicPolyline(
-		IFMEFeature obj,
-		IomObject iomObj,
-		String attrName,
-		boolean is3D)
-		throws FMEException {
-		IomObject polylineValue=iomObj.addattrobj(attrName,"POLYLINE");
-		// unclipped polyline, add one sequence
-		IomObject sequence=polylineValue.addattrobj("sequence","SEGMENTS");
-		int segc=obj.numCoords();
-		for(int segi=0;segi<segc;segi++){
-			// add control point
-			double valuev[]=obj.get3DCoordinate(segi);
-			IomObject coordValue=sequence.addattrobj("segment","COORD");
-			coordValue.setattrvalue("C1",Double.toString(valuev[0]));
-			coordValue.setattrvalue("C2",Double.toString(valuev[1]));
-			if(is3D){
-				coordValue.setattrvalue("C3",Double.toString(valuev[2]));
-			}
-			//coordValue.setattrvalue("A1",Double.toString(ordv[i]));
-			//coordValue.setattrvalue("A2",Double.toString(ordv[i+1]));
-			//if(is3D){
-			//	// no A3 in XTF!
-			//}
-		}
-	}
-	private void mapClassicSurface(
-		IFMEFeature obj,
-		IomObject iomObj,
-		Type type,
-		String attrName)
-		throws FMEException {
-		boolean is3D=3==((CoordType)((SurfaceOrAreaType)type).getControlPointDomain().getType()).getDimensions().length;
-		//fmeLog.logFeature(obj,IFMELogFile.FME_INFORM,-1);
-		IFMEFeatureVector bndries=session.createFeatureVector();
-		obj.getDonutParts(bndries);
-		IomObject multisurface=iomObj.addattrobj(attrName,"MULTISURFACE");
-		IomObject surface=multisurface.addattrobj("surface","SURFACE");
-		int bndc=bndries.entries();
-		//EhiLogger.debug("number of boundaries "+Integer.toString(bndc));
-		for(int bndi=0;bndi<bndc;bndi++){
-			IFMEFeature line=bndries.getAt(bndi);
-			IomObject boundary=surface.addattrobj("boundary","BOUNDARY");
-			IomObject polylineValue=boundary.addattrobj("polyline","POLYLINE");
-			IomObject sequence=polylineValue.addattrobj("sequence","SEGMENTS");
-			int segc=line.numCoords();
-			for(int segi=0;segi<segc;segi++){
-				// add control point
-				double valuev[]=line.get3DCoordinate(segi);
-				IomObject coordValue=sequence.addattrobj("segment","COORD");
-				coordValue.setattrvalue("C1",Double.toString(valuev[0]));
-				coordValue.setattrvalue("C2",Double.toString(valuev[1]));
-				if(is3D){
-					coordValue.setattrvalue("C3",Double.toString(valuev[2]));
-				}
-				//coordValue.setattrvalue("A1",Double.toString(ordv[i]));
-				//coordValue.setattrvalue("A2",Double.toString(ordv[i+1]));
-				//if(is3D){
-				//	// no A3 in XTF!
-				//}
+		} finally {
+			if (fmeGeom != null) {
+				fmeGeom.dispose();
+				fmeGeom = null;
 			}
 		}
 	}
