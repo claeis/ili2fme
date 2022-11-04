@@ -5,6 +5,9 @@ import COM.safe.fmeobjects.IFMEArea;
 import COM.safe.fmeobjects.IFMECurve;
 import COM.safe.fmeobjects.IFMEFactoryPipeline;
 import COM.safe.fmeobjects.IFMEFeature;
+import COM.safe.fmeobjects.IFMEMultiArea;
+import COM.safe.fmeobjects.IFMEMultiCurve;
+import COM.safe.fmeobjects.IFMEMultiPoint;
 import COM.safe.fmeobjects.IFMENull;
 import COM.safe.fmeobjects.IFMEPath;
 import COM.safe.fmeobjects.IFMEGeometry;
@@ -133,6 +136,21 @@ public class GeometryConverter {
 			 }
 		 }
 	 }
+
+ 	public void multicoord2FME(IFMEFeature ret, String attrName, IomObject value)
+	throws DataException
+	{
+		IFMEMultiPoint multiPoint=null;
+		try {
+			multiPoint = Iox2fme.multicoord2FME(session, value);
+			setGeometry(ret, attrName, multiPoint);
+		} finally {
+			if(multiPoint!=null){
+				multiPoint.dispose();
+			}
+		}
+	}
+
 	 public void polyline2FME(IFMEFeature ret,String attrName,IomObject value)
 		throws DataException 
 	 {
@@ -147,6 +165,20 @@ public class GeometryConverter {
 			 }
 		 }
 	 }
+	public void multipolyline2FME(IFMEFeature ret, String attrName, IomObject value)
+	throws DataException
+	{
+		IFMEMultiCurve multiCurve=null;
+		try {
+			 multiCurve = Iox2fme.multipolyline2FME(session, value);
+			setGeometry(ret, attrName, multiCurve);
+		} finally {
+			if(multiCurve!=null){
+				multiCurve.dispose();
+			}
+		}
+	}
+
 	 public void surface2FME(IFMEFeature ret,String attrName,IomObject value)
 		throws DataException 
 	 {
@@ -161,6 +193,19 @@ public class GeometryConverter {
 			 }
 		 }
 	 }
+
+	public void mutlisurface2FME(IFMEFeature ret,String attrName,IomObject value)
+	throws DataException {
+		IFMEMultiArea fmeMultiArea = null;
+		try {
+			fmeMultiArea = Iox2fme.multisurface2FME(session, value);
+			setGeometry(ret, attrName, fmeMultiArea);
+		} finally {
+			if (fmeMultiArea != null) {
+				fmeMultiArea.dispose();
+			}
+		}
+	}
 	 public void FME2polyline(IomObject target,String targetAttr,IFMEFeature src,String srcAttr)
 		throws DataException 
 	 {

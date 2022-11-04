@@ -185,13 +185,17 @@ DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}
 CORR_LINE_TEMPLATE {FME_GEN_GROUP_NAME} 
 DEF_LINE_BREAK ATTRIB_CHANGE
 
-GEOM_MAP xtf_none         fme_no_geom
-GEOM_MAP xtf_coord        fme_point
-GEOM_MAP xtf_coord        fme_text
-GEOM_MAP xtf_polyline     fme_line
-GEOM_MAP xtf_surface      fme_polygon
-GEOM_MAP xtf_area         fme_polygon
-GEOM_MAP xtf_arc          fme_arc
+GEOM_MAP xtf_none             fme_no_geom
+GEOM_MAP xtf_coord            fme_point
+GEOM_MAP xtf_multicoord       fme_collection
+GEOM_MAP xtf_coord            fme_text
+GEOM_MAP xtf_polyline         fme_line
+GEOM_MAP xtf_multipolyline    fme_collection
+GEOM_MAP xtf_surface          fme_polygon
+GEOM_MAP xtf_multisurface     fme_collection
+GEOM_MAP xtf_area             fme_polygon
+GEOM_MAP xtf_multiarea        fme_collection
+GEOM_MAP xtf_arc              fme_arc
          
 !for fme_ellipse we will stroke it AND store in an area
 GEOM_MAP xtf_area             fme_ellipse          \
