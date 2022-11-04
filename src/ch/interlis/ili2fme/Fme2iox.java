@@ -42,6 +42,22 @@ public class Fme2iox {
 		}
 		return ret;
 	}
+	static public  IomObject FME2multicoord(IFMEMultiPoint value)
+	{
+		IomObject ret = new ch.interlis.iom_j.Iom_jObject("MULTICOORD",null);
+		for (int i = 0; i < value.numPoints(); i++) {
+			IFMEPoint point = value.getPointAt(i);
+			IomObject iomCoord = new ch.interlis.iom_j.Iom_jObject("COORD",null);
+			iomCoord.setattrvalue("C1", Double.toString(point.getX()));
+			iomCoord.setattrvalue("C2", Double.toString(point.getY()));
+			if(value.is3D()){
+				iomCoord.setattrvalue("C3", Double.toString(point.getZ()));
+			}
+			ret.addattrobj("coord", iomCoord);
+		}
+
+		return ret;
+	}
 	/** Converts from a FME Path to a INTERLIS POLYLINE.
 	 * @param value FME Path 
 	 * @return INTERLIS POLYLINE structure
@@ -69,6 +85,18 @@ public class Fme2iox {
 		}
 		return ret;
 	}
+
+	public static IomObject FME2multipolyline(IFMESession session, IFMEMultiCurve fmeGeom)
+	throws DataException{
+		IomObject ret=new ch.interlis.iom_j.Iom_jObject("MULTIPOLYLINE",null);
+
+		for (int i = 0; i < fmeGeom.numCurves(); i++) {
+			IFMECurve curve = fmeGeom.getCurveAt(i);
+			ret.addattrobj("polyline", FME2polyline(session, curve));
+		}
+		return ret;
+	}
+
 	private static void addSegment(IFMESession session,IomObject sequence, IFMESegment seg, boolean is3D) 
 		throws DataException 
 	{
@@ -239,4 +267,17 @@ public class Fme2iox {
 		}
 	}
 
+	static public  IomObject FME2multisurface(IFMESession session, IFMEMultiArea value)
+	throws DataException
+	{
+	 	IomObject ret=new ch.interlis.iom_j.Iom_jObject("MULTISURFACE",null);
+
+		for (int i = 0; i < value.numAreas(); i++) {
+			IomObject ioxMultiSurface = FME2surface(session, value.getAreaAt(i));
+			IomObject surface = ioxMultiSurface.getattrobj("surface",0);
+			ret.addattrobj("surface",surface);
+		}
+
+		return ret;
+	}
 }

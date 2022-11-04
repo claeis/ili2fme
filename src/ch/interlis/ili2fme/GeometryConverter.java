@@ -227,6 +227,27 @@ public class GeometryConverter {
 				}
 			}
 	 }
+
+	public void FME2multipolyline(IomObject target, String targetAttr, IFMEFeature src, String srcAttr)
+	throws DataException {
+		IFMEGeometry fmeGeom = null;
+		try {
+			fmeGeom = getGeometry(src, srcAttr);
+			if (fmeGeom instanceof IFMEMultiCurve) {
+				IomObject multipolyline = Fme2iox.FME2multipolyline(session, (IFMEMultiCurve) fmeGeom);
+				target.addattrobj(targetAttr, multipolyline);
+			} else if (fmeGeom instanceof IFMENull) {
+				// skip it
+			} else {
+				throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
+			}
+		} finally {
+			if (fmeGeom != null) {
+				fmeGeom.dispose();
+			}
+		}
+	}
+
 	 public void FME2surface(IomObject target,String targetAttr,IFMEFeature src,String srcAttr)
 		throws DataException 
 	 {
@@ -248,6 +269,27 @@ public class GeometryConverter {
 				}
 			}
 	 }
+
+	public void FME2multisurface(IomObject target,String targetAttr,IFMEFeature src,String srcAttr)
+	throws DataException {
+		IFMEGeometry fmeGeom = null;
+		try {
+			fmeGeom = getGeometry(src, srcAttr);
+			if (fmeGeom instanceof IFMEMultiArea) {
+				IomObject surface = Fme2iox.FME2multisurface(session, (IFMEMultiArea) fmeGeom);
+				target.addattrobj(targetAttr, surface);
+			} else if (fmeGeom instanceof IFMENull) {
+				// skip it
+			} else {
+				throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
+			}
+		} finally {
+			if (fmeGeom != null) {
+				fmeGeom.dispose();
+			}
+		}
+	}
+
 	 public void FME2coord(IomObject target,String targetAttr,IFMEFeature src,String srcAttr)
 		throws DataException 
 	 {
@@ -272,4 +314,32 @@ public class GeometryConverter {
 				}
 			}
 	 }
+
+	public void FME2multicoord(IomObject target, String targetAttr, IFMEFeature src, String srcAttr)
+	throws DataException
+	{
+		IFMEGeometry fmeGeom = null;
+		try {
+			fmeGeom = getGeometry(src, srcAttr);
+			if (fmeGeom instanceof IFMEPoint) {
+				IomObject coord = Fme2iox.FME2coord((IFMEPoint) fmeGeom);
+				IomObject multicoord = new ch.interlis.iom_j.Iom_jObject("MULTICOORD",null);
+				multicoord.addattrobj("coord", coord);
+				target.addattrobj(targetAttr, multicoord);
+			} else if (fmeGeom instanceof IFMEText) {
+				IomObject coord = Fme2iox.FME2coord(((IFMEText) fmeGeom).getLocationAsPoint());
+				IomObject multicoord = new ch.interlis.iom_j.Iom_jObject("MULTICOORD",null);
+				multicoord.addattrobj("coord", coord);
+				target.addattrobj(targetAttr, multicoord);
+			} else if (fmeGeom instanceof IFMENull) {
+				// skip it
+			} else {
+				throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
+			}
+		} finally {
+			if (fmeGeom != null) {
+				fmeGeom.dispose();
+			}
+		}
+	}
 }
