@@ -1623,6 +1623,7 @@ public class Ili2Writer implements IFMEWriter {
 						if(c1!=null && c1.length()>0){
 							IomObject coord=iomObj.addattrobj(attrName,"COORD");
 							coord.setattrvalue("C1",c1);
+							iomObj.addattrobj(attrName, coord);
 						}
 					}else{
 						if(geomConv==null){
