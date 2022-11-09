@@ -1367,13 +1367,16 @@ public class Ili2Reader implements IFMEReader {
 					ret.setStringAttribute(prefix+attrName,refoid);
 				}
 		}else{
-		 String value=iomObj.getattrvalue(attrName);
-		 if(trimValues){
-			 value=StringUtility.purge(value);
-		 }
-		 if(value!=null){
-			 ret.setStringAttribute(prefix+attrName, value);
-		 }
+			for (int i = 0; i < iomObj.getattrvaluecount(attrName); i++) {
+				String value = iomObj.getattrprim(attrName, i);
+				if (trimValues) {
+					value = StringUtility.purge(value);
+				}
+				if (value != null) {
+					String fmeIndex = attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1 ? "{" + i + "}" : "";
+					ret.setStringAttribute(prefix + attrName + fmeIndex, value);
+				}
+			}
 		}
 	}
 	private void checkWkb(IFMEFeature fme,String attr,String value)
@@ -1705,45 +1708,46 @@ public class Ili2Reader implements IFMEReader {
 			// EhiLogger.debug(attr.getScopedName(null)+", "+rootClass.getScopedName(null));
 			mapFeatureType(null,ret,transferViewables.get(rootClass.getScopedName(null)),attrNamePrefix+attr.getName()+"{}.");						
 		}else{
-			// TODO set attribute type
+			String returnType = "xtf_char(255)";
+			String fmeAttributeName = attrNamePrefix+attr.getName();
+
 			if (isBoolean(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_boolean");
+				returnType = "xtf_boolean";
 			}else if (isIli1Date(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_date");
+				returnType = "xtf_date";
 			}else if (isIli2Date(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_date");
+				returnType = "xtf_date";
 			}else if (isIli2DateTime(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_datetime");
+				returnType = "xtf_datetime";
 			}else if (isIli2Time(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_time");
+				returnType = "xtf_time";
 			}else if (type instanceof ReferenceType){
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.ID_TYPE);
+				returnType = Main.ID_TYPE;
 			}else if (type instanceof BasketType){
 				// skip it; type no longer exists in ili 2.3
 			}else if(type instanceof EnumerationType){
 				if(ili1EnumAsItfCode){
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.XTF_ENUMITFCODE_TYPE);
+					returnType = Main.XTF_ENUMITFCODE_TYPE;
 				}else{
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.ILINAME_TYPE);
+					returnType = Main.ILINAME_TYPE;
 				}
 			}else if(type instanceof NumericType){
-				if(type.isAbstract()){
-				}else{
-					String numType = mapNumericType((NumericType)type);
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),numType);
+				if(!type.isAbstract()){
+					returnType = mapNumericType((NumericType)type);
 				}
 			}else if(type instanceof TextType){
 				if(((TextType)type).getMaxLength()>0){
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char("+((TextType)type).getMaxLength()+")");
+					returnType = "xtf_char("+((TextType)type).getMaxLength()+")";
 				}else{
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_buffer");
+					returnType = "xtf_buffer";
 				}
 			}else if(type instanceof BlackboxType){
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_buffer");
-			}else{
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(255)");
+				returnType = "xtf_buffer";
 			}
-			
+			if(attr.getDomain().getCardinality().getMaximum() > 1){
+				fmeAttributeName += "{}";
+			}
+			ret.setSequencedAttribute(fmeAttributeName, returnType);
 		}
 	}
 	private String mapNumericType(NumericType type) {

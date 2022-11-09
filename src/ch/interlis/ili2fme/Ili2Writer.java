@@ -1574,7 +1574,18 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 		}else{
-			if(obj.attributeExists(attrPrefix+attrName)){
+			if(attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1)
+			{
+				for (int i = 0; obj.attributeExists(attrPrefix+attrName+"{"+i+"}"); i++) {
+					String value=getStringAttribute(obj,attrPrefix+attrName+"{"+i+"}");
+					if(trimValues){
+						value=StringUtility.purge(value);
+					}
+					if(value!=null && value.length()>0){
+						iomObj.addattrvalue(attrName, value);
+					}
+				}
+			}else if(obj.attributeExists(attrPrefix+attrName)){
 				String value=getStringAttribute(obj,attrPrefix+attrName);
 				if(trimValues){
 					value=StringUtility.purge(value);
