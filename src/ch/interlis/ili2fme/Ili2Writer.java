@@ -48,6 +48,7 @@ import ch.ehi.basics.tools.StringUtility;
 import ch.ehi.fme.*;
 import ch.interlis.ili2c.metamodel.*;
 import ch.interlis.iom.*;
+import ch.interlis.iom_j.Iom_jObject;
 import ch.interlis.iom_j.itf.ItfReader2;
 import ch.interlis.iom_j.xtf.OidSpace;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
@@ -1582,7 +1583,7 @@ public class Ili2Writer implements IFMEWriter {
 						value=StringUtility.purge(value);
 					}
 					if(value!=null && value.length()>0){
-						iomObj.addattrvalue(attrName, value);
+						((Iom_jObject)iomObj).addattrvalue(attrName, value);
 					}
 				}
 			}else if(obj.attributeExists(attrPrefix+attrName)){
