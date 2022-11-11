@@ -15,40 +15,65 @@
                     <geom:multipolyline>
                         <geom:polyline>
                             <geom:coord>
-                                <geom:c1>480000.111</geom:c1>
-                                <geom:c2>70000.111</geom:c2>
-                                <geom:c3>5000.111</geom:c3>
+                                <geom:c1>2530000</geom:c1>
+                                <geom:c2>1150000</geom:c2>
+                                <geom:c3>467.012</geom:c3>
                             </geom:coord>
                             <geom:coord>
-                                <geom:c1>480000.222</geom:c1>
-                                <geom:c2>70000.222</geom:c2>
-                                <geom:c3>5000.222</geom:c3>
+                                <geom:c1>2530010</geom:c1>
+                                <geom:c2>1150000</geom:c2>
+                                <geom:c3>468.124</geom:c3>
                             </geom:coord>
                             <geom:coord>
-                                <geom:c1>480000.333</geom:c1>
-                                <geom:c2>70000.333</geom:c2>
-                                <geom:c3>5000.333</geom:c3>
+                                <geom:c1>2530010</geom:c1>
+                                <geom:c2>1150010</geom:c2>
+                                <geom:c3>469.577</geom:c3>
                             </geom:coord>
                         </geom:polyline>
                         <geom:polyline>
                             <geom:coord>
-                                <geom:c1>480000.444</geom:c1>
-                                <geom:c2>70000.444</geom:c2>
-                                <geom:c3>5000.444</geom:c3>
+                                <geom:c1>2530070.010</geom:c1>
+                                <geom:c2>1150050.010</geom:c2>
+                                <geom:c3>467.010</geom:c3>
                             </geom:coord>
+                            <geom:arc>
+                                <geom:c1>2530060.010</geom:c1>
+                                <geom:c2>1150045.010</geom:c2>
+                                <geom:c3>466.010</geom:c3>
+                                <geom:a1>2530060.010</geom:a1>
+                                <geom:a2>1150040.010</geom:a2>
+                                <geom:r>3.010</geom:r>
+                            </geom:arc>
                             <geom:coord>
-                                <geom:c1>480000.555</geom:c1>
-                                <geom:c2>70000.555</geom:c2>
-                                <geom:c3>5000.555</geom:c3>
-                            </geom:coord>
-                            <geom:coord>
-                                <geom:c1>480000.666</geom:c1>
-                                <geom:c2>70000.666</geom:c2>
-                                <geom:c3>5000.666</geom:c3>
+                                <geom:c1>2530050.010</geom:c1>
+                                <geom:c2>1150045.010</geom:c2>
+                                <geom:c3>465.010</geom:c3>
                             </geom:coord>
                         </geom:polyline>
                     </geom:multipolyline>
                 </MultiPolyline24:geomAttr1>
+                <MultiPolyline24:geomAttr2>
+                        <geom:polyline>
+                            <geom:coord>
+                                <geom:c1>2530080.010</geom:c1>
+                                <geom:c2>1150060.010</geom:c2>
+                                <geom:c3>467.010</geom:c3>
+                            </geom:coord>
+                            <geom:arc>
+                                <geom:c1>2530070.010</geom:c1>
+                                <geom:c2>1150055.010</geom:c2>
+                                <geom:c3>466.010</geom:c3>
+                                <geom:a1>2530070.010</geom:a1>
+                                <geom:a2>1150050.010</geom:a2>
+                                <geom:r>3.010</geom:r>
+                            </geom:arc>
+                            <geom:coord>
+                                <geom:c1>2530060.010</geom:c1>
+                                <geom:c2>1150055.010</geom:c2>
+                                <geom:c3>465.010</geom:c3>
+                            </geom:coord>
+                        </geom:polyline>
+                </MultiPolyline24:geomAttr2>
             </MultiPolyline24:ClassA1>
         </MultiPolyline24:TestA>
     </ili:datasection>

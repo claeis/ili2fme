@@ -18,11 +18,17 @@
                             <geom:c2>1150002</geom:c2>
                         </geom:coord>
                         <geom:coord>
-                            <geom:c1>2740003</geom:c1>
-                            <geom:c2>1260004</geom:c2>
+                            <geom:c1>2540003</geom:c1>
+                            <geom:c2>1160004</geom:c2>
                         </geom:coord>
                     </geom:multicoord>
                 </MultiCoord24:geomAttr1>
+                <MultiCoord24:geomAttr2>
+                    <geom:coord>
+                        <geom:c1>2540005</geom:c1>
+                        <geom:c2>1170006</geom:c2>
+                    </geom:coord>
+                </MultiCoord24:geomAttr2>
             </MultiCoord24:ClassA1>
         </MultiCoord24:TestA>
     </ili:datasection>

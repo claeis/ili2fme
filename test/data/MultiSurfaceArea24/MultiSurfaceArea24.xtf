@@ -17,98 +17,118 @@
                             <geom:exterior>
                                 <geom:polyline>
                                     <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
+                                        <geom:c1>2530000</geom:c1>
+                                        <geom:c2>1150000</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.222</geom:c1>
-                                        <geom:c2>70000.222</geom:c2>
-                                        <geom:c3>5000.222</geom:c3>
+                                        <geom:c1>2530010</geom:c1>
+                                        <geom:c2>1150000</geom:c2>
+                                        <geom:c3>468</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.333</geom:c1>
-                                        <geom:c2>70000.333</geom:c2>
-                                        <geom:c3>5000.333</geom:c3>
+                                        <geom:c1>2530010</geom:c1>
+                                        <geom:c2>1150010</geom:c2>
+                                        <geom:c3>469</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
+                                        <geom:c1>2530000</geom:c1>
+                                        <geom:c2>1150010</geom:c2>
+                                        <geom:c3>468</geom:c3>
+                                    </geom:coord>
+                                    <geom:coord>
+                                        <geom:c1>2530000</geom:c1>
+                                        <geom:c2>1150000</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                 </geom:polyline>
                             </geom:exterior>
                             <geom:interior>
                                 <geom:polyline>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2530003</geom:c1>
+                                        <geom:c2>1150003</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.555</geom:c1>
-                                        <geom:c2>70000.555</geom:c2>
-                                        <geom:c3>5000.555</geom:c3>
+                                        <geom:c1>2530006</geom:c1>
+                                        <geom:c2>1150003</geom:c2>
+                                        <geom:c3>468</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.666</geom:c1>
-                                        <geom:c2>70000.666</geom:c2>
-                                        <geom:c3>5000.666</geom:c3>
+                                        <geom:c1>2530006</geom:c1>
+                                        <geom:c2>1150006</geom:c2>
+                                        <geom:c3>469</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2530003</geom:c1>
+                                        <geom:c2>1150006</geom:c2>
+                                        <geom:c3>468</geom:c3>
+                                    </geom:coord>
+                                    <geom:coord>
+                                        <geom:c1>2530003</geom:c1>
+                                        <geom:c2>1150003</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                 </geom:polyline>
                             </geom:interior>
                         </geom:surface>
-                        <geom:surface>
+                       <geom:surface>
                             <geom:exterior>
                                 <geom:polyline>
                                     <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
+                                        <geom:c1>2540000</geom:c1>
+                                        <geom:c2>1150000</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.222</geom:c1>
-                                        <geom:c2>70000.222</geom:c2>
-                                        <geom:c3>5000.222</geom:c3>
+                                        <geom:c1>2540010</geom:c1>
+                                        <geom:c2>1150000</geom:c2>
+                                        <geom:c3>468</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.333</geom:c1>
-                                        <geom:c2>70000.333</geom:c2>
-                                        <geom:c3>5000.333</geom:c3>
+                                        <geom:c1>2540010</geom:c1>
+                                        <geom:c2>1150010</geom:c2>
+                                        <geom:c3>469</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
+                                        <geom:c1>2540000</geom:c1>
+                                        <geom:c2>1150010</geom:c2>
+                                        <geom:c3>468</geom:c3>
+                                    </geom:coord>
+                                    <geom:coord>
+                                        <geom:c1>2540000</geom:c1>
+                                        <geom:c2>1150000</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                 </geom:polyline>
                             </geom:exterior>
                             <geom:interior>
                                 <geom:polyline>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2540003</geom:c1>
+                                        <geom:c2>1150003</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.555</geom:c1>
-                                        <geom:c2>70000.555</geom:c2>
-                                        <geom:c3>5000.555</geom:c3>
+                                        <geom:c1>2540006</geom:c1>
+                                        <geom:c2>1150003</geom:c2>
+                                        <geom:c3>468</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.666</geom:c1>
-                                        <geom:c2>70000.666</geom:c2>
-                                        <geom:c3>5000.666</geom:c3>
+                                        <geom:c1>2540006</geom:c1>
+                                        <geom:c2>1150006</geom:c2>
+                                        <geom:c3>469</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2540003</geom:c1>
+                                        <geom:c2>1150006</geom:c2>
+                                        <geom:c3>468</geom:c3>
+                                    </geom:coord>
+                                    <geom:coord>
+                                        <geom:c1>2540003</geom:c1>
+                                        <geom:c2>1150003</geom:c2>
+                                        <geom:c3>467</geom:c3>
                                     </geom:coord>
                                 </geom:polyline>
                             </geom:interior>
@@ -116,112 +136,96 @@
                     </geom:multisurface>
                 </MultiSurfaceArea24:geomAttr1>
             </MultiSurfaceArea24:ClassA1>
-            <MultiSurfaceArea24:ClassA2 ili:tid="2">
+            <MultiSurfaceArea24:ClassA1 ili:tid="2">
                 <MultiSurfaceArea24:geomAttr1>
                     <geom:multisurface>
                         <geom:surface>
                             <geom:exterior>
                                 <geom:polyline>
                                     <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
+                                        <geom:c1>2530000.000</geom:c1>
+                                        <geom:c2>1160000.000</geom:c2>
+                                        <geom:c3>467.000</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.222</geom:c1>
-                                        <geom:c2>70000.222</geom:c2>
-                                        <geom:c3>5000.222</geom:c3>
+                                        <geom:c1>2530010.000</geom:c1>
+                                        <geom:c2>1160000.000</geom:c2>
+                                        <geom:c3>468.000</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.333</geom:c1>
-                                        <geom:c2>70000.333</geom:c2>
-                                        <geom:c3>5000.333</geom:c3>
+                                        <geom:c1>2530010.000</geom:c1>
+                                        <geom:c2>1160010.000</geom:c2>
+                                        <geom:c3>469.000</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
+                                        <geom:c1>2530000.999</geom:c1>
+                                        <geom:c2>1160010.999</geom:c2>
+                                        <geom:c3>468.999</geom:c3>
+                                    </geom:coord>
+                                    <geom:coord>
+                                        <geom:c1>2530000.000</geom:c1>
+                                        <geom:c2>1160000.000</geom:c2>
+                                        <geom:c3>467.000</geom:c3>
                                     </geom:coord>
                                 </geom:polyline>
                             </geom:exterior>
                             <geom:interior>
                                 <geom:polyline>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2530000.000</geom:c1>
+                                        <geom:c2>1160000.000</geom:c2>
+                                        <geom:c3>467.000</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.555</geom:c1>
-                                        <geom:c2>70000.555</geom:c2>
-                                        <geom:c3>5000.555</geom:c3>
+                                        <geom:c1>2530003.999</geom:c1>
+                                        <geom:c2>1160003.999</geom:c2>
+                                        <geom:c3>467.999</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.666</geom:c1>
-                                        <geom:c2>70000.666</geom:c2>
-                                        <geom:c3>5000.666</geom:c3>
+                                        <geom:c1>2530004.123</geom:c1>
+                                        <geom:c2>1160002.123</geom:c2>
+                                        <geom:c3>467.123</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2530000.000</geom:c1>
+                                        <geom:c2>1160000.000</geom:c2>
+                                        <geom:c3>467.000</geom:c3>
                                     </geom:coord>
                                 </geom:polyline>
                             </geom:interior>
-                        </geom:surface>
-                        <geom:surface>
-                            <geom:exterior>
-                                <geom:polyline>
-                                    <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
-                                    </geom:coord>
-                                    <geom:coord>
-                                        <geom:c1>480000.222</geom:c1>
-                                        <geom:c2>70000.222</geom:c2>
-                                        <geom:c3>5000.222</geom:c3>
-                                    </geom:coord>
-                                    <geom:coord>
-                                        <geom:c1>480000.333</geom:c1>
-                                        <geom:c2>70000.333</geom:c2>
-                                        <geom:c3>5000.333</geom:c3>
-                                    </geom:coord>
-                                    <geom:coord>
-                                        <geom:c1>480000.111</geom:c1>
-                                        <geom:c2>70000.111</geom:c2>
-                                        <geom:c3>5000.111</geom:c3>
-                                    </geom:coord>
-                                </geom:polyline>
-                            </geom:exterior>
                             <geom:interior>
                                 <geom:polyline>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2530005.000</geom:c1>
+                                        <geom:c2>1160005.000</geom:c2>
+                                        <geom:c3>467.000</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.555</geom:c1>
-                                        <geom:c2>70000.555</geom:c2>
-                                        <geom:c3>5000.555</geom:c3>
+                                        <geom:c1>2530005.999</geom:c1>
+                                        <geom:c2>1160005.000</geom:c2>
+                                        <geom:c3>467.999</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.666</geom:c1>
-                                        <geom:c2>70000.666</geom:c2>
-                                        <geom:c3>5000.666</geom:c3>
+                                        <geom:c1>2530005.999</geom:c1>
+                                        <geom:c2>1160007.123</geom:c2>
+                                        <geom:c3>467.123</geom:c3>
                                     </geom:coord>
                                     <geom:coord>
-                                        <geom:c1>480000.444</geom:c1>
-                                        <geom:c2>70000.444</geom:c2>
-                                        <geom:c3>5000.444</geom:c3>
+                                        <geom:c1>2530005.666</geom:c1>
+                                        <geom:c2>1160007.123</geom:c2>
+                                        <geom:c3>467.999</geom:c3>
+                                    </geom:coord>
+                                    <geom:coord>
+                                        <geom:c1>2530005.000</geom:c1>
+                                        <geom:c2>1160005.000</geom:c2>
+                                        <geom:c3>467.000</geom:c3>
                                     </geom:coord>
                                 </geom:polyline>
                             </geom:interior>
                         </geom:surface>
                     </geom:multisurface>
                 </MultiSurfaceArea24:geomAttr1>
-            </MultiSurfaceArea24:ClassA2>
+            </MultiSurfaceArea24:ClassA1>
         </MultiSurfaceArea24:TestA>
     </ili:datasection>
 </ili:transfer>
