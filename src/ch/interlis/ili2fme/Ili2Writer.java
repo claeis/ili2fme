@@ -30,6 +30,9 @@ import COM.safe.fme.pluginbuilder.IFMEMappingFile;
 import COM.safe.fmeobjects.IFMECoordSysManager;
 import COM.safe.fmeobjects.IFMEFactoryPipeline;
 import COM.safe.fmeobjects.IFMEGeometry;
+import COM.safe.fmeobjects.IFMEMultiArea;
+import COM.safe.fmeobjects.IFMEMultiCurve;
+import COM.safe.fmeobjects.IFMEMultiPoint;
 import COM.safe.fmeobjects.IFMENull;
 import COM.safe.fmeobjects.IFMEPoint;
 import COM.safe.fmeobjects.IFMECurve;
@@ -1455,6 +1458,36 @@ public class Ili2Writer implements IFMEWriter {
 				}else{
 				}
 			}
+		 }else if(type instanceof MultiPolylineType) {
+			if (geomattr != null && attrName.equals(geomattr)) {
+				IFMEGeometry fmeGeom = null;
+				try {
+					fmeGeom = obj.getGeometry();
+					if (fmeGeom instanceof IFMEMultiCurve) {
+						IomObject polyline = Fme2iox.FME2multipolyline(session, (IFMEMultiCurve) fmeGeom);
+						iomObj.addattrobj(attrName, polyline);
+					} else if (fmeGeom instanceof IFMENull) {
+						// skip it
+					} else {
+						throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
+					}
+				} finally {
+					if (fmeGeom != null) {
+						fmeGeom.dispose();
+					}
+				}
+			} else {
+				if (obj.attributeExists(attrPrefix + attrName)) {
+					if (geomConv == null) {
+						String value = getStringAttribute(obj, attrPrefix + attrName);
+						if (value != null && value.length() > 0) {
+							iomObj.addattrobj(attrName, Jts2iox.hexwkb2multipolyline(value));
+						}
+					} else {
+						geomConv.FME2multipolyline(iomObj, attrName, obj, attrPrefix + attrName);
+					}
+				}
+			}
 		 }else if(type instanceof SurfaceOrAreaType){
 		 	if(formatMode==MODE_XTF  || formatMode==MODE_GML){
 				if(geomattr!=null && attrName.equals(geomattr)) {
@@ -1531,6 +1564,36 @@ public class Ili2Writer implements IFMEWriter {
 					}
 				}
 		 	}
+		 }else if(type instanceof MultiSurfaceOrAreaType) {
+			if (geomattr != null && attrName.equals(geomattr)) {
+				IFMEGeometry fmeGeom = null;
+				try {
+					fmeGeom = obj.getGeometry();
+					if (fmeGeom instanceof IFMEMultiArea) {
+						IomObject surface = Fme2iox.FME2multisurface(session, (IFMEMultiArea) fmeGeom);
+						iomObj.addattrobj(attrName, surface);
+					} else if (fmeGeom instanceof IFMENull) {
+						// skip it
+					} else {
+						throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
+					}
+				} finally {
+					if (fmeGeom != null) {
+						fmeGeom.dispose();
+					}
+				}
+			} else {
+				if (obj.attributeExists(attrPrefix + attrName)) {
+					if (geomConv == null) {
+						String value = getStringAttribute(obj, attrPrefix + attrName);
+						if (value != null && value.length() > 0) {
+							iomObj.addattrobj(attrName, Jts2iox.hexwkb2multisurface(value));
+						}
+					} else {
+						geomConv.FME2multisurface(iomObj, attrName, obj, attrPrefix + attrName);
+					}
+				}
+			}
 		 }else if(type instanceof CoordType){
 			if(geomattr!=null && attrName.equals(geomattr)) {
 				IFMEGeometry fmeGeom = null;
@@ -1560,6 +1623,7 @@ public class Ili2Writer implements IFMEWriter {
 						if(c1!=null && c1.length()>0){
 							IomObject coord=iomObj.addattrobj(attrName,"COORD");
 							coord.setattrvalue("C1",c1);
+							iomObj.addattrobj(attrName, coord);
 						}
 					}else{
 						if(geomConv==null){
@@ -1569,6 +1633,57 @@ public class Ili2Writer implements IFMEWriter {
 							}
 						}else{
 							 geomConv.FME2coord(iomObj,attrName,obj,attrPrefix+attrName);
+						}
+					}
+				}
+			}
+		}else if(type instanceof MultiCoordType) {
+			if (geomattr != null && attrName.equals(geomattr)) {
+				IFMEGeometry fmeGeom = null;
+				try {
+					fmeGeom = obj.getGeometry();
+					if (fmeGeom instanceof IFMEMultiPoint){
+						IomObject multicoord = Fme2iox.FME2multicoord((IFMEMultiPoint) fmeGeom);
+						iomObj.addattrobj(attrName, multicoord);
+					}else if (fmeGeom instanceof IFMEPoint) {
+						IomObject coord = Fme2iox.FME2coord((IFMEPoint) fmeGeom);
+						IomObject multicoord = new ch.interlis.iom_j.Iom_jObject("MULTICOORD",null);
+						multicoord.addattrobj("coord", coord);
+						iomObj.addattrobj(attrName, multicoord);
+					} else if (fmeGeom instanceof IFMEText) {
+						IomObject coord = Fme2iox.FME2coord(((IFMEText) fmeGeom).getLocationAsPoint());
+						IomObject multicoord = new ch.interlis.iom_j.Iom_jObject("MULTICOORD",null);
+						multicoord.addattrobj("coord", coord);
+						iomObj.addattrobj(attrName, multicoord);
+					} else if (fmeGeom instanceof IFMENull) {
+						// skip it
+					} else {
+						throw new DataException("unexpected geometry type " + fmeGeom.getClass().getName());
+					}
+				} finally {
+					if (fmeGeom != null) {
+						fmeGeom.dispose();
+					}
+				}
+			} else {
+				if (obj.attributeExists(attrPrefix + attrName)) {
+					if (((MultiCoordType) type).getDimensions().length == 1) {
+						String c1 = getStringAttribute(obj, attrPrefix + attrName);
+						if (c1 != null && c1.length() > 0) {
+							IomObject coord = iomObj.addattrobj(attrName, "COORD");
+							coord.setattrvalue("C1", c1);
+							IomObject multicoord = new ch.interlis.iom_j.Iom_jObject("MULTICOORD",null);
+							multicoord.addattrobj("coord", coord);
+							iomObj.addattrobj(attrName, multicoord);
+						}
+					} else {
+						if (geomConv == null) {
+							String value = getStringAttribute(obj, attrPrefix + attrName);
+							if (value != null && value.length() > 0) {
+								iomObj.addattrobj(attrName, Jts2iox.hexwkb2multicoord(value));
+							}
+						} else {
+							geomConv.FME2multicoord(iomObj, attrName, obj, attrPrefix + attrName);
 						}
 					}
 				}
