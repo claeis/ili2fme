@@ -1,6 +1,10 @@
 LATEST
 -------------------------------
 
+ili2fme 7.1.1 (2022-12-07)
+-------------------------------
+- ili2c-5.3.1
+
 ili2fme 7.1.0 (2022-12-07)
 -------------------------------
 - reader: lookup models in version matching the xtf file version (#22) 
