@@ -1,5 +1,8 @@
 LATEST
 -------------------------------
+- ili2.4 MULTI-Geometrien (#25)
+- ili2.4 LIST/BAG mit primitiven Typen (nicht nur mit Strukturen) (#20)
+- iox-ili-1.21.14
 
 ili2fme 7.0.16 (2022-10-21)
 -------------------------------
