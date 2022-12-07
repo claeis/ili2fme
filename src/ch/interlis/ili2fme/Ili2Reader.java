@@ -481,6 +481,17 @@ public class Ili2Reader implements IFMEReader {
 		}else if(models.equals(Main.DATA_PLACEHOLDER) || models.equals(Main.DEPRECATED_XTF_PLACEHOLDER)){
 			// get model names out of transfer file
 			iliModelv=new ArrayList<String>(ch.interlis.iox_j.utility.IoxUtility.getModels(new java.io.File(xtfFile)));
+            IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
+            LogEventFactory errFactory=new LogEventFactory();
+            errFactory.setLogger(errHandler);
+            
+            String modelVersion=null;
+            try {
+                modelVersion = ch.interlis.iox_j.utility.IoxUtility.getModelVersion(new String[] {xtfFile}, errFactory);
+                EhiLogger.logState("modelVersion from xtf <"+modelVersion+">");
+            }catch(IoxException ex) {
+                EhiLogger.logAdaption("failed to get version from data file; "+ex.toString()+"; ignored");
+            }
 			
 			for(String modelName:iliModelv){
 				EhiLogger.logState("model from xtf <"+modelName+">");
@@ -492,7 +503,12 @@ public class Ili2Reader implements IFMEReader {
 				// set list of repositories to search
 				manager.setRepositories(modeldir.split(";"));
 				// get complete list of required ili-files
-				ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
+				ch.interlis.ili2c.config.Configuration config=null;
+				if(modelVersion!=null) {
+	                config=manager.getConfig(iliModelv,Double.parseDouble(modelVersion));
+				}else {
+	                config=manager.getConfig(iliModelv,0.0);
+				}
 				ch.interlis.ili2c.Ili2c.logIliFiles(config);
 				config.setGenerateWarnings(false);
 				// compile models
