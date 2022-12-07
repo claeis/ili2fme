@@ -250,6 +250,49 @@ public class Iox2fme {
 		}
 		return ret;
 	}
+
+	private static IFMEArea surface2FMEUnchecked(IFMESession session, IomObject surface)
+	throws DataException
+	{
+		IFMEArea ret = null;
+		IFMEGeometryTools tools=session.getGeometryTools();
+
+		int boundaryc=surface.getattrvaluecount("boundary");
+		for(int boundaryi=0;boundaryi<boundaryc;boundaryi++){
+			IomObject boundary=surface.getattrobj("boundary",boundaryi);
+			IFMEPath fmeBoundary=null;
+			try{
+				fmeBoundary=tools.createPath();
+				for(int polylinei=0;polylinei<boundary.getattrvaluecount("polyline");polylinei++){
+					IomObject polyline=boundary.getattrobj("polyline",polylinei);
+					IFMEPath fmeLine=null;
+					try{
+						fmeLine=polyline2FME(session,polyline,true);
+						fmeBoundary.appendCurve(fmeLine);
+					}finally{
+						if(fmeLine!=null){
+							fmeLine.dispose();
+						}
+					}
+				}
+				if(boundaryi==0){
+					if(boundaryc==1){
+						ret=tools.createPolygonByCurve(fmeBoundary);
+					}else{
+						ret=tools.createDonutByCurve(fmeBoundary);
+					}
+				}else{
+					((IFMEDonut) ret).addInnerBoundaryCurve(fmeBoundary);
+				}
+			}finally{
+				if(fmeBoundary!=null){
+					fmeBoundary.dispose();
+				}
+			}
+		}
+		return ret;
+	}
+
 	/** Converts a SURFACE to a FME Donut.
 	 * @param session FME session
 	 * @param obj INTERLIS SURFACE structure
@@ -259,68 +302,21 @@ public class Iox2fme {
 	public static IFMEArea surface2FME(IFMESession session,IomObject obj) //SurfaceOrAreaType type)
 	throws DataException
 	{
-		if(obj==null){
+		if(obj==null || obj.getattrvaluecount("surface") == 0){
 			return null;
 		}
-		IFMEGeometryTools tools=session.getGeometryTools();
-		IFMEArea ret=null;
-		//IFMEFeatureVector bndries=session.createFeatureVector();
+
 		boolean clipped=obj.getobjectconsistency()==IomConstants.IOM_INCOMPLETE;
 		if(clipped){
 			throw new DataException("clipped surface not supported");
+		}else if (obj.getattrvaluecount("surface") > 1) {
+			throw new DataException("unclipped surface with multi 'surface' elements");
 		}
-		for(int surfacei=0;surfacei<obj.getattrvaluecount("surface");surfacei++){
-			if(clipped){
-				//out.startElement("CLIPPED",0,0);
-			}else{
-				// an unclipped surface should have only one surface element
-				if(surfacei>0){
-					throw new DataException("unclipped surface with multi 'surface' elements");
-				}
-			}
-			IomObject surface=obj.getattrobj("surface",surfacei);
-			int boundaryc=surface.getattrvaluecount("boundary");
-			for(int boundaryi=0;boundaryi<boundaryc;boundaryi++){
-				IomObject boundary=surface.getattrobj("boundary",boundaryi);
-				//IFMEFeature fmeLine=session.createFeature();
-				IFMEPath fmeBoundary=null;
-				try{
-					fmeBoundary=tools.createPath();
-					for(int polylinei=0;polylinei<boundary.getattrvaluecount("polyline");polylinei++){
-						IomObject polyline=boundary.getattrobj("polyline",polylinei);
-						IFMEPath fmeLine=null;
-						try{
-							fmeLine=polyline2FME(session,polyline,true);
-							fmeBoundary.appendCurve(fmeLine);
-						}finally{
-							if(fmeLine!=null){
-								fmeLine.dispose();
-								fmeLine=null;
-							}
-						}
-					}
-					if(boundaryi==0){
-						if(boundaryc==1){
-							ret=tools.createPolygonByCurve(fmeBoundary);
-						}else{
-							ret=tools.createDonutByCurve(fmeBoundary);
-						}
-					}else{
-						((IFMEDonut) ret).addInnerBoundaryCurve(fmeBoundary);
-					}
-				}finally{
-					if(fmeBoundary!=null){
-						fmeBoundary.dispose();
-						fmeBoundary=null;
-					}
-				}
-			}
-			if(clipped){
-				//out.endElement(/*CLIPPED*/);
-			}
-		}
-		return ret;
+
+		IomObject surface = obj.getattrobj("surface", 0);
+		return surface2FMEUnchecked(session, surface);
 	}
+
 	public static IFMEGeometry geom2FME(IFMESession session,IomObject obj)
 	throws DataException
 	{
@@ -337,5 +333,54 @@ public class Iox2fme {
 		}
 		throw new DataException("unexpected type "+type);
 	}
-	
+
+	public static IFMEMultiCurve multipolyline2FME(IFMESession session, IomObject value)
+	throws  DataException
+	{
+		IFMEGeometryTools tools=session.getGeometryTools();
+		IFMEMultiCurve multiCurve = tools.createMultiCurve();
+
+		for (int i = 0; i < value.getattrvaluecount("polyline"); i++) {
+			IomObject polyline = value.getattrobj("polyline", i);
+			IFMEPath curve = polyline2FME(session, polyline, false);
+			multiCurve.appendPart(curve);
+		}
+
+		return  multiCurve;
+	}
+
+	public static IFMEMultiArea multisurface2FME(IFMESession session, IomObject value)
+	throws DataException
+	{
+		boolean clipped=value.getobjectconsistency()==IomConstants.IOM_INCOMPLETE;
+		if(clipped){
+			throw new DataException("clipped surface not supported");
+		}
+
+		IFMEGeometryTools tools=session.getGeometryTools();
+		IFMEMultiArea multiArea = tools.createMultiArea();
+
+		for (int i = 0; i < value.getattrvaluecount("surface"); i++) {
+			IomObject surface = value.getattrobj("surface", i);
+			IFMEArea area = surface2FMEUnchecked(session, surface);
+			multiArea.appendPart(area);
+		}
+
+		return  multiArea;
+	}
+
+	public static IFMEMultiPoint multicoord2FME(IFMESession session, IomObject value)
+	throws DataException
+	{
+		IFMEGeometryTools tools=session.getGeometryTools();
+		IFMEMultiPoint multiPoint = tools.createMultiPoint();
+
+		for (int i = 0; i < value.getattrvaluecount("coord"); i++) {
+			IomObject coord = value.getattrobj("coord", i);
+			IFMEPoint point = coord2FME(session, coord);
+			multiPoint.appendPart(point);
+		}
+
+		return multiPoint;
+	}
 }

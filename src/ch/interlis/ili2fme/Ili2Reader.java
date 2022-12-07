@@ -33,6 +33,9 @@ import COM.safe.fmeobjects.IFMEFeature;
 import COM.safe.fme.pluginbuilder.IFMEMappingFile;
 import COM.safe.fmeobjects.IFMEArea;
 import COM.safe.fmeobjects.IFMEGeometry;
+import COM.safe.fmeobjects.IFMEMultiArea;
+import COM.safe.fmeobjects.IFMEMultiCurve;
+import COM.safe.fmeobjects.IFMEMultiPoint;
 import COM.safe.fmeobjects.IFMESession;
 import COM.safe.fmeobjects.FMEException;
 import COM.safe.fmeobjects.IFMELogFile;
@@ -478,6 +481,17 @@ public class Ili2Reader implements IFMEReader {
 		}else if(models.equals(Main.DATA_PLACEHOLDER) || models.equals(Main.DEPRECATED_XTF_PLACEHOLDER)){
 			// get model names out of transfer file
 			iliModelv=new ArrayList<String>(ch.interlis.iox_j.utility.IoxUtility.getModels(new java.io.File(xtfFile)));
+            IoxLogging errHandler=new ch.interlis.iox_j.logging.Log2EhiLogger();
+            LogEventFactory errFactory=new LogEventFactory();
+            errFactory.setLogger(errHandler);
+            
+            String modelVersion=null;
+            try {
+                modelVersion = ch.interlis.iox_j.utility.IoxUtility.getModelVersion(new String[] {xtfFile}, errFactory);
+                EhiLogger.logState("modelVersion from xtf <"+modelVersion+">");
+            }catch(IoxException ex) {
+                EhiLogger.logAdaption("failed to get version from data file; "+ex.toString()+"; ignored");
+            }
 			
 			for(String modelName:iliModelv){
 				EhiLogger.logState("model from xtf <"+modelName+">");
@@ -489,7 +503,12 @@ public class Ili2Reader implements IFMEReader {
 				// set list of repositories to search
 				manager.setRepositories(modeldir.split(";"));
 				// get complete list of required ili-files
-				ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
+				ch.interlis.ili2c.config.Configuration config=null;
+				if(modelVersion!=null) {
+	                config=manager.getConfig(iliModelv,Double.parseDouble(modelVersion));
+				}else {
+	                config=manager.getConfig(iliModelv,0.0);
+				}
 				ch.interlis.ili2c.Ili2c.logIliFiles(config);
 				config.setGenerateWarnings(false);
 				// compile models
@@ -617,8 +636,8 @@ public class Ili2Reader implements IFMEReader {
 	}
 	HashMap checkoids=null; // new HashMap();
 	private GeomAttrIterator geomAttrIterator=null;
-	private IFMEFeature myread(IFMEFeature ret) 
-		throws Exception 
+	private IFMEFeature myread(IFMEFeature ret)
+		throws Exception
 	{
 		// ili-file mode?
 		if(xtfFile==null){
@@ -1155,7 +1174,7 @@ public class Ili2Reader implements IFMEReader {
 		}
 		return ret;
 	}
-	private void mapAttributeValue(AttributeDef geomattr, IFMEFeature ret, IomObject iomObj,AttributeDef attr, String prefix,ViewableWrapper wrapper,ArrayList<String> geomAttrsCollector) 
+	private void mapAttributeValue(AttributeDef geomattr, IFMEFeature ret, IomObject iomObj,AttributeDef attr, String prefix,ViewableWrapper wrapper,ArrayList<String> geomAttrsCollector)
 	throws DataException,ConfigException
 	{
 		if(prefix==null){
@@ -1206,8 +1225,41 @@ public class Ili2Reader implements IFMEReader {
 						 setPolyline(ret,value,false,getP((PolylineType)type));
 					 }
 				 }
-			 }					
-		 }else if(type instanceof SurfaceOrAreaType){
+			 }
+	 	}else if (type instanceof MultiPolylineType){
+			IomObject value = iomObj.getattrobj(attrName, 0);
+			if(value!=null) {
+				if (attr != geomattr) {
+					if (geomConv == null) {
+						String wkb;
+						try {
+							wkb = Iox2jts.multipolyline2hexwkb(value, getP((LineType) type));
+						} catch (Iox2jtsException e) {
+							throw new DataException(e);
+						}
+						ret.setStringAttribute(prefix+attrName, wkb);
+					}else {
+						geomConv.multipolyline2FME(ret, prefix+attrName, value);
+					}
+					geomAttrsCollector.add(prefix+attrName);
+				}else {
+					ret.setStringAttribute(Main.XTF_GEOMTYPE, "xtf_multipolyline");
+					if(doRichGeometry){
+						IFMEMultiCurve multiCurve = null;
+						try{
+							multiCurve = Iox2fme.multipolyline2FME(session, value);
+							ret.setGeometry(multiCurve);
+						}finally {
+							if(multiCurve!=null){
+								multiCurve.dispose();
+							}
+						}
+					}else{
+						throw new IllegalStateException("MultiPolylineType requires enhanced geometry handling");
+					}
+				}
+			}
+		}else if(type instanceof SurfaceOrAreaType){
 			if(attr!=geomattr){
 				 IomObject value=iomObj.getattrobj(attrName,0);
 				 if(value!=null){
@@ -1312,7 +1364,46 @@ public class Ili2Reader implements IFMEReader {
                      }
 				 }
 			 }
-		 }else if(type instanceof CoordType){
+	 	}else if(type instanceof MultiSurfaceOrAreaType){
+			IomObject value=iomObj.getattrobj(attrName,0);
+	 		if(value!=null) {
+				if (attr != geomattr) {
+					if (geomConv == null) {
+						String wkb;
+						try {
+							wkb = Iox2jts.multisurface2hexwkb(value, getP((MultiSurfaceOrAreaType) type));
+						} catch (Iox2jtsException e) {
+							throw new DataException(e);
+						}
+						ret.setStringAttribute(prefix + attrName, wkb);
+					} else {
+						geomConv.mutlisurface2FME(ret, prefix + attrName, value);
+					}
+					geomAttrsCollector.add(prefix + attrName);
+				} else {
+					if (type instanceof MultiAreaType) {
+						ret.setStringAttribute(Main.XTF_GEOMTYPE, "xtf_multiarea");
+					} else if (type instanceof MultiSurfaceType) {
+						ret.setStringAttribute(Main.XTF_GEOMTYPE, "xtf_multisurface");
+					} else {
+						throw new IllegalStateException();
+					}
+					if (doRichGeometry) {
+						IFMEMultiArea fmeSurface = null;
+						try {
+							fmeSurface = Iox2fme.multisurface2FME(session, value);
+							ret.setGeometry(fmeSurface);
+						} finally {
+							if (fmeSurface != null) {
+								fmeSurface.dispose();
+							}
+						}
+					} else {
+						throw new IllegalStateException("MultiSurfaceOrAreaType requires enhanced geometry handling");
+					}
+				}
+			}
+	 	}else if(type instanceof CoordType){
 			 //ret.setStringAttribute("fme_geometry{0}", "xtf_coord");
 			 IomObject value=iomObj.getattrobj(attrName,0);
 			 if(value!=null){
@@ -1360,20 +1451,62 @@ public class Ili2Reader implements IFMEReader {
 					 }
 				}
 			 }
-		 }else if(type instanceof ReferenceType){
+		}else if(type instanceof MultiCoordType){
+			IomObject value = iomObj.getattrobj(attrName, 0);
+			if (value != null) {
+				if (attr != geomattr) {
+					if (((MultiCoordType) type).getDimensions().length == 1) {
+						for (int coordi = 0; coordi < value.getattrvaluecount("coord"); coordi++) {
+							IomObject coord = value.getattrobj("coord", coordi);
+							String c1 = coord.getattrvalue("C1");
+							if (c1 != null) {
+								ret.setStringAttribute(prefix + attrName + "{"+ coordi + "}" , c1);
+							}
+						}
+					} else {
+						if (geomConv == null) {
+							String wkb;
+							try {
+								wkb = Iox2jts.multicoord2hexwkb(value);
+							} catch (Iox2jtsException e) {
+								throw new DataException(e);
+							}
+							ret.setStringAttribute(prefix + attrName, wkb);
+						} else {
+							geomConv.multicoord2FME(ret, prefix + attrName, value);
+						}
+					}
+					geomAttrsCollector.add(prefix + attrName);
+				} else {
+					ret.setStringAttribute(Main.XTF_GEOMTYPE, "xtf_multicoord");
+					IFMEMultiPoint multiPoint = null;
+					try {
+						multiPoint = Iox2fme.multicoord2FME(session, value);
+						ret.setGeometry(multiPoint);
+					} finally {
+						if (multiPoint != null) {
+							multiPoint.dispose();
+						}
+					}
+				}
+			}
+		}else if(type instanceof ReferenceType){
 				IomObject structvalue=iomObj.getattrobj(attrName,0);
 				if(structvalue!=null){
 					String refoid=structvalue.getobjectrefoid();
 					ret.setStringAttribute(prefix+attrName,refoid);
 				}
 		}else{
-		 String value=iomObj.getattrvalue(attrName);
-		 if(trimValues){
-			 value=StringUtility.purge(value);
-		 }
-		 if(value!=null){
-			 ret.setStringAttribute(prefix+attrName, value);
-		 }
+			for (int i = 0; i < iomObj.getattrvaluecount(attrName); i++) {
+				String value = iomObj.getattrprim(attrName, i);
+				if (trimValues) {
+					value = StringUtility.purge(value);
+				}
+				if (value != null) {
+					String fmeIndex = attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1 ? "{" + i + "}" : "";
+					ret.setStringAttribute(prefix + attrName + fmeIndex, value);
+				}
+			}
 		}
 	}
 	private void checkWkb(IFMEFeature fme,String attr,String value)
@@ -1523,12 +1656,20 @@ public class Ili2Reader implements IFMEReader {
 				if(formatMode==MODE_XTF){
 					if (type instanceof PolylineType){
 						ret.setSequencedAttribute("fme_geometry{0}", "xtf_polyline");
+					}else if (type instanceof MultiPolylineType){
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_multipolyline");
 					}else if(type instanceof SurfaceType){
 						ret.setSequencedAttribute("fme_geometry{0}", "xtf_surface");
+					}else if(type instanceof MultiSurfaceType){
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_multisurface");
 					}else if(type instanceof AreaType){
 						ret.setSequencedAttribute("fme_geometry{0}", "xtf_area");
+					}else if(type instanceof  MultiAreaType){
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_multiarea");
 					}else if(type instanceof CoordType){
 						ret.setSequencedAttribute("fme_geometry{0}", "xtf_coord");
+					}else if(type instanceof  MultiCoordType){
+						ret.setSequencedAttribute("fme_geometry{0}", "xtf_multicoord");
 					}else{
 						throw new IllegalStateException("!(type instanceof geomType)");
 					}
@@ -1682,12 +1823,15 @@ public class Ili2Reader implements IFMEReader {
 			attrNamePrefix="";
 		}
 		Type type=attr.getDomainResolvingAll();
-		if (type instanceof PolylineType 
-			|| type instanceof SurfaceOrAreaType
-			|| type instanceof CoordType){
-				if((type instanceof CoordType) && ((CoordType)type).getDimensions().length==1){
-					String numType = mapNumericType((NumericType)((CoordType)type).getDimensions()[0]);
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),numType);
+		if (type instanceof LineType
+			|| type instanceof AbstractCoordType){
+				if((type instanceof AbstractCoordType) && ((AbstractCoordType)type).getDimensions().length==1){
+					String numType = mapNumericType((NumericType)((AbstractCoordType)type).getDimensions()[0]);
+					if(type instanceof MultiCoordType){
+						ret.setSequencedAttribute(attrNamePrefix+attr.getName()+"{}",numType);
+					}else{
+						ret.setSequencedAttribute(attrNamePrefix+attr.getName(),numType);
+					}
 				}else{
 					if(geomAttr==attr){
 						// process it as FME geometry
@@ -1705,45 +1849,46 @@ public class Ili2Reader implements IFMEReader {
 			// EhiLogger.debug(attr.getScopedName(null)+", "+rootClass.getScopedName(null));
 			mapFeatureType(null,ret,transferViewables.get(rootClass.getScopedName(null)),attrNamePrefix+attr.getName()+"{}.");						
 		}else{
-			// TODO set attribute type
+			String returnType = "xtf_char(255)";
+			String fmeAttributeName = attrNamePrefix+attr.getName();
+
 			if (isBoolean(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_boolean");
+				returnType = "xtf_boolean";
 			}else if (isIli1Date(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_date");
+				returnType = "xtf_date";
 			}else if (isIli2Date(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_date");
+				returnType = "xtf_date";
 			}else if (isIli2DateTime(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_datetime");
+				returnType = "xtf_datetime";
 			}else if (isIli2Time(iliTd,attr)) {
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_time");
+				returnType = "xtf_time";
 			}else if (type instanceof ReferenceType){
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.ID_TYPE);
+				returnType = Main.ID_TYPE;
 			}else if (type instanceof BasketType){
 				// skip it; type no longer exists in ili 2.3
 			}else if(type instanceof EnumerationType){
 				if(ili1EnumAsItfCode){
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.XTF_ENUMITFCODE_TYPE);
+					returnType = Main.XTF_ENUMITFCODE_TYPE;
 				}else{
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),Main.ILINAME_TYPE);
+					returnType = Main.ILINAME_TYPE;
 				}
 			}else if(type instanceof NumericType){
-				if(type.isAbstract()){
-				}else{
-					String numType = mapNumericType((NumericType)type);
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),numType);
+				if(!type.isAbstract()){
+					returnType = mapNumericType((NumericType)type);
 				}
 			}else if(type instanceof TextType){
 				if(((TextType)type).getMaxLength()>0){
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char("+((TextType)type).getMaxLength()+")");
+					returnType = "xtf_char("+((TextType)type).getMaxLength()+")";
 				}else{
-					ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_buffer");
+					returnType = "xtf_buffer";
 				}
 			}else if(type instanceof BlackboxType){
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_buffer");
-			}else{
-				ret.setSequencedAttribute(attrNamePrefix+attr.getName(),"xtf_char(255)");
+				returnType = "xtf_buffer";
 			}
-			
+			if(attr.getDomain().getCardinality().getMaximum() > 1){
+				fmeAttributeName += "{}";
+			}
+			ret.setSequencedAttribute(fmeAttributeName, returnType);
 		}
 	}
 	private String mapNumericType(NumericType type) {
