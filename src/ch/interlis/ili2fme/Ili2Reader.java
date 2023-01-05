@@ -18,9 +18,7 @@
 package ch.interlis.ili2fme;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,28 +37,29 @@ import COM.safe.fmeobjects.IFMEMultiPoint;
 import COM.safe.fmeobjects.IFMESession;
 import COM.safe.fmeobjects.FMEException;
 import COM.safe.fmeobjects.IFMELogFile;
-import COM.safe.fmeobjects.IFMEFactoryPipeline;
 import COM.safe.fmeobjects.IFMEStringArray;
 import COM.safe.fmeobjects.IFMEPoint;
 import COM.safe.fmeobjects.IFMEPath;
-import COM.safe.fmeobjects.IFMEDonut;
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.basics.settings.Settings;
 import ch.ehi.basics.tools.StringUtility;
+import ch.ehi.basics.types.OutParam;
 import ch.ehi.fme.*;
+import ch.interlis.ili2c.Ili2cException;
+import ch.interlis.ili2c.Ili2cSettings;
+import ch.interlis.ili2c.gui.UserSettings;
 import ch.interlis.ili2c.metamodel.*;
-import ch.interlis.ilirepository.impl.RepositoryAccessException;
+import ch.interlis.ilirepository.IliManager;
 //import ch.interlis.iom.swig.iom_javaConstants;
 import ch.interlis.iom.*;
 import ch.interlis.iox.*;
 import ch.interlis.iom_j.itf.ItfReader;
 import ch.interlis.iom_j.itf.ItfReader2;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
-import ch.interlis.iom_j.xtf.XtfUtility;
 import ch.interlis.iox_j.IoxIliReader;
 import ch.interlis.iox_j.IoxInvalidDataException;
-import ch.interlis.iox_j.IoxUtility;
 import ch.interlis.iox_j.PipelinePool;
+import ch.interlis.iox_j.inifile.MetaConfig;
 import ch.interlis.iox_j.jts.Iox2jts;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 import ch.interlis.iox_j.logging.LogEventFactory;
@@ -116,6 +115,7 @@ public class Ili2Reader implements IFMEReader {
 	private boolean ili1IgnorePolygonBuildingErrors=false;
 	private int createEnumTypes=CreateEnumFeatureTypes.NO; 
 	private boolean checkUniqueOid=false;
+	private String metaConfig=null;
     private ch.interlis.iox_j.validator.Validator validator=null;
 	private boolean validate=false;
 	private String validationConfig=null;
@@ -128,8 +128,7 @@ public class Ili2Reader implements IFMEReader {
 	private IFMELogFile fmeLog=null;
 	private static final String ERR_FEATURETYPE_PREFIX="ERR.";
 	private static final String ERRMSG_ATTRIBUTE="_errmsg";
-    
-	public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
+    public Ili2Reader(IFMESession session1,IFMEMappingFile mappingFile1,String keyword,IFMELogFile log){
 		mappingFile=mappingFile1;
 		readerKeyword=keyword;
 		session=session1;
@@ -249,6 +248,9 @@ public class Ili2Reader implements IFMEReader {
 			}else if(arg.equals(Main.ILI1_ADDDEFVAL)){
 				i++;
 				ili1AddDefVal=FmeUtility.isTrue((String)args.get(i));
+			}else if(arg.equals(Main.META_CONFIG)){
+				i++;
+				metaConfig=(String)args.get(i);
 			}else if(arg.equals(Main.VALIDATE)){
 				i++;
 				validate=FmeUtility.isTrue((String)args.get(i));
@@ -316,6 +318,8 @@ public class Ili2Reader implements IFMEReader {
                     itfMode=LinetableMapping.valueOf((String)ele.get(1));    
 				}else if(val.equals(readerKeyword+"_"+Main.ILI1_ADDDEFVAL)){
 					ili1AddDefVal=FmeUtility.isTrue((String)ele.get(1));
+				}else if(val.equals(readerKeyword+"_"+Main.META_CONFIG)){
+					metaConfig=StringUtility.purge((String)ele.get(1));	
 				}else if(val.equals(readerKeyword+"_"+Main.VALIDATE)){
 					validate=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(readerKeyword+"_"+Main.VALIDATE_CONFIG)){
@@ -347,17 +351,11 @@ public class Ili2Reader implements IFMEReader {
 				}
 			}
 		}
+		ch.ehi.basics.settings.Settings settings=new ch.ehi.basics.settings.Settings();
+        settings.setValue(Ili2cSettings.HTTP_PROXY_HOST,httpProxyHost);
+        settings.setValue(Ili2cSettings.HTTP_PROXY_PORT,httpProxyPort);
+        settings.setValue(Main.SETTING_VALIDATION_CONFIG, validationConfig);
 
-		if(httpProxyHost!=null){
-			EhiLogger.logState("httpProxyHost <"+httpProxyHost+">");
-			System.setProperty("http.proxyHost", httpProxyHost);
-			if(httpProxyPort!=null){
-				EhiLogger.logState("httpProxyPort <"+httpProxyPort+">");
-				System.setProperty("http.proxyPort", httpProxyPort);
-			}
-		}else{
-			System.setProperty("java.net.useSystemProxies", "true");
-		}
         if(v6_createLineTableFeatures!=null) {
             EhiLogger.logState("v6_createLineTables <"+v6_createLineTableFeatures+">");
             if(v6_skipPolygonBuilding!=null) {
@@ -377,6 +375,7 @@ public class Ili2Reader implements IFMEReader {
             validate=false;
         }
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
+        EhiLogger.logState("metaConfig <"+(metaConfig!=null?metaConfig:"")+">");
 		EhiLogger.logState("validate <"+validate+">");
         EhiLogger.logState("validationConfig <"+(validationConfig!=null?validationConfig:"")+">");
 		EhiLogger.logState("validateMultiplicity <"+validateMultiplicity+">");
@@ -392,7 +391,6 @@ public class Ili2Reader implements IFMEReader {
 		EhiLogger.logState("ili1EnumAsItfCode <"+ili1EnumAsItfCode+">");
 		
 		if(models==null){
-			//models=mappingFile.fetchString(readerKeyword+"_"+Ili2fme.MODELS);
 			models=Main.DATA_PLACEHOLDER;
 		}
 		EhiLogger.traceState("models <"+models+">");
@@ -426,16 +424,82 @@ public class Ili2Reader implements IFMEReader {
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ili22models").getAbsolutePath();
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ilimodels").getAbsolutePath()+";"+modeldir;
 			modeldir="http://models.interlis.ch/;"+modeldir;
-			modeldir=new java.io.File(xtfFile).getAbsoluteFile().getParent()+";"+modeldir;
-		}else{
-			int startPos=modeldir.indexOf(Main.XTFDIR_PLACEHOLDER);
-			if(startPos>-1){
-				StringBuffer buf=new StringBuffer(modeldir);
-				buf.replace(startPos,startPos+Main.XTFDIR_PLACEHOLDER.length(),new java.io.File(xtfFile).getAbsoluteFile().getParent());
-				modeldir=buf.toString();
-			}
+			modeldir=Main.XTFDIR_PLACEHOLDER+";"+modeldir;
 		}
 		EhiLogger.logState("modeldir <"+modeldir+">");
+
+        // setup repos access
+        ch.interlis.ili2c.Main.setHttpProxySystemProperties(settings);
+        ch.interlis.ilirepository.IliManager repositoryManager = (ch.interlis.ilirepository.IliManager)settings
+                .getTransientObject(UserSettings.CUSTOM_ILI_MANAGER);
+        {
+            if(repositoryManager==null) {
+                repositoryManager=new ch.interlis.ilirepository.IliManager();
+                settings.setTransientObject(UserSettings.CUSTOM_ILI_MANAGER,repositoryManager);
+            }
+            String XTF_DATA_FILE=null;
+            if(!xtfFile.startsWith(IliManager.ILIDATA_URI_PREFIX)) {
+                XTF_DATA_FILE=xtfFile;
+            }
+            java.util.Map<String,String> pathMap=Main.getPathMap(XTF_DATA_FILE,session.fmeHome());
+            java.util.List<String> modeldirv=ch.interlis.ili2c.Main.resolvePathMap(modeldir,pathMap);
+            repositoryManager.setRepositories(modeldirv.toArray(new String[]{}));
+        }
+        
+        // read meta-config
+        {
+            String metaConfigFilename=metaConfig;
+            if(metaConfigFilename!=null) {
+                List<String> metaConfigFiles=new ArrayList<String>();
+                java.util.Set<String> visitedFiles=new HashSet<String>();
+                metaConfigFiles.add(metaConfigFilename);
+                Settings metaSettings=new Settings();
+                while(!metaConfigFiles.isEmpty()) {
+                    metaConfigFilename=metaConfigFiles.remove(0);
+                    if(!visitedFiles.contains(metaConfigFilename)) {
+                        visitedFiles.add(metaConfigFilename);
+                        EhiLogger.traceState("metaConfigFile <"+metaConfigFilename+">");
+                        File metaConfigFile=null;
+                        try {
+                            metaConfigFile = IliManager.getLocalCopyOfReposFile(repositoryManager,metaConfigFilename);
+                        } catch (Ili2cException e1) {
+                            throw new IllegalArgumentException("failed to get local copy of meta config file <"+metaConfigFilename+">");
+                        }
+                        OutParam<String> baseConfigs=new OutParam<String>();
+                        Settings newSettings=null;
+                        try {
+                            newSettings = Main.readMetaConfig(metaConfigFile,baseConfigs);
+                            if(baseConfigs.value!=null) {
+                                String[] baseConfigv = baseConfigs.value.split(";");
+                                for(String baseConfig:baseConfigv){
+                                    metaConfigFiles.add(baseConfig);
+                                }
+                            }
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException("failed to read meta config file <"+metaConfigFile.getPath()+">", e);
+                        }
+                        MetaConfig.mergeSettings(newSettings,metaSettings);
+                    }
+                }
+                MetaConfig.mergeSettings(metaSettings,settings);
+            }
+        }
+        MetaConfig.removeNullFromSettings(settings);
+        validationConfig=settings.getValue(Main.SETTING_VALIDATION_CONFIG);
+        
+        // get local copies of remote files
+        try {
+            {
+                java.io.File localFile=IliManager.getLocalCopyOfReposFile(repositoryManager, xtfFile);
+                xtfFile=localFile.getPath();
+            }
+            if(validationConfig!=null){
+                java.io.File localFile=IliManager.getLocalCopyOfReposFile(repositoryManager, validationConfig);
+                validationConfig=localFile.getPath();
+            }
+        } catch (Ili2cException e2) {
+            throw new IllegalArgumentException("failed to get local copy of remote files",e2);
+        }
 		
 		String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(xtfFile);
 		if(xtfExt!=null){
@@ -457,16 +521,12 @@ public class Ili2Reader implements IFMEReader {
 			xtfFile=null;
 			// compile models
 			{
-				// create repository manager
-				ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
-				// set list of repositories to search
-				manager.setRepositories(modeldir.split(";"));
 				// get complete list of required ili-files
-				ch.interlis.ili2c.config.Configuration config=manager.getConfigWithFiles(iliFilev);
-				config.setGenerateWarnings(false);
-				ch.interlis.ili2c.Ili2c.logIliFiles(config);
+				ch.interlis.ili2c.config.Configuration ili2cConfig=repositoryManager.getConfigWithFiles(iliFilev);
+				ili2cConfig.setGenerateWarnings(false);
+				ch.interlis.ili2c.Ili2c.logIliFiles(ili2cConfig);
 				// compile models
-				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
+				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
 				if(iliTd==null){
 					// compiler failed
 					throw new IllegalArgumentException("INTERLIS compiler failed");
@@ -498,21 +558,17 @@ public class Ili2Reader implements IFMEReader {
 			}
 			// compile models
 			{
-				// create repository manager
-				ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
-				// set list of repositories to search
-				manager.setRepositories(modeldir.split(";"));
 				// get complete list of required ili-files
-				ch.interlis.ili2c.config.Configuration config=null;
+				ch.interlis.ili2c.config.Configuration ili2cConfig=null;
 				if(modelVersion!=null) {
-	                config=manager.getConfig(iliModelv,Double.parseDouble(modelVersion));
+				    ili2cConfig=repositoryManager.getConfig(iliModelv,Double.parseDouble(modelVersion));
 				}else {
-	                config=manager.getConfig(iliModelv,0.0);
+				    ili2cConfig=repositoryManager.getConfig(iliModelv,0.0);
 				}
-				ch.interlis.ili2c.Ili2c.logIliFiles(config);
-				config.setGenerateWarnings(false);
+				ch.interlis.ili2c.Ili2c.logIliFiles(ili2cConfig);
+				ili2cConfig.setGenerateWarnings(false);
 				// compile models
-				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
+				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
 				if(iliTd==null){
 					// compiler failed
 					throw new IllegalArgumentException("INTERLIS compiler failed");
@@ -523,16 +579,12 @@ public class Ili2Reader implements IFMEReader {
 			iliModelv=new ArrayList<String>(java.util.Arrays.asList(models.split(";")));
 			// compile models
 			{
-				// create repository manager
-				ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
-				// set list of repositories to search
-				manager.setRepositories(modeldir.split(";"));
 				// get complete list of required ili-files
-				ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
-				ch.interlis.ili2c.Ili2c.logIliFiles(config);
-				config.setGenerateWarnings(false);
+				ch.interlis.ili2c.config.Configuration ili2cConfig=repositoryManager.getConfig(iliModelv,0.0);
+				ch.interlis.ili2c.Ili2c.logIliFiles(ili2cConfig);
+				ili2cConfig.setGenerateWarnings(false);
 				// compile models
-				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(config);
+				iliTd=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
 				if(iliTd==null){
 					// compiler failed
 					return;
@@ -2486,4 +2538,5 @@ public class Ili2Reader implements IFMEReader {
 		values.clear();
 		return false;
 	}
+	
 }

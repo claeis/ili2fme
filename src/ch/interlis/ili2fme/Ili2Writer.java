@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import COM.safe.fme.pluginbuilder.IFMEWriter;
 import COM.safe.fmeobjects.IFMEFeature;
-import COM.safe.fmeobjects.IFMEFeatureVector;
+import COM.safe.fmeobjects.IFMEFeatureVectorOnDisk;
 import COM.safe.fme.pluginbuilder.IFMEMappingFile;
 import COM.safe.fmeobjects.IFMECoordSysManager;
 import COM.safe.fmeobjects.IFMEFactoryPipeline;
@@ -39,7 +40,6 @@ import COM.safe.fmeobjects.IFMECurve;
 import COM.safe.fmeobjects.IFMEArea;
 import COM.safe.fmeobjects.IFMESimpleArea;
 import COM.safe.fmeobjects.IFMEDonut;
-import COM.safe.fmeobjects.IFMEPolygon;
 import COM.safe.fmeobjects.IFMESession;
 import COM.safe.fmeobjects.FMEException;
 import COM.safe.fmeobjects.IFMELogFile;
@@ -48,11 +48,15 @@ import COM.safe.fmeobjects.IFMEText;
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.basics.settings.Settings;
 import ch.ehi.basics.tools.StringUtility;
+import ch.ehi.basics.types.OutParam;
 import ch.ehi.fme.*;
+import ch.interlis.ili2c.Ili2cException;
+import ch.interlis.ili2c.Ili2cSettings;
+import ch.interlis.ili2c.gui.UserSettings;
 import ch.interlis.ili2c.metamodel.*;
+import ch.interlis.ilirepository.IliManager;
 import ch.interlis.iom.*;
 import ch.interlis.iom_j.Iom_jObject;
-import ch.interlis.iom_j.itf.ItfReader2;
 import ch.interlis.iom_j.xtf.OidSpace;
 import ch.interlis.iom_j.xtf.XtfStartTransferEvent;
 import ch.interlis.iox.*;
@@ -61,6 +65,7 @@ import ch.interlis.iox_j.logging.LogEventFactory;
 import ch.interlis.iox_j.validator.ValidationConfig;
 import ch.interlis.iox_j.validator.Validator;
 import ch.interlis.iox_j.PipelinePool;
+import ch.interlis.iox_j.inifile.MetaConfig;
 import ch.interlis.iox_j.jts.Iox2jtsException;
 
 /** INTERLIS implementation of an FME-Writer.
@@ -76,10 +81,10 @@ public class Ili2Writer implements IFMEWriter {
 	private IoxWriter ioxWriter=null;
 	private java.io.OutputStream outputFile=null; // output stream to ioxWriter
 	private ch.interlis.ili2c.metamodel.TransferDescription iliTd=null;
-	private HashMap basketv=null; // set<String basketId,StartBasketEvent>
-	private HashMap featurebufferv=new HashMap(); // set<String basketId,IFMEFeatureVectorOnDisk>
-	private HashMap fmeFeatureTypev=null; // map<String fmeFeatureTypeName, ViewableWrapper wrapper>
-	private HashMap tag2class=null; // map<String iliQName,Viewable|AttributeDef modelele>
+	private HashMap<String,StartBasketEvent> basketv=null; // set<String basketId,StartBasketEvent>
+	private HashMap<String,IFMEFeatureVectorOnDisk> featurebufferv=new HashMap<String,IFMEFeatureVectorOnDisk>(); // set<String basketId,IFMEFeatureVectorOnDisk>
+	private HashMap<String,ViewableWrapper> fmeFeatureTypev=null; // map<String fmeFeatureTypeName, ViewableWrapper wrapper>
+	private HashMap<String,Element> tag2class=null; // map<String iliQName,Viewable|AttributeDef modelele>
 	private int formatMode=0;
 	private static final int MODE_XTF=1;
 	private static final int MODE_ITF=2;
@@ -89,19 +94,20 @@ public class Ili2Writer implements IFMEWriter {
 	private boolean useLineTableFeatures=true;
 	private boolean scanXtfBaskets=true;
 	private boolean autoXtfBaskets=true;
-	private ArrayList modeldirv=null;
-	private HashSet modelsFromFME=null;
+	private ch.interlis.ilirepository.IliManager repositoryManager=null;
+	private HashSet<String> modelsFromFME=null;
 	private String fme_coord_sys=null;
 	private String epsgCode=null;
 	private int geometryEncoding=GeometryEncoding.OGC_HEXBIN;
 	private GeometryConverter geomConv=null;
+    private String metaConfig=null;
     private ch.interlis.iox_j.validator.Validator validator=null;
 	private boolean validate=false;
     private String validationConfig=null;
 	private boolean validateMultiplicity=false;
 	private boolean checkUniqueOid=false;
 	private boolean trimValues=true;
-	private HashMap checkoids=null; // map<String tid,String info>
+	private HashMap<String,String> checkoids=null; // map<String tid,String info>
 	private int maxTid=1; // only used if formatMode==MODE_ITF
 	private IFMELogFile fmeLog=null;
 	private XtfStartTransferEvent startTransferEvent=null;
@@ -127,7 +133,7 @@ public class Ili2Writer implements IFMEWriter {
 			throw ex;
 		}
 	}
-	private void myopen(ArrayList args) throws Exception {
+	private void myopen(ArrayList<String> args) throws Exception {
 		if(args.size()==0){
 			throw new IllegalArgumentException("args.size()==0");
 		}
@@ -183,6 +189,9 @@ public class Ili2Writer implements IFMEWriter {
 			}else if(arg.equals(Main.CHECK_UNIQUEOID)){
 				i++;
 				checkUniqueOid=FmeUtility.isTrue((String)args.get(i));
+            }else if(arg.equals(Main.META_CONFIG)){
+                i++;
+                metaConfig=(String)args.get(i);
 			}else if(arg.equals(Main.VALIDATE)){
 				i++;
 				validate=FmeUtility.isTrue((String)args.get(i));
@@ -220,6 +229,8 @@ public class Ili2Writer implements IFMEWriter {
 					useLineTableFeatures=FmeUtility.isTrue((String)ele.get(1));
 				}else if(val.equals(writerKeyword+"_"+Main.CHECK_UNIQUEOID)){
 					checkUniqueOid=FmeUtility.isTrue((String)ele.get(1));
+                }else if(val.equals(writerKeyword+"_"+Main.META_CONFIG)){
+                    metaConfig=StringUtility.purge((String)ele.get(1));   
 				}else if(val.equals(writerKeyword+"_"+Main.VALIDATE)){
 					validate=FmeUtility.isTrue((String)ele.get(1));
                 }else if(val.equals(writerKeyword+"_"+Main.VALIDATE_CONFIG)){
@@ -244,21 +255,15 @@ public class Ili2Writer implements IFMEWriter {
 		if(models==null){
 			throw new IllegalArgumentException("model name not specified; set FME-Parameter Models");
 		}
-
-		if(httpProxyHost!=null){
-			EhiLogger.logState("httpProxyHost <"+httpProxyHost+">");
-			System.setProperty("http.proxyHost", httpProxyHost);
-			if(httpProxyPort!=null){
-				EhiLogger.logState("httpProxyPort <"+httpProxyPort+">");
-				System.setProperty("http.proxyPort", httpProxyPort);
-			}
-		}else{
-			System.setProperty("java.net.useSystemProxies", "true");
-		}
+        ch.ehi.basics.settings.Settings settings=new ch.ehi.basics.settings.Settings();
+        settings.setValue(Ili2cSettings.HTTP_PROXY_HOST,httpProxyHost);
+        settings.setValue(Ili2cSettings.HTTP_PROXY_PORT,httpProxyPort);
+        settings.setValue(Main.SETTING_VALIDATION_CONFIG, validationConfig);
 
 		EhiLogger.logState("geometryEncoding <"+GeometryEncoding.toString(geometryEncoding)+">");
 		EhiLogger.logState("useLineTables <"+useLineTableFeatures+">");
 		EhiLogger.logState("checkUniqueOid <"+checkUniqueOid+">");
+        EhiLogger.logState("metaConfig <"+(metaConfig!=null?metaConfig:"")+">");
         EhiLogger.logState("validate <"+validate+">");
         EhiLogger.logState("validationConfig <"+(validationConfig!=null?validationConfig:"")+">");
         EhiLogger.logState("validateMultiplicity <"+validateMultiplicity+">");
@@ -274,62 +279,124 @@ public class Ili2Writer implements IFMEWriter {
 			xtfFile=x.toString();
 		}
 		EhiLogger.logState("xtfFile <"+xtfFile+">");
-		String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(new java.io.File(xtfFile)).toLowerCase();
-		if(xtfExt.equals("itf")){
-			formatMode=MODE_ITF;
-		}else if(xtfExt.equals("gml")){
-			formatMode=MODE_GML;
-		}else if(xtfExt.equals("xrf")){
-			formatMode=MODE_XRF;
-		}else if(xtfExt.equals("ili")){
-			throw new IllegalArgumentException("generating of INTERLIS model not yet supported by ili2fme");
-		}else{
-			formatMode=MODE_XTF;
-		}
-		if(formatMode==MODE_GML){
-			if(fme_coord_sys==null){
-				throw new IllegalArgumentException("Coordinate System required if writing GML");
-			}
-			IFMECoordSysManager crs_mgr=session.coordSysManager();
-			IFMEStringArray defv=session.createStringArray();
-			crs_mgr.getCoordSysParms(fme_coord_sys, defv);
-			int defc=defv.entries();
-			for(int defi=0;defi<defc;){
-				String param=defv.getElement(defi++);
-				String val=defv.getElement(defi++);
-				//EhiLogger.debug("param <"+param+">, val <"+val+">");
-				if(param.equals("EPSG")){
-					epsgCode="urn:ogc:def:crs:EPSG::"+val;
-				}
-			}
-			EhiLogger.logState("default gml:srsName <"+epsgCode+">");
-		}
 
 		if(modeldir==null){
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ili22models").getAbsolutePath();
 			modeldir=new java.io.File(session.fmeHome(),"plugins/interlis2/ilimodels").getAbsolutePath()+";"+modeldir;
 			modeldir="http://models.interlis.ch/;"+modeldir;
-			modeldir=new java.io.File(xtfFile).getAbsoluteFile().getParent()+";"+modeldir;
-		}else{
-			int startPos=modeldir.indexOf(Main.XTFDIR_PLACEHOLDER);
-			if(startPos>-1){
-				StringBuffer buf=new StringBuffer(modeldir);
-				buf.replace(startPos,startPos+Main.XTFDIR_PLACEHOLDER.length(),new java.io.File(xtfFile).getAbsoluteFile().getParent());
-				modeldir=buf.toString();
-			}
+			modeldir=Main.XTFDIR_PLACEHOLDER+";"+modeldir;
 		}
 		EhiLogger.logState("modeldir <"+modeldir+">");
 
-		modeldirv=new ArrayList(java.util.Arrays.asList(modeldir.split(";")));
-		ArrayList iliModelv=null;
-		modelsFromFME=new HashSet();
+        // setup repos access
+        ch.interlis.ili2c.Main.setHttpProxySystemProperties(settings);
+        repositoryManager = (ch.interlis.ilirepository.IliManager)settings
+                .getTransientObject(UserSettings.CUSTOM_ILI_MANAGER);
+        {
+            if(repositoryManager==null) {
+                repositoryManager=new ch.interlis.ilirepository.IliManager();
+                settings.setTransientObject(UserSettings.CUSTOM_ILI_MANAGER,repositoryManager);
+            }
+            String XTF_DATA_FILE=null;
+            if(!xtfFile.startsWith(IliManager.ILIDATA_URI_PREFIX)) {
+                XTF_DATA_FILE=xtfFile;
+            }
+            java.util.Map<String,String> pathMap=Main.getPathMap(XTF_DATA_FILE,session.fmeHome());
+            java.util.List<String> modeldirv=ch.interlis.ili2c.Main.resolvePathMap(modeldir,pathMap);
+            repositoryManager.setRepositories(modeldirv.toArray(new String[]{}));
+        }
+        
+        // read meta-config
+        {
+            String metaConfigFilename=metaConfig;
+            if(metaConfigFilename!=null) {
+                List<String> metaConfigFiles=new ArrayList<String>();
+                java.util.Set<String> visitedFiles=new HashSet<String>();
+                metaConfigFiles.add(metaConfigFilename);
+                Settings metaSettings=new Settings();
+                while(!metaConfigFiles.isEmpty()) {
+                    metaConfigFilename=metaConfigFiles.remove(0);
+                    if(!visitedFiles.contains(metaConfigFilename)) {
+                        visitedFiles.add(metaConfigFilename);
+                        EhiLogger.traceState("metaConfigFile <"+metaConfigFilename+">");
+                        File metaConfigFile=null;
+                        try {
+                            metaConfigFile = IliManager.getLocalCopyOfReposFile(repositoryManager,metaConfigFilename);
+                        } catch (Ili2cException e1) {
+                            throw new IllegalArgumentException("failed to get local copy of meta config file <"+metaConfigFilename+">");
+                        }
+                        OutParam<String> baseConfigs=new OutParam<String>();
+                        Settings newSettings=null;
+                        try {
+                            newSettings = Main.readMetaConfig(metaConfigFile,baseConfigs);
+                            if(baseConfigs.value!=null) {
+                                String[] baseConfigv = baseConfigs.value.split(";");
+                                for(String baseConfig:baseConfigv){
+                                    metaConfigFiles.add(baseConfig);
+                                }
+                            }
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException("failed to read meta config file <"+metaConfigFile.getPath()+">", e);
+                        }
+                        MetaConfig.mergeSettings(newSettings,metaSettings);
+                    }
+                }
+                MetaConfig.mergeSettings(metaSettings,settings);
+            }
+        }
+        MetaConfig.removeNullFromSettings(settings);
+        validationConfig=settings.getValue(Main.SETTING_VALIDATION_CONFIG);
+        
+        // get local copies of remote files
+        try {
+            if(validationConfig!=null){
+                java.io.File localFile=IliManager.getLocalCopyOfReposFile(repositoryManager, validationConfig);
+                validationConfig=localFile.getPath();
+            }
+        } catch (Ili2cException e2) {
+            throw new IllegalArgumentException("failed to get local copy of remote files",e2);
+        }
+
+        String xtfExt=ch.ehi.basics.view.GenericFileFilter.getFileExtension(new java.io.File(xtfFile)).toLowerCase();
+        if(xtfExt.equals("itf")){
+            formatMode=MODE_ITF;
+        }else if(xtfExt.equals("gml")){
+            formatMode=MODE_GML;
+        }else if(xtfExt.equals("xrf")){
+            formatMode=MODE_XRF;
+        }else if(xtfExt.equals("ili")){
+            throw new IllegalArgumentException("generating of INTERLIS model not yet supported by ili2fme");
+        }else{
+            formatMode=MODE_XTF;
+        }
+        if(formatMode==MODE_GML){
+            if(fme_coord_sys==null){
+                throw new IllegalArgumentException("Coordinate System required if writing GML");
+            }
+            IFMECoordSysManager crs_mgr=session.coordSysManager();
+            IFMEStringArray defv=session.createStringArray();
+            crs_mgr.getCoordSysParms(fme_coord_sys, defv);
+            int defc=defv.entries();
+            for(int defi=0;defi<defc;){
+                String param=defv.getElement(defi++);
+                String val=defv.getElement(defi++);
+                //EhiLogger.debug("param <"+param+">, val <"+val+">");
+                if(param.equals("EPSG")){
+                    epsgCode="urn:ogc:def:crs:EPSG::"+val;
+                }
+            }
+            EhiLogger.logState("default gml:srsName <"+epsgCode+">");
+        }
+        
+		ArrayList<String> iliModelv=null;
+		modelsFromFME=new HashSet<String>();
 		if(models.equals(Main.DATA_PLACEHOLDER)){
 			// TODO skip throw new IllegalArgumentException("model name not specified; set FME-Parameter Models");
 		}else{
 			// parse string
-			iliModelv=new ArrayList(java.util.Arrays.asList(models.split(";")));
+			iliModelv=new ArrayList<String>(java.util.Arrays.asList(models.split(";")));
 			// compile models
-			setupModel(iliModelv, modeldirv);
+			setupModel(repositoryManager,iliModelv);
 		}
 
 		if(geometryEncoding!=GeometryEncoding.OGC_HEXBIN){
@@ -337,7 +404,7 @@ public class Ili2Writer implements IFMEWriter {
 		}
 
 		if(checkUniqueOid){
-			checkoids=new HashMap();
+			checkoids=new HashMap<String,String>();
 		}
 		
 		// setup output stream
@@ -358,13 +425,9 @@ public class Ili2Writer implements IFMEWriter {
 		// ASSERT: ready to write data
 
 	}
-	private void setupModel(ArrayList iliModelv, ArrayList modeldirv) 
+	private void setupModel(ch.interlis.ilirepository.IliManager manager,ArrayList<String> iliModelv) 
 	throws ch.interlis.ili2c.Ili2cException
 	{
-		// create repository manager
-		ch.interlis.ilirepository.IliManager manager=new ch.interlis.ilirepository.IliManager();
-		// set list of repositories to search
-		manager.setRepositories((String[])modeldirv.toArray(new String[0]));
 		// get complete list of required ili-files
 		ch.interlis.ili2c.config.Configuration config=manager.getConfig(iliModelv,0.0);
 		ch.interlis.ili2c.Ili2c.logIliFiles(config);
@@ -424,9 +487,9 @@ public class Ili2Writer implements IFMEWriter {
 				// use model name from data?
 				if(iliTd==null){
 					// use model name from data
-					ArrayList iliModelv=new ArrayList();
+					ArrayList<String> iliModelv=new ArrayList<String>();
 					iliModelv.addAll(modelsFromFME);
-					setupModel(iliModelv, modeldirv);
+					setupModel(repositoryManager,iliModelv);
 				}
 				if(formatMode==MODE_XTF){
 					ioxWriter=new ch.interlis.iom_j.xtf.XtfWriter(outputFile,iliTd);

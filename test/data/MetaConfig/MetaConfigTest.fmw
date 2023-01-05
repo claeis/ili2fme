@@ -1,0 +1,1058 @@
+#! <?xml version="1.0" encoding="UTF-8" ?>
+#! <WORKSPACE
+#    Command-line to run this workspace:
+#        "C:\Program Files\FME-2020.2.5\fme.exe" Z:\Kurs\MetaConfig\MetaConfigTest.fmw
+#              --SourceDataset_ch.ehi.fme.Main "ExtRef23a.xtf"
+#              --DestDataset_ch.ehi.fme.Main "out.xtf"
+#    
+#!   ATTR_TYPE_ENCODING="SDF"
+#!   BEGIN_PYTHON=""
+#!   BEGIN_TCL=""
+#!   CATEGORY=""
+#!   DESCRIPTION=""
+#!   DESTINATION="NONE"
+#!   DESTINATION_ROUTING_FILE=""
+#!   DOC_EXTENTS="2408.27 786"
+#!   DOC_TOP_LEFT="19 -1021"
+#!   END_PYTHON=""
+#!   END_TCL=""
+#!   EXPLICIT_BOOKMARK_ORDER="false"
+#!   FME_BUILD_NUM="20827"
+#!   FME_DOCUMENT_GUID="66dc92bb-d970-4a15-86f6-b9fdffcfd820"
+#!   FME_DOCUMENT_PRIORGUID="2462ec9b-0a39-4ee2-9975-5cf3a35e0d24"
+#!   FME_GEOMETRY_HANDLING="Enhanced"
+#!   FME_IMPLICIT_CSMAP_REPROJECTION_MODE="Auto"
+#!   FME_REPROJECTION_ENGINE="FME"
+#!   FME_SERVER_SERVICES=""
+#!   FME_STROKE_MAX_DEVIATION="0"
+#!   HISTORY=""
+#!   IGNORE_READER_FAILURE="No"
+#!   LAST_SAVE_BUILD="FME(R) 2020.2.5.0 (20210510 - Build 20827 - WIN64)"
+#!   LAST_SAVE_DATE="2023-01-05T00:55:37"
+#!   LOG_FILE=""
+#!   LOG_MAX_RECORDED_FEATURES="200"
+#!   MARKDOWN_DESCRIPTION=""
+#!   MARKDOWN_USAGE=""
+#!   MAX_LOG_FEATURES="200"
+#!   MULTI_WRITER_DATASET_ORDER="BY_ID"
+#!   PASSWORD=""
+#!   PYTHON_COMPATIBILITY="37"
+#!   REDIRECT_TERMINATORS="NONE"
+#!   SAVE_ON_PROMPT_AND_RUN="Yes"
+#!   SHOW_ANNOTATIONS="true"
+#!   SHOW_INFO_NODES="true"
+#!   SOURCE="NONE"
+#!   SOURCE_ROUTING_FILE=""
+#!   TERMINATE_REJECTED="YES"
+#!   TITLE=""
+#!   USAGE=""
+#!   USE_MARKDOWN=""
+#!   VIEW_POSITION="-637.506 -28.1253"
+#!   WARN_INVALID_XFORM_PARAM="Yes"
+#!   WORKSPACE_VERSION="1"
+#!   ZOOM_SCALE="100"
+#! >
+#! <DATASETS>
+#! <DATASET
+#!   IS_SOURCE="true"
+#!   ROLE="READER"
+#!   FORMAT="ch.ehi.fme.Main"
+#!   DATASET="$(SourceDataset_ch.ehi.fme.Main)"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   MULTI_GEOM_ALLOWED="false"
+#!   ATTR_MAX_LENGTH="0"
+#!   ATTR_CASE="ANY"
+#!   ALLOWED_FEAT_TYPES=""
+#!   WRITE_DEFS="true"
+#!   DEFLINE_TEMPLATE=""
+#!   DEFLINE_ATTRS="true"
+#!   EXPOSABLE_ATTRS="multi_reader_id xtf_int32 fme_dataset xtf_char(50) xtf_class xtf_char(255) fme_text_size xtf_real64 fme_feature_type xtf_char(50) fme_primary_axis xtf_real64 xtf_geomattr xtf_char(255) fme_text_string xtf_char(50) fme_basename xtf_char(50) fme_secondary_axis xtf_real64 xtf_consistency xtf_char(12) fme_start_angle xtf_real64 multi_reader_keyword xtf_char(50) fme_color xtf_char(50) fme_rotation xtf_real64 xtf_operation xtf_char(6) fme_fill_color xtf_char(50) fme_geometry xtf_char(50) xtf_basket xtf_char(200) fme_sweep_angle xtf_real64 multi_reader_type xtf_char(50) fme_type xtf_char(50) multi_reader_full_id xtf_int32"
+#!   DEFLINE_PARMS=""
+#!   ATTR_INDEX_TYPES=""
+#!   ATTR_NAME_INVALID_CHARS=""
+#!   SUPPORTS_FEATURE_TYPE_FANOUT="true"
+#!   ENABLED="true"
+#!   DYNAMIC_FEATURE_TYPES_LIST_ON_MERGE="true"
+#!   DATASET_TYPE="FILE"
+#!   FTTR_TYPE="LISTBOX_ENCODED"
+#!   GENERATE_FME_BUILD_NUM="20827"
+#!   COORDSYS=""
+#!   FEATURE_TYPES=""
+#!   MAX_FEATURES=""
+#!   MAX_FEATURES_PER_FEATURE_TYPE=""
+#!   MIN_FEATURES=""
+#!   START_FEATURE=""
+#! />
+#! <DATASET
+#!   IS_SOURCE="false"
+#!   ROLE="WRITER"
+#!   FORMAT="ch.ehi.fme.Main"
+#!   DATASET="$(DestDataset_ch.ehi.fme.Main)"
+#!   KEYWORD="ch.ehi.fme.Main_2"
+#!   MULTI_GEOM_ALLOWED="true"
+#!   ATTR_MAX_LENGTH="255"
+#!   ATTR_CASE="ANY"
+#!   ALLOWED_FEAT_TYPES=""
+#!   WRITE_DEFS="true"
+#!   DEFLINE_TEMPLATE=""
+#!   DEFLINE_ATTRS="true"
+#!   EXPOSABLE_ATTRS="xtf_class xtf_char(255) fme_dataset xtf_char(50) fme_text_size xtf_real64 fme_feature_type xtf_char(50) fme_primary_axis xtf_real64 xtf_geomattr xtf_char(255) fme_text_string xtf_char(50) fme_basename xtf_char(50) fme_secondary_axis xtf_real64 xtf_consistency xtf_char(12) fme_start_angle xtf_real64 fme_color xtf_char(50) fme_rotation xtf_real64 fme_fill_color xtf_char(50) xtf_operation xtf_char(6) fme_geometry xtf_char(50) xtf_basket xtf_char(200) fme_sweep_angle xtf_real64 fme_type xtf_char(50)"
+#!   DEFLINE_PARMS=""
+#!   ATTR_INDEX_TYPES=""
+#!   ATTR_NAME_INVALID_CHARS=""
+#!   SUPPORTS_FEATURE_TYPE_FANOUT="true"
+#!   ENABLED="true"
+#!   DYNAMIC_FEATURE_TYPES_LIST_ON_MERGE="true"
+#!   DATASET_TYPE="FILE"
+#!   FTTR_TYPE=""
+#!   GENERATE_FME_BUILD_NUM="20827"
+#!   COORDSYS=""
+#!   FANOUT_EXPRESSION="&lt;Unused&gt;"
+#!   FANOUT_GROUP="NO"
+#! />
+#! </DATASETS>
+#! <DATA_TYPES>
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_char(width)"
+#!   FME_TYPE="fme_varchar(width)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_char(width)"
+#!   FME_TYPE="fme_char(width)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_buffer"
+#!   FME_TYPE="fme_buffer"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_decimal(width,decimal)"
+#!   FME_TYPE="fme_decimal(width,decimal)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_real32"
+#!   FME_TYPE="fme_real32"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_real64"
+#!   FME_TYPE="fme_real64"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_int32"
+#!   FME_TYPE="fme_int32"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_int16"
+#!   FME_TYPE="fme_int16"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_boolean"
+#!   FME_TYPE="fme_boolean"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_datetime"
+#!   FME_TYPE="fme_datetime"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_date"
+#!   FME_TYPE="fme_date"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_time"
+#!   FME_TYPE="fme_time"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_char(width)"
+#!   FME_TYPE="fme_varchar(width)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_char(width)"
+#!   FME_TYPE="fme_char(width)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_buffer"
+#!   FME_TYPE="fme_buffer"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_decimal(width,decimal)"
+#!   FME_TYPE="fme_decimal(width,decimal)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_real32"
+#!   FME_TYPE="fme_real32"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_real64"
+#!   FME_TYPE="fme_real64"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_int32"
+#!   FME_TYPE="fme_int32"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_int16"
+#!   FME_TYPE="fme_int16"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_boolean"
+#!   FME_TYPE="fme_boolean"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_datetime"
+#!   FME_TYPE="fme_datetime"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_date"
+#!   FME_TYPE="fme_date"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_time"
+#!   FME_TYPE="fme_time"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! </DATA_TYPES>
+#! <GEOM_TYPES>
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_none"
+#!   FME_TYPE="fme_no_geom"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_coord"
+#!   FME_TYPE="fme_point"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_multicoord"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_coord"
+#!   FME_TYPE="fme_text"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_line"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_multipolyline"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_area"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_multisurface"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_area"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_multiarea"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_arc"
+#!   FME_TYPE="fme_arc"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_ellipse"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_rectangle"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_rounded_rectangle"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_raster"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_surface"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_solid"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_point_cloud"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="true"
+#!   FORMAT_TYPE="xtf_none"
+#!   FME_TYPE="fme_feature_table"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_none"
+#!   FME_TYPE="fme_no_geom"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_coord"
+#!   FME_TYPE="fme_point"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_multicoord"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_coord"
+#!   FME_TYPE="fme_text"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_line"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_multipolyline"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_area"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_multisurface"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_area"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_multiarea"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_arc"
+#!   FME_TYPE="fme_arc"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_ellipse"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_rectangle"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_rounded_rectangle"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_raster"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_surface"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_solid"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_point_cloud"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_none"
+#!   FME_TYPE="fme_feature_table"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! </GEOM_TYPES>
+#! <FEATURE_TYPES>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="true"
+#!   NODE_NAME="XTF_TRANSFER"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="false"
+#!   IDENTIFIER="2"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="155 -950"
+#!   BOUNDING_RECT="155 -950 460.00106825772946 71"
+#!   ORDER="500000000000000"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   HIDDEN_USER_ATTRS=""
+#!   MERGE_FILTER=""
+#!   MERGE_FILTER_TYPE="FILTER_TYPE_GLOB"
+#!   MERGE_FILTER_CASE_SENSITIVE="false"
+#!   DYNAMIC_SCHEMA="false"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="oidspace{}.name" ATTR_TYPE="xtf_char(255)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="oidspace{}.oiddomain" ATTR_TYPE="xtf_char(255)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="comment" ATTR_TYPE="xtf_char(255)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="true"
+#!   NODE_NAME="XTF_BASKETS"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="false"
+#!   IDENTIFIER="3"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="161.00106825772946 -521"
+#!   BOUNDING_RECT="161.00106825772946 -521 454 71"
+#!   ORDER="500000000000000"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   HIDDEN_USER_ATTRS=""
+#!   MERGE_FILTER=""
+#!   MERGE_FILTER_TYPE="FILTER_TYPE_GLOB"
+#!   MERGE_FILTER_CASE_SENSITIVE="true"
+#!   DYNAMIC_SCHEMA="false"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_topic" ATTR_TYPE="xtf_char(34)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_startstate" ATTR_TYPE="xtf_char(250)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_endstate" ATTR_TYPE="xtf_char(250)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_consistency" ATTR_TYPE="xtf_char(12)"  EXPOSABLE_ATTR="true" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="true"
+#!   NODE_NAME="XTF_DELETEOBJECT"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="false"
+#!   IDENTIFIER="4"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="70 -664"
+#!   BOUNDING_RECT="70 -664 545.00106825772946 71"
+#!   ORDER="500000000000000"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   HIDDEN_USER_ATTRS=""
+#!   MERGE_FILTER=""
+#!   MERGE_FILTER_TYPE="FILTER_TYPE_GLOB"
+#!   MERGE_FILTER_CASE_SENSITIVE="true"
+#!   DYNAMIC_SCHEMA="false"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_basket" ATTR_TYPE="xtf_char(200)"  EXPOSABLE_ATTR="true" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="true"
+#!   NODE_NAME="XTF_ERRORS"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="false"
+#!   IDENTIFIER="5"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="161.00106825772946 -807"
+#!   BOUNDING_RECT="161.00106825772946 -807 454 71"
+#!   ORDER="500000000000000"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   HIDDEN_USER_ATTRS=""
+#!   MERGE_FILTER=""
+#!   MERGE_FILTER_TYPE="FILTER_TYPE_GLOB"
+#!   MERGE_FILTER_CASE_SENSITIVE="false"
+#!   DYNAMIC_SCHEMA="false"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="message" ATTR_TYPE="xtf_char(255)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="iliname" ATTR_TYPE="xtf_char(255)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="tid{}" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="true"
+#!   NODE_NAME="ExtRef23.TestA.ClassA2"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="false"
+#!   IDENTIFIER="6"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="19 -378"
+#!   BOUNDING_RECT="19 -378 596.00106825772946 71"
+#!   ORDER="500000000000000"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   HIDDEN_USER_ATTRS=""
+#!   MERGE_FILTER=""
+#!   MERGE_FILTER_TYPE="FILTER_TYPE_GLOB"
+#!   MERGE_FILTER_CASE_SENSITIVE="true"
+#!   DYNAMIC_SCHEMA="false"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="attrA2" ATTR_TYPE="xtf_char(60)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="true"
+#!   NODE_NAME="ExtRef23.TestA.ClassA1"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="false"
+#!   IDENTIFIER="7"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="20 -235"
+#!   BOUNDING_RECT="20 -235 595.00106825772946 71"
+#!   ORDER="500000000000000"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   HIDDEN_USER_ATTRS=""
+#!   MERGE_FILTER=""
+#!   MERGE_FILTER_TYPE="FILTER_TYPE_GLOB"
+#!   MERGE_FILTER_CASE_SENSITIVE="true"
+#!   DYNAMIC_SCHEMA="false"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="a" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="false"
+#!   NODE_NAME="ExtRef23.TestA.ClassA1"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="true"
+#!   IDENTIFIER="8"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="1831.2693126931269 -235"
+#!   BOUNDING_RECT="1831.2693126931269 -235 595.00106825772946 71"
+#!   ORDER="500000000000001"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_2"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   SCHEMA_ATTRIBUTE_SOURCE="1"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="a" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="false"
+#!   NODE_NAME="ExtRef23.TestA.ClassA2"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="true"
+#!   IDENTIFIER="9"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="1831.2693126931269 -378"
+#!   BOUNDING_RECT="1831.2693126931269 -378 596.00106825772946 71"
+#!   ORDER="500000000000002"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_2"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   SCHEMA_ATTRIBUTE_SOURCE="1"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="attrA2" ATTR_TYPE="xtf_char(60)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="false"
+#!   NODE_NAME="XTF_BASKETS"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="true"
+#!   IDENTIFIER="10"
+#!   FEAT_GEOMTYPE="xtf_none"
+#!   POSITION="1831.2693126931269 -521"
+#!   BOUNDING_RECT="1831.2693126931269 -521 454 71"
+#!   ORDER="500000000000003"
+#!   COLLAPSED="true"
+#!   KEYWORD="ch.ehi.fme.Main_2"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   SCHEMA_ATTRIBUTE_SOURCE="1"
+#! >
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_topic" ATTR_TYPE="xtf_char(34)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_startstate" ATTR_TYPE="xtf_char(250)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_endstate" ATTR_TYPE="xtf_char(250)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_consistency" ATTR_TYPE="xtf_char(12)"  EXPOSABLE_ATTR="true" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! </FEATURE_TYPES>
+#! <FMESERVER>
+#! <READER_DATASETS>
+#! <DATASET
+#!   NAME="ch.ehi.fme.Main_1"
+#!   OVERRIDE="-ch.ehi.fme.Main_1_DATASET"
+#!   DATASET="ch.ehi.fme.Main_1/ExtRef23a.xtf"
+#! />
+#! </READER_DATASETS>
+#! <WRITER_DATASETS>
+#! <DATASET
+#!   NAME="ch.ehi.fme.Main_2"
+#!   OVERRIDE="-ch.ehi.fme.Main_2_DATASET"
+#!   DATASET="ch.ehi.fme.Main_2/out.xtf"
+#! />
+#! </WRITER_DATASETS>
+#! </FMESERVER>
+#! <GLOBAL_PARAMETERS>
+#! <GLOBAL_PARAMETER
+#!   GUI_LINE="GUI MULTIFILE SourceDataset_ch.ehi.fme.Main INTERLIS_Files(*.xtf;*.xml;*.itf;*.ili)|*.xtf;*.xml;*.itf;*.ili|INTERLIS_2_Files(*.xtf;*.xml)|*.xtf;*.xml|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_MODELS(*.ili)|*.ili|Compressed_Files(*.bz2;*.gz)|*.bz2;*.gz|Archive_Files(*.7z;*.7zip;*.rar;*.rvz;*.tar;*.tar.bz2;*.tar.gz;*.tgz;*.zip;*.zipx)|*.7z;*.7zip;*.rar;*.rvz;*.tar;*.tar.bz2;*.tar.gz;*.tgz;*.zip;*.zipx|All_Files|*.* Original INTERLIS 2 File:"
+#!   DEFAULT_VALUE="ExtRef23a.xtf"
+#!   IS_STAND_ALONE="false"
+#! />
+#! <GLOBAL_PARAMETER
+#!   GUI_LINE="GUI FILENAME DestDataset_ch.ehi.fme.Main INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_GML_FILES(*.gml)|*.gml|All_Files|*.* Destination INTERLIS File:"
+#!   DEFAULT_VALUE="out.xtf"
+#!   IS_STAND_ALONE="false"
+#! />
+#! </GLOBAL_PARAMETERS>
+#! <COMMENTS>
+#! </COMMENTS>
+#! <CONSTANTS>
+#! </CONSTANTS>
+#! <BOOKMARKS>
+#! </BOOKMARKS>
+#! <TRANSFORMERS>
+#! </TRANSFORMERS>
+#! <FEAT_LINKS>
+#! <FEAT_LINK
+#!   IDENTIFIER="13"
+#!   SOURCE_NODE="3"
+#!   TARGET_NODE="10"
+#!   SOURCE_PORT_DESC="-1"
+#!   TARGET_PORT_DESC="-1"
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0,0,0,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! <FEAT_LINK
+#!   IDENTIFIER="12"
+#!   SOURCE_NODE="6"
+#!   TARGET_NODE="9"
+#!   SOURCE_PORT_DESC="-1"
+#!   TARGET_PORT_DESC="-1"
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0,0,0,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! <FEAT_LINK
+#!   IDENTIFIER="11"
+#!   SOURCE_NODE="7"
+#!   TARGET_NODE="8"
+#!   SOURCE_PORT_DESC="-1"
+#!   TARGET_PORT_DESC="-1"
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0,0,0,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! </FEAT_LINKS>
+#! <BREAKPOINTS>
+#! </BREAKPOINTS>
+#! <ATTR_LINKS>
+#! </ATTR_LINKS>
+#! <SUBDOCUMENTS>
+#! </SUBDOCUMENTS>
+#! <LOOKUP_TABLES>
+#! </LOOKUP_TABLES>
+#! </WORKSPACE>
+
+FME_PYTHON_VERSION 37
+GUI IGNORE SourceDataset_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_FME_GROUP_NAMED1_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_MODELS_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_MODEL_DIR_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_TOPICS_FILTER_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_CHECK_UNIQUEOID_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_VALIDATE_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_VALIDATE_CONFIG_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_META_CONFIG_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_ILI1_IGNOREPOLYGONBUILDINGERRORS_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_GEOMETRY_ENCODING_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_GEOM_ATTR_MAPPING_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_ILI1_LINETABLES_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_INHERITANCE_MAPPING_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_TRIM_VALUES_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_ILI1_ADDDEFVAL_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_ILI1_RENUMBERTID_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_ILI1_ENUMASITFCODE_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_CREATEFEATURETYPE4ENUM_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_HTTP_PROXYHOST_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_HTTP_PROXYPORT_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_TRACEMSGS_ch.ehi.fme.Main_1,ch.ehi.fme.Main_IN_NETWORK_AUTHENTICATION_ch.ehi.fme.Main_1,DestDataset_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_FME_GROUP_NAMED1_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_VALIDATE_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_VALIDATE_CONFIG_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_META_CONFIG_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_TRIM_VALUES_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_2,ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_2
+DEFAULT_MACRO SourceDataset_ch.ehi.fme.Main ExtRef23a.xtf
+GUI MULTIFILE SourceDataset_ch.ehi.fme.Main INTERLIS_Files(*.xtf;*.xml;*.itf;*.ili)|*.xtf;*.xml;*.itf;*.ili|INTERLIS_2_Files(*.xtf;*.xml)|*.xtf;*.xml|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_MODELS(*.ili)|*.ili|Compressed_Files(*.bz2;*.gz)|*.bz2;*.gz|Archive_Files(*.7z;*.7zip;*.rar;*.rvz;*.tar;*.tar.bz2;*.tar.gz;*.tgz;*.zip;*.zipx)|*.7z;*.7zip;*.rar;*.rvz;*.tar;*.tar.bz2;*.tar.gz;*.tgz;*.zip;*.zipx|All_Files|*.* Original INTERLIS 2 File:
+DEFAULT_MACRO DestDataset_ch.ehi.fme.Main out.xtf
+GUI FILENAME DestDataset_ch.ehi.fme.Main INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_GML_FILES(*.gml)|*.gml|All_Files|*.* Destination INTERLIS File:
+INCLUDE [ if {{$(SourceDataset_ch.ehi.fme.Main)} == {}} { puts_real {Parameter 'SourceDataset_ch.ehi.fme.Main' must be given a value.}; exit 1; }; ]
+INCLUDE [ if {{$(DestDataset_ch.ehi.fme.Main)} == {}} { puts_real {Parameter 'DestDataset_ch.ehi.fme.Main' must be given a value.}; exit 1; }; ]
+#! START_HEADER
+#! START_WB_HEADER
+READER_TYPE MULTI_READER
+MULTI_READER_TYPE{0} ch.ehi.fme.Main
+MULTI_READER_KEYWORD{0} ch.ehi.fme.Main_1
+MULTI_READER_GEN_DIRECTIVES{0} TOPICS_FILTER,,GEOMETRY_ENCODING,FMEBIN,HTTP_PROXYPORT,,ILI1_ADDDEFVAL,No,TRIM_VALUES,Yes,VALIDATE_MULTIPLICITY,Yes,ILI1_RENUMBERTID,No,HTTP_PROXYHOST,,ILI1_LINETABLES,Polygon,MODEL_DIR,Z:<backslash>Kurs<backslash>MetaConfig<backslash>repos,MODELS,%DATA,ILI1_ENUMASITFCODE,No,TRACEMSGS,Yes,META_CONFIG,ilidata:163d16de-83df-4d84-8039-256f2261e226,VALIDATE,Yes,ILI1_IGNOREPOLYGONBUILDINGERRORS,No,INHERITANCE_MAPPING,SuperClass,_MERGE_SCHEMAS,YES,VALIDATE_CONFIG,,GEOM_ATTR_MAPPING,EncodeAsFmeAttribute,CREATEFEATURETYPE4ENUM,No,CHECK_UNIQUEOID,No
+WRITER_TYPE MULTI_WRITER
+MULTI_WRITER_DATASET_ORDER BY_ID
+MULTI_WRITER_FIRST_WRITER_ID 0
+MULTI_WRITER_TYPE{0} ch.ehi.fme.Main
+MULTI_WRITER_KEYWORD{0} ch.ehi.fme.Main_2
+#! END_WB_HEADER
+#! START_WB_HEADER
+MACRO WB_KEYWORD "ch.ehi.fme.Main_1"
+#! END_WB_HEADER
+#! START_SOURCE_HEADER ch.ehi.fme.Main ch.ehi.fme.Main_1
+# ============================================================================
+# The following GUI line prompts for a file to be used as the
+# source of the input data.
+# The user input is stored in a macro, which is then used to define
+# the dataset to be read.
+# The dataset this mapping file was generated from was:
+GUI FILENAME SourceDataset_ch.ehi.fme.Main_1 INTERLIS_Files(*.xtf;*.xml;*.itf;*.ili)|*.xtf;*.xml;*.itf;*.ili|INTERLIS_2_Files(*.xtf;*.xml)|*.xtf;*.xml|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_MODELS(*.ili)|*.ili|All_Files|*.* Original INTERLIS 2 File:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_FME_GROUP_NAMED1_ch.ehi.fme.Main_1 FME_DISCLOSURE_OPEN
+GUI OPTIONAL DISCLOSUREGROUP ch.ehi.fme.Main_IN_FME_GROUP_NAMED1_ch.ehi.fme.Main_1 ch.ehi.fme.Main_IN_MODELS_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_MODEL_DIR_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_TOPICS_FILTER_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_CHECK_UNIQUEOID_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_VALIDATE_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_VALIDATE_CONFIG_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_ILI1_IGNOREPOLYGONBUILDINGERRORS_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_TRIM_VALUES_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_GEOMETRY_ENCODING_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_GEOM_ATTR_MAPPING_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_ILI1_LINETABLES_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_INHERITANCE_MAPPING_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_ILI1_ADDDEFVAL_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_ILI1_RENUMBERTID_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_ILI1_ENUMASITFCODE_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_CREATEFEATURETYPE4ENUM_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_HTTP_PROXYHOST_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_HTTP_PROXYPORT_ch.ehi.fme.Main_1%ch.ehi.fme.Main_IN_TRACEMSGS_ch.ehi.fme.Main_1 Parameters
+DEFAULT_MACRO ch.ehi.fme.Main_IN_MODELS_ch.ehi.fme.Main_1 %DATA
+ch.ehi.fme.Main_1_MODELS "$(ch.ehi.fme.Main_IN_MODELS_ch.ehi.fme.Main_1)"
+GUI TEXT ch.ehi.fme.Main_IN_MODELS_ch.ehi.fme.Main_1 Models:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_MODEL_DIR_ch.ehi.fme.Main_1 repos
+ch.ehi.fme.Main_1_MODEL_DIR "$(ch.ehi.fme.Main_IN_MODEL_DIR_ch.ehi.fme.Main_1)"
+GUI TEXT ch.ehi.fme.Main_IN_MODEL_DIR_ch.ehi.fme.Main_1 Models Directory:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_TOPICS_FILTER_ch.ehi.fme.Main_1 
+ch.ehi.fme.Main_1_TOPICS_FILTER "$(ch.ehi.fme.Main_IN_TOPICS_FILTER_ch.ehi.fme.Main_1)"
+GUI OPTIONAL TEXT ch.ehi.fme.Main_IN_TOPICS_FILTER_ch.ehi.fme.Main_1 Topics filter:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_CHECK_UNIQUEOID_ch.ehi.fme.Main_1 No
+ch.ehi.fme.Main_1_CHECK_UNIQUEOID "$(ch.ehi.fme.Main_IN_CHECK_UNIQUEOID_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_CHECK_UNIQUEOID_ch.ehi.fme.Main_1 Yes%No Check TID/OID Uniqueness:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_VALIDATE_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_VALIDATE "$(ch.ehi.fme.Main_IN_VALIDATE_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_VALIDATE_ch.ehi.fme.Main_1 Yes%No Validate:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_VALIDATE_MULTIPLICITY "$(ch.ehi.fme.Main_IN_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_1 Yes%No Validate Attribute/Role Multiplicity:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_VALIDATE_CONFIG_ch.ehi.fme.Main_1 
+ch.ehi.fme.Main_1_VALIDATE_CONFIG "$(ch.ehi.fme.Main_IN_VALIDATE_CONFIG_ch.ehi.fme.Main_1)"
+GUI OPTIONAL FILENAME ch.ehi.fme.Main_IN_VALIDATE_CONFIG_ch.ehi.fme.Main_1 ilivalidator_Configuration_Files(*.ini)|*.ini|All_Files|*.* Validator Configuration:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_META_CONFIG_ch.ehi.fme.Main_1 ilidata:163d16de-83df-4d84-8039-256f2261e226
+ch.ehi.fme.Main_1_META_CONFIG "$(ch.ehi.fme.Main_IN_META_CONFIG_ch.ehi.fme.Main_1)"
+GUI OPTIONAL FILENAME ch.ehi.fme.Main_IN_META_CONFIG_ch.ehi.fme.Main_1 Meta_Configuration_Files(*.ini)|*.ini|All_Files|*.* Meta Configuration:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_ILI1_IGNOREPOLYGONBUILDINGERRORS_ch.ehi.fme.Main_1 No
+ch.ehi.fme.Main_1_ILI1_IGNOREPOLYGONBUILDINGERRORS "$(ch.ehi.fme.Main_IN_ILI1_IGNOREPOLYGONBUILDINGERRORS_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_ILI1_IGNOREPOLYGONBUILDINGERRORS_ch.ehi.fme.Main_1 Yes%No ITF Ignore Polygon Building Errors:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_GEOMETRY_ENCODING_ch.ehi.fme.Main_1 FMEBIN
+ch.ehi.fme.Main_1_GEOMETRY_ENCODING "$(ch.ehi.fme.Main_IN_GEOMETRY_ENCODING_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_GEOMETRY_ENCODING_ch.ehi.fme.Main_1 FMEXML%FMEBIN%FMEHEXBIN%OGCHEXBIN Geometry Encoding:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_GEOM_ATTR_MAPPING_ch.ehi.fme.Main_1 EncodeAsFmeAttribute
+ch.ehi.fme.Main_1_GEOM_ATTR_MAPPING "$(ch.ehi.fme.Main_IN_GEOM_ATTR_MAPPING_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_GEOM_ATTR_MAPPING_ch.ehi.fme.Main_1 EncodeAsFmeAttribute%RepeatFeature Mapping of multiple Geometry Attributes:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_ILI1_LINETABLES_ch.ehi.fme.Main_1 Polygon
+ch.ehi.fme.Main_1_ILI1_LINETABLES "$(ch.ehi.fme.Main_IN_ILI1_LINETABLES_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_ILI1_LINETABLES_ch.ehi.fme.Main_1 Polygon%Raw%Polygon+Raw ITF Linetable Mapping:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_INHERITANCE_MAPPING_ch.ehi.fme.Main_1 SuperClass
+ch.ehi.fme.Main_1_INHERITANCE_MAPPING "$(ch.ehi.fme.Main_IN_INHERITANCE_MAPPING_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_INHERITANCE_MAPPING_ch.ehi.fme.Main_1 SuperClass%SubClass Inheritance Mapping Strategy:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_TRIM_VALUES_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_TRIM_VALUES "$(ch.ehi.fme.Main_IN_TRIM_VALUES_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_TRIM_VALUES_ch.ehi.fme.Main_1 Yes%No Trim Values:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_ILI1_ADDDEFVAL_ch.ehi.fme.Main_1 No
+ch.ehi.fme.Main_1_ILI1_ADDDEFVAL "$(ch.ehi.fme.Main_IN_ILI1_ADDDEFVAL_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_ILI1_ADDDEFVAL_ch.ehi.fme.Main_1 Yes%No ITF Add Default Values:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_ILI1_RENUMBERTID_ch.ehi.fme.Main_1 No
+ch.ehi.fme.Main_1_ILI1_RENUMBERTID "$(ch.ehi.fme.Main_IN_ILI1_RENUMBERTID_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_ILI1_RENUMBERTID_ch.ehi.fme.Main_1 Yes%No ITF Renumber TIDs:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_ILI1_ENUMASITFCODE_ch.ehi.fme.Main_1 No
+ch.ehi.fme.Main_1_ILI1_ENUMASITFCODE "$(ch.ehi.fme.Main_IN_ILI1_ENUMASITFCODE_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_ILI1_ENUMASITFCODE_ch.ehi.fme.Main_1 Yes%No ITF Read enum Values as Code:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_CREATEFEATURETYPE4ENUM_ch.ehi.fme.Main_1 No
+ch.ehi.fme.Main_1_CREATEFEATURETYPE4ENUM "$(ch.ehi.fme.Main_IN_CREATEFEATURETYPE4ENUM_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_CREATEFEATURETYPE4ENUM_ch.ehi.fme.Main_1 No%SingleType%OneTypePerEnumDef Create Feature Types for Enumerations:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_HTTP_PROXYHOST_ch.ehi.fme.Main_1 
+ch.ehi.fme.Main_1_HTTP_PROXYHOST "$(ch.ehi.fme.Main_IN_HTTP_PROXYHOST_ch.ehi.fme.Main_1)"
+GUI OPTIONAL TEXT ch.ehi.fme.Main_IN_HTTP_PROXYHOST_ch.ehi.fme.Main_1 http Proxy Host:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_HTTP_PROXYPORT_ch.ehi.fme.Main_1 
+ch.ehi.fme.Main_1_HTTP_PROXYPORT "$(ch.ehi.fme.Main_IN_HTTP_PROXYPORT_ch.ehi.fme.Main_1)"
+GUI OPTIONAL TEXT ch.ehi.fme.Main_IN_HTTP_PROXYPORT_ch.ehi.fme.Main_1 http Proxy Port:
+DEFAULT_MACRO ch.ehi.fme.Main_IN_TRACEMSGS_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_TRACEMSGS "$(ch.ehi.fme.Main_IN_TRACEMSGS_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_IN_TRACEMSGS_ch.ehi.fme.Main_1 Yes%No Enable Trace Messages:
+# ===========================================================================
+DEFAULT_MACRO ch.ehi.fme.Main_IN_NETWORK_AUTHENTICATION_ch.ehi.fme.Main_1 
+ch.ehi.fme.Main_1_NETWORK_AUTHENTICATION "$(ch.ehi.fme.Main_IN_NETWORK_AUTHENTICATION_ch.ehi.fme.Main_1)"
+GUI OPTIONAL AUTHENTICATOR ch.ehi.fme.Main_IN_NETWORK_AUTHENTICATION_ch.ehi.fme.Main_1 CONTAINER%GROUP%CONTAINER_TITLE%"Network Authentication"%PROMPT_TYPE%NETWORK Network Authentication
+# ============================================================================ 
+DEFAULT_MACRO ch.ehi.fme.Main_IN_ATTRIBUTE_READING_ch.ehi.fme.Main_1 ALL
+ch.ehi.fme.Main_1_ATTRIBUTE_READING "$(ch.ehi.fme.Main_IN_ATTRIBUTE_READING_ch.ehi.fme.Main_1)"
+# ============================================================================ 
+ch.ehi.fme.Main_1_GENERATE_FME_BUILD_NUM 20827
+#! END_SOURCE_HEADER
+#! START_WB_HEADER
+DEFAULT_MACRO SourceDataset
+INCLUDE [ if {{$(SourceDataset)} != ""} {                        \
+ puts {DEFAULT_MACRO SourceDataset_ch.ehi.fme.Main_1 $(SourceDataset)}     \
+ } ]
+#! END_WB_HEADER
+#! START_SOURCE_HEADER ch.ehi.fme.Main ch.ehi.fme.Main_1
+DEFAULT_MACRO SourceDataset_ch.ehi.fme.Main_1 $(SourceDataset_ch.ehi.fme.Main)
+ch.ehi.fme.Main_1_DATASET "$(SourceDataset_ch.ehi.fme.Main_1)"
+#! END_SOURCE_HEADER
+#! START_WB_HEADER
+MACRO WB_KEYWORD "ch.ehi.fme.Main_2"
+#! END_WB_HEADER
+#! START_DEST_HEADER ch.ehi.fme.Main ch.ehi.fme.Main_2
+# ============================================================================
+# The following GUI line prompts for a file to be used as the
+# the destination for the INTERLIS 2 data.
+#! END_DEST_HEADER
+#! START_WB_HEADER
+DEFAULT_MACRO DestDataset
+INCLUDE [ if {"$(DestDataset)" != ""} {                          \
+ puts {DEFAULT_MACRO DestDataset_ch.ehi.fme.Main_2 $(DestDataset)}         \
+ } ]
+#! END_WB_HEADER
+#! START_DEST_HEADER ch.ehi.fme.Main ch.ehi.fme.Main_2
+DEFAULT_MACRO DestDataset_ch.ehi.fme.Main_2 $(DestDataset_ch.ehi.fme.Main)
+GUI FILENAME DestDataset_ch.ehi.fme.Main_2 INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_GML_FILES(*.gml)|*.gml|All_Files|*.* Destination INTERLIS File:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_FME_GROUP_NAMED1_ch.ehi.fme.Main_2 FME_DISCLOSURE_OPEN
+GUI OPTIONAL DISCLOSUREGROUP ch.ehi.fme.Main_OUT_FME_GROUP_NAMED1_ch.ehi.fme.Main_2 ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_VALIDATE_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_VALIDATE_CONFIG_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_META_CONFIG_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_TRIM_VALUES_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_2%ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_2 Writer Parameters
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_2 %DATA
+ch.ehi.fme.Main_2_MODELS "$(ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_2)"
+GUI TEXT ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_2 Models:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_2 repos
+ch.ehi.fme.Main_2_MODEL_DIR "$(ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_2)"
+GUI TEXT ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_2 Models directory:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_2 Yes
+ch.ehi.fme.Main_2_CHECK_UNIQUEOID "$(ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_2 Yes%No Check TID/OID Uniqueness:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_VALIDATE_ch.ehi.fme.Main_2 Yes
+ch.ehi.fme.Main_2_VALIDATE "$(ch.ehi.fme.Main_OUT_VALIDATE_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_VALIDATE_ch.ehi.fme.Main_2 Yes%No Validate:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_2 Yes
+ch.ehi.fme.Main_2_VALIDATE_MULTIPLICITY "$(ch.ehi.fme.Main_OUT_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_VALIDATE_MULTIPLICITY_ch.ehi.fme.Main_2 Yes%No Validate Attribute/Role Multiplicity:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_VALIDATE_CONFIG_ch.ehi.fme.Main_2 
+ch.ehi.fme.Main_2_VALIDATE_CONFIG "$(ch.ehi.fme.Main_OUT_VALIDATE_CONFIG_ch.ehi.fme.Main_2)"
+GUI OPTIONAL FILENAME ch.ehi.fme.Main_OUT_VALIDATE_CONFIG_ch.ehi.fme.Main_2 ilivalidator_Configuration_Files(*.ini)|*.ini|All_Files|*.* Validator Configuration:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_META_CONFIG_ch.ehi.fme.Main_2 ilidata:163d16de-83df-4d84-8039-256f2261e226
+ch.ehi.fme.Main_2_META_CONFIG "$(ch.ehi.fme.Main_OUT_META_CONFIG_ch.ehi.fme.Main_2)"
+GUI OPTIONAL FILENAME ch.ehi.fme.Main_OUT_META_CONFIG_ch.ehi.fme.Main_2 Meta_Configuration_Files(*.ini)|*.ini|All_Files|*.* Meta Configuration:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_2 SuperClass
+ch.ehi.fme.Main_2_INHERITANCE_MAPPING "$(ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_2 SuperClass%SubClass Inheritance Mapping Strategy:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_2 FMEBIN
+ch.ehi.fme.Main_2_GEOMETRY_ENCODING "$(ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_2 FMEXML%FMEBIN%FMEHEXBIN%OGCHEXBIN Geometry Encoding:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_TRIM_VALUES_ch.ehi.fme.Main_2 Yes
+ch.ehi.fme.Main_2_TRIM_VALUES "$(ch.ehi.fme.Main_OUT_TRIM_VALUES_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_TRIM_VALUES_ch.ehi.fme.Main_2 Yes%No Trim Values:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_2 No
+ch.ehi.fme.Main_2_USE_LINETABLES "$(ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_2 Yes%No Use Linetables:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_2 
+ch.ehi.fme.Main_2_HTTP_PROXYHOST "$(ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_2)"
+GUI OPTIONAL TEXT ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_2 http Proxy Host:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_2 
+ch.ehi.fme.Main_2_HTTP_PROXYPORT "$(ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_2)"
+GUI OPTIONAL TEXT ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_2 http Proxy Port:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_2 No
+ch.ehi.fme.Main_2_TRACEMSGS "$(ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_2)"
+GUI CHOICE ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_2 Yes%No Enable Trace Messages:
+# ============================================================================ 
+ch.ehi.fme.Main_2_GENERATE_FME_BUILD_NUM 20827
+ch.ehi.fme.Main_2_DATASET "$(DestDataset_ch.ehi.fme.Main_2)"
+#! END_DEST_HEADER
+#! START_WB_HEADER
+#! END_WB_HEADER
+#! END_HEADER
+
+LOG_FILENAME "$(FME_MF_DIR)MetaConfigTest.log"
+LOG_APPEND NO
+FME_DEBUG MAPPING_FILE BADNEWS FME_STACK_TRACE UNGROUPED UNCORRELATED DUMP_SCHEMA XSD_VERBOSE HTTP_DEBUG FTP_DEBUG FME_DEBUG STASH
+LOG_FILTER_MASK -1
+LOG_MAX_FEATURES 200
+LOG_MAX_RECORDED_FEATURES 200
+FME_REPROJECTION_ENGINE FME
+FME_IMPLICIT_CSMAP_REPROJECTION_MODE Auto
+FME_GEOMETRY_HANDLING Enhanced
+FME_STROKE_MAX_DEVIATION 0
+DEFAULT_MACRO DATASET_KEYWORD_ch.ehi.fme.Main_1 ch.ehi.fme.Main_1
+DEFAULT_MACRO DATASET_KEYWORD_ch.ehi.fme.Main_2 ch.ehi.fme.Main_2
+# -------------------------------------------------------------------------
+
+ch.ehi.fme.Main_1_READER_META_ATTRIBUTES fme_feature_type
+
+# -------------------------------------------------------------------------
+
+MULTI_READER_CONTINUE_ON_READER_FAILURE No
+
+# -------------------------------------------------------------------------
+
+MACRO WORKSPACE_NAME MetaConfigTest
+MACRO FME_VIEWER_APP fmedatainspector
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF ExtRef23.TestA.ClassA1   xtf_id                       xtf_char(200)   a                            xtf_char(200)
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF XTF_DELETEOBJECT   xtf_id                       xtf_char(200)
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF XTF_TRANSFER   oidspace{}.name              xtf_char(255)   oidspace{}.oiddomain         xtf_char(255)   comment                      xtf_char(255)
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF XTF_ERRORS   message                      xtf_char(255)   iliname                      xtf_char(255)   tid{}                        xtf_char(200)
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF XTF_BASKETS   xtf_topic                    xtf_char(34)   xtf_id                       xtf_char(200)   xtf_startstate               xtf_char(250)   xtf_endstate                 xtf_char(250)
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF ExtRef23.TestA.ClassA2   xtf_id                       xtf_char(200)   attrA2                       xtf_char(60)
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * RoutingFactory   FACTORY_NAME "Router and Unexpected Input Remover"   COMMAND_PARM_EVALUATION SINGLE_PASS   MULTI_READER_KEYWORD $(DATASET_KEYWORD_ch.ehi.fme.Main_1)   INPUT FEATURE_TYPE *    ROUTE ch.ehi.fme.Main ch.ehi.fme.Main_1::ExtRef23.TestA.ClassA1 multi_reader_keyword,$(DATASET_KEYWORD_ch.ehi.fme.Main_1) TO FME_GENERIC ::ExtRef23.TestA.ClassA1 ALIAS_GEOMETRY    ROUTE ch.ehi.fme.Main ch.ehi.fme.Main_1::XTF_DELETEOBJECT multi_reader_keyword,$(DATASET_KEYWORD_ch.ehi.fme.Main_1) TO FME_GENERIC ::XTF_DELETEOBJECT ALIAS_GEOMETRY    ROUTE ch.ehi.fme.Main ch.ehi.fme.Main_1::XTF_TRANSFER multi_reader_keyword,$(DATASET_KEYWORD_ch.ehi.fme.Main_1) TO FME_GENERIC ::XTF_TRANSFER ALIAS_GEOMETRY    ROUTE ch.ehi.fme.Main ch.ehi.fme.Main_1::XTF_ERRORS multi_reader_keyword,$(DATASET_KEYWORD_ch.ehi.fme.Main_1) TO FME_GENERIC ::XTF_ERRORS ALIAS_GEOMETRY    ROUTE ch.ehi.fme.Main ch.ehi.fme.Main_1::XTF_BASKETS multi_reader_keyword,$(DATASET_KEYWORD_ch.ehi.fme.Main_1) TO FME_GENERIC ::XTF_BASKETS ALIAS_GEOMETRY    ROUTE ch.ehi.fme.Main ch.ehi.fme.Main_1::ExtRef23.TestA.ClassA2 multi_reader_keyword,$(DATASET_KEYWORD_ch.ehi.fme.Main_1) TO FME_GENERIC ::ExtRef23.TestA.ClassA2 ALIAS_GEOMETRY    MERGE_INPUT Yes   OUTPUT ROUTED FEATURE_TYPE *
+ch.ehi.fme.Main_1_MERGE_DEF ch.ehi.fme.Main_1::ExtRef23.TestA.ClassA1 EXACT ExtRef23.TestA.ClassA1
+ch.ehi.fme.Main_1_MERGE_DEF ch.ehi.fme.Main_1::XTF_DELETEOBJECT EXACT XTF_DELETEOBJECT
+ch.ehi.fme.Main_1_MERGE_DEF ch.ehi.fme.Main_1::XTF_TRANSFER EXACT XTF_TRANSFER
+ch.ehi.fme.Main_1_MERGE_DEF ch.ehi.fme.Main_1::XTF_ERRORS EXACT XTF_ERRORS
+ch.ehi.fme.Main_1_MERGE_DEF ch.ehi.fme.Main_1::XTF_BASKETS EXACT XTF_BASKETS
+ch.ehi.fme.Main_1_MERGE_DEF ch.ehi.fme.Main_1::ExtRef23.TestA.ClassA2 EXACT ExtRef23.TestA.ClassA2
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory    FACTORY_NAME "XTF_TRANSFER_ch.ehi.fme.Main_1 Splitter"    INPUT FEATURE_TYPE XTF_TRANSFER
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory    FACTORY_NAME "XTF_BASKETS_ch.ehi.fme.Main_1 Splitter"    INPUT FEATURE_TYPE XTF_BASKETS    OUTPUT FEATURE_TYPE XTF_BASKETS_ch.ehi.fme.Main_1
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory    FACTORY_NAME "XTF_DELETEOBJECT_ch.ehi.fme.Main_1 Splitter"    INPUT FEATURE_TYPE XTF_DELETEOBJECT
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory    FACTORY_NAME "XTF_ERRORS_ch.ehi.fme.Main_1 Splitter"    INPUT FEATURE_TYPE XTF_ERRORS
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory    FACTORY_NAME "ExtRef23.TestA.ClassA2_ch.ehi.fme.Main_1 Splitter"    INPUT FEATURE_TYPE ExtRef23.TestA.ClassA2    OUTPUT FEATURE_TYPE ExtRef23.TestA.ClassA2_ch.ehi.fme.Main_1
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory    FACTORY_NAME "ExtRef23.TestA.ClassA1_ch.ehi.fme.Main_1 Splitter"    INPUT FEATURE_TYPE ExtRef23.TestA.ClassA1    OUTPUT FEATURE_TYPE ExtRef23.TestA.ClassA1_ch.ehi.fme.Main_1
+DEFAULT_MACRO WB_CURRENT_CONTEXT
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * RoutingFactory FACTORY_NAME "Destination Feature Type Routing Correlator"   COMMAND_PARM_EVALUATION SINGLE_PASS   INPUT FEATURE_TYPE *    ROUTE FME_GENERIC ExtRef23.TestA.ClassA1_ch.ehi.fme.Main_1 TO ch.ehi.fme.Main __GO_TO_FINAL_OUTPUT_ROUTER__ multi_writer_id,0,<at>SupplyAttributes<openparen>ENCODED<comma>__wb_out_feat_type__<comma>ExtRef23.TestA.ClassA1<closeparen> GEOMETRY    ROUTE FME_GENERIC ExtRef23.TestA.ClassA2_ch.ehi.fme.Main_1 TO ch.ehi.fme.Main __GO_TO_FINAL_OUTPUT_ROUTER__ multi_writer_id,0,<at>SupplyAttributes<openparen>ENCODED<comma>__wb_out_feat_type__<comma>ExtRef23.TestA.ClassA2<closeparen> GEOMETRY    ROUTE FME_GENERIC XTF_BASKETS_ch.ehi.fme.Main_1 TO ch.ehi.fme.Main __GO_TO_FINAL_OUTPUT_ROUTER__ multi_writer_id,0,<at>SupplyAttributes<openparen>ENCODED<comma>__wb_out_feat_type__<comma>XTF_BASKETS<closeparen> GEOMETRY   FEATURE_TYPE_ATTRIBUTE __wb_out_feat_type__   OUTPUT ROUTED FEATURE_TYPE *    OUTPUT NOT_ROUTED FEATURE_TYPE __nuke_me__ @Tcl2("FME_StatMessage 818059 [FME_GetAttribute fme_template_feature_type] 818060 818061 fme_warn")
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory   FACTORY_NAME "Final Output Nuker"   INPUT FEATURE_TYPE __nuke_me__
+
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_2_DEF ExtRef23.TestA.ClassA1   xtf_id                       xtf_char(200)   a                            xtf_char(200)
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_2_DEF XTF_BASKETS   xtf_topic                    xtf_char(34)   xtf_id                       xtf_char(200)   xtf_startstate               xtf_char(250)   xtf_endstate                 xtf_char(250)
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_2_DEF ExtRef23.TestA.ClassA2   xtf_id                       xtf_char(200)   attrA2                       xtf_char(60)
