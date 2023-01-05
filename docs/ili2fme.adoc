@@ -5,7 +5,7 @@ include::overview-inc.adoc[]
 
 An alternative guide can be found https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html[here].
 
-This documentation describes version 7.0.x of ili2fme. The current
+This documentation describes version 7.2.x of ili2fme. The current
 version of ili2fme is available at
 http://www.ili2fme.ch/.
 

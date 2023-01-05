@@ -37,9 +37,17 @@ Validate Attribute/Role Multiplicity::
 	No::: It will bypass this validation.
 
 Validator Configuration::
-An ilivalidator configuration file to fine tune the validation. See
+An ilivalidator configuration file to fine tune the validation. 
+The value could also be in the form ``ilidata:DatesetId`` 
+then the file will be downloaded from the repositories.
+See
 https://github.com/claeis/ilivalidator/blob/master/docs/ilivalidator.rst#konfiguration
 for further information.
+
+Meta Configuration::
+A meta configuration file to setup ili2fme. 
+The value could also be in the form ``ilidata:DatesetId`` 
+then the file will be downloaded from the repositories.
 
 ITF Ignore Polygon Building Errors::
 This setting is independent of an enabled or disabled validation 
@@ -184,9 +192,17 @@ values/references.
 No::: It will bypass this validation.
 
 Validator Configuration::
-An ilivalidator configuration file to fine tune the validation. See
+An ilivalidator configuration file to fine tune the validation. 
+The value could also be in the form ``ilidata:DatesetId`` 
+then the file will be downloaded from the repositories.
+See
 https://github.com/claeis/ilivalidator/blob/master/docs/ilivalidator.rst#konfiguration
 for further information.
+
+Meta Configuration::
+A meta configuration file to setup ili2fme. 
+The value could also be in the form ``ilidata:DatesetId`` 
+then the file will be downloaded from the repositories.
 
 Inheritance Mapping Strategy::
 Applies only to INTERLIS 2 datasets.
@@ -233,6 +249,37 @@ Controls the level of detail of log messages written out.
 Yes::: Detailed progress messages will be written to the log.
 No::: Only normal progress messages will be written to the log.
 
+== Meta Configuration
+
+The following parameters are supported in the meta configuration file.
+
+|===
+| Configuration  | Example | Description
+
+| baseConfig                      
+|   [CONFIGURATION]
+baseConfig=ilidata:DatesetId  
+| Base meta-configuration on which the current meta-configuration is built.
+Instead of ``ilidata:DatesetId``, the form ``file:/localfile`` can also be 
+used, in which case the corresponding local file is used.
+Several base configurations are separated with a semicolon ";".
+
+| org.interlis2.validator.config  
+|   [CONFIGURATION]
+org.interlis2.validator.config=ilidata:DatesetId  
+| Validation configuration to be used.
+Instead of ``ilidata:DatesetId``, the form ``file:/localfile`` can also be 
+used, in which case the corresponding local file will be used.
+Multiple validation configurations are separated with a semicolon ";".
+
+|===
+
+Example of a meta configuration file:
+
+----
+[CONFIGURATION]
+org.interlis2.validator.config=ilidata:70340b5a-248c-4216-86e4-32e6a540d629
+----    
 
 == Feature Representation
 

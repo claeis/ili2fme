@@ -17,6 +17,12 @@
  */
 package ch.ehi.fme;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
+
 import COM.safe.fme.pluginbuilder.IFMEMappingFile;
 import COM.safe.fme.pluginbuilder.IFMEReader;
 import COM.safe.fme.pluginbuilder.IFMEReaderCreator;
@@ -27,9 +33,14 @@ import COM.safe.fmeobjects.IFMELogFile;
 import COM.safe.fmeobjects.IFMESession;
 
 import ch.ehi.basics.logging.EhiLogger;
+import ch.ehi.basics.settings.Settings;
+import ch.ehi.basics.types.OutParam;
 import ch.interlis.ili2fme.FmeLogListener;
 import ch.interlis.ili2fme.Ili2Reader;
 import ch.interlis.ili2fme.Ili2Writer;
+import ch.interlis.iox_j.inifile.IniFileReader;
+import ch.interlis.iox_j.inifile.MetaConfig;
+import ch.interlis.iox_j.validator.ValidationConfig;
 
 /** Factory called by FME to create the reader/writer.
  * @author ce
@@ -42,6 +53,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String MODEL_DIR="MODEL_DIR";
 	static public final String CREATE_LINETABLES="CREATE_LINETABLES";
     static public final String ILI1_LINETABLES="ILI1_LINETABLES"; // Polygon%Raw%Polygon+Raw
+    static public final String META_CONFIG="META_CONFIG";
     static public final String VALIDATE="VALIDATE";
     static public final String VALIDATE_MULTIPLICITY="VALIDATE_MULTIPLICITY";
     static public final String VALIDATE_CONFIG="VALIDATE_CONFIG";
@@ -109,6 +121,8 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String DELETE_TAG="DELETE";
 	// name of jar file
 	static public final String ILI2FME_JAR="ili2fme.jar";
+    public static final String SETTING_REFERENCE_DATA = "ch.ehi.ili2fme.refernceData";
+    public static final String SETTING_VALIDATION_CONFIG = "ch.ehi.ili2fme.validationConfig";
 	public IFMEReader createReader(IFMEMappingFile mappingFile,
 			IFMELogFile logFile,
 			IFMECoordSysManager coordSysMan,
@@ -164,7 +178,29 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 		}
 		return ret;
 	}
-	private static String version=null;
+	public static Settings readMetaConfig(File metaConfigFile, OutParam<String> baseConfig) throws IOException, ParseException {
+        Settings settings=new Settings();
+        ValidationConfig metaConfig = IniFileReader.readFile(metaConfigFile);
+        baseConfig.value=metaConfig.getConfigValue(MetaConfig.CONFIGURATION, MetaConfig.CONFIG_BASE_CONFIG);
+        String referenceData=metaConfig.getConfigValue(MetaConfig.CONFIGURATION, MetaConfig.CONFIG_REFERENCE_DATA);
+        settings.setValue(SETTING_REFERENCE_DATA,referenceData);
+        String validConfig=metaConfig.getConfigValue(MetaConfig.CONFIGURATION, MetaConfig.CONFIG_VALIDATOR_CONFIG);
+        settings.setValue(SETTING_VALIDATION_CONFIG,validConfig);
+        return settings;
+    }
+
+    public static java.util.Map<String,String> getPathMap(String xtffile,String appHome)
+    {
+        java.util.HashMap<String,String> pathMap=new java.util.HashMap<String,String>();
+        if(xtffile!=null){
+            pathMap.put(XTFDIR_PLACEHOLDER,new java.io.File(xtffile).getAbsoluteFile().getParent());
+        }else{
+            pathMap.put(XTFDIR_PLACEHOLDER,null);
+        }
+        //pathMap.put(Ili2cSettings.JAR_DIR,appHome);
+        return pathMap;
+    }
+    private static String version=null;
 
     public static String getVersion() {
         if (version == null) {
