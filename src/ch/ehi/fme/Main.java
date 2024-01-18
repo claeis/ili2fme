@@ -87,9 +87,12 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String XTF_ID="xtf_id";
 	static public final String XTF_BASKET="xtf_basket";
 	static public final String XTF_TOPIC="xtf_topic";
-	static public final String XTF_STARTSTATE="xtf_startstate";
-	static public final String XTF_ENDSTATE="xtf_endstate";
-	static public final String XTF_CONSISTENCY="xtf_consistency";
+	static public final String XTF_BASKETS_STARTSTATE="xtf_startstate";
+	static public final String XTF_BASKETS_ENDSTATE="xtf_endstate";
+	static public final String XTF_BASKETS_CONSISTENCY="xtf_consistency";
+	static public final String XTF_BASKETS_DOMAINS="xtf_domains";
+    static public final String XTF_BASKETS_DOMAINS_GENERIC="generic";
+    static public final String XTF_BASKETS_DOMAINS_CONCRETE="concrete";
 	static public final String XTF_CLASS="xtf_class";
 	static public final String XTF_GEOMATTR="xtf_geomattr";
 	static public final String XTF_GEOMTYPE="xtf_geomtype";
@@ -111,8 +114,9 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	// xtf types
 	static public final String ID_TYPE="xtf_char(200)";
 	static public final String ILINAME_TYPE="xtf_char(255)";
-	static public final String STATE_TYPE="xtf_char(250)";
-	static public final String CONSISTENCY_TYPE="xtf_char(12)";
+	static public final String XTF_BASKETS_STATE_TYPE="xtf_char(250)";
+	static public final String XTF_BASKETS_CONSISTENCY_TYPE="xtf_char(12)";
+	static public final String XTF_BASKETS_DOMAINS_TYPE="xtf_char(250)";
 	static public final String OPERATION_TYPE="xtf_char(6)";
 	static public final String XTF_ENUMITFCODE_TYPE="xtf_int16";
 	static public final String XTF_ENUMSEQ_TYPE="xtf_int16";

@@ -568,6 +568,15 @@ incremental transfer.
 
 |xtf_consistency |Only used for somehow modified data. Not yet fully
 supported.
+
+|xtf_domains{} | List of assignments from generic to concrete coord domain names.
+
+|xtf_domains{}.generic | Qualified name of an INTERLIS 2 generic coord 
+domain. In the figure above would `MultiCrs24.Coord` be a possible value.
+
+|xtf_domains{}.concrete | Qualified name of an INTERLIS 2 concrete coord 
+domain. In the figure
+above would `MultiCrs24.Coord_LV03` be a possible value.
 |===
 
 ==== XTF_DELETEOBJECT

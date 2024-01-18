@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.HashSet;
 import java.util.HashMap;
@@ -1018,15 +1019,29 @@ public class Ili2Reader implements IFMEReader {
 		ret.setStringAttribute(Main.XTF_ID,be.getBid());
 		String startState=be.getStartstate();
 		if(startState!=null){
-			ret.setStringAttribute(Main.XTF_STARTSTATE,startState);
+			ret.setStringAttribute(Main.XTF_BASKETS_STARTSTATE,startState);
 		}
 		String endState=be.getEndstate();
 		if(endState!=null){
-			ret.setStringAttribute(Main.XTF_ENDSTATE,endState);
+			ret.setStringAttribute(Main.XTF_BASKETS_ENDSTATE,endState);
 		}
 		String consistency=FmeUtility.mapIox2FmeConsistency(be.getConsistency());
 		if(consistency!=null){
-			ret.setStringAttribute(Main.XTF_CONSISTENCY,consistency);
+			ret.setStringAttribute(Main.XTF_BASKETS_CONSISTENCY,consistency);
+		}
+		if(be instanceof ch.interlis.iox_j.StartBasketEvent) {
+	        java.util.Map<String,String> domains=((ch.interlis.iox_j.StartBasketEvent)be).getDomains();
+	        if(domains!=null && domains.size()>0){
+	            List<String> keys=new ArrayList<String>(domains.keySet());
+	            Collections.sort(keys);
+	            int idx=0;
+	            for(String genericDomain:keys) {
+	                String concreteDomain=domains.get(genericDomain);
+	                ret.setStringAttribute(Main.XTF_BASKETS_DOMAINS+"{"+idx+"}."+Main.XTF_BASKETS_DOMAINS_GENERIC,genericDomain);
+                    ret.setStringAttribute(Main.XTF_BASKETS_DOMAINS+"{"+idx+"}."+Main.XTF_BASKETS_DOMAINS_CONCRETE,concreteDomain);
+                    idx++;
+	            }
+	        }
 		}
 	}
 	private IFMEFeature mapFeature(IFMEFeature ret,IomObject iomObj,String prefix,ArrayList<String> geomAttrsCollector)
@@ -1066,7 +1081,7 @@ public class Ili2Reader implements IFMEReader {
 			if(formatMode==MODE_XTF){
 				String consistency=FmeUtility.mapIox2FmeConsistency(iomObj.getobjectconsistency());
 				if(consistency!=null){
-					ret.setStringAttribute(Main.XTF_CONSISTENCY,consistency);
+					ret.setStringAttribute(Main.XTF_BASKETS_CONSISTENCY,consistency);
 				}
 				String operation=FmeUtility.mapIox2FmeOperation(iomObj.getobjectoperation());
 				if(operation!=null){
@@ -1622,9 +1637,11 @@ public class Ili2Reader implements IFMEReader {
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_TOPIC,getIliQNameType());
 				ret.setSequencedAttribute(Main.XTF_ID,Main.ID_TYPE);
-				ret.setSequencedAttribute(Main.XTF_STARTSTATE,Main.STATE_TYPE);
-				ret.setSequencedAttribute(Main.XTF_ENDSTATE,Main.STATE_TYPE);
-				ret.setSequencedAttribute(Main.XTF_CONSISTENCY,Main.CONSISTENCY_TYPE);
+				ret.setSequencedAttribute(Main.XTF_BASKETS_STARTSTATE,Main.XTF_BASKETS_STATE_TYPE);
+				ret.setSequencedAttribute(Main.XTF_BASKETS_ENDSTATE,Main.XTF_BASKETS_STATE_TYPE);
+				ret.setSequencedAttribute(Main.XTF_BASKETS_CONSISTENCY,Main.XTF_BASKETS_CONSISTENCY_TYPE);
+                ret.setSequencedAttribute(Main.XTF_BASKETS_DOMAINS+"{}."+Main.XTF_BASKETS_DOMAINS_GENERIC,Main.XTF_BASKETS_DOMAINS_TYPE);
+                ret.setSequencedAttribute(Main.XTF_BASKETS_DOMAINS+"{}."+Main.XTF_BASKETS_DOMAINS_CONCRETE,Main.XTF_BASKETS_DOMAINS_TYPE);
 				formatFeatureTypeIdx++;
 				return ret;	
 			}
