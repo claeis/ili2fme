@@ -236,6 +236,9 @@ public class GeometryConverter {
 			if (fmeGeom instanceof IFMEMultiCurve) {
 				IomObject multipolyline = Fme2iox.FME2multipolyline(session, (IFMEMultiCurve) fmeGeom);
 				target.addattrobj(targetAttr, multipolyline);
+            } else if (fmeGeom instanceof IFMECurve) {
+                IomObject multipolyline = Fme2iox.FME2multipolyline(session, (IFMECurve) fmeGeom);
+                target.addattrobj(targetAttr, multipolyline);
 			} else if (fmeGeom instanceof IFMENull) {
 				// skip it
 			} else {
@@ -278,6 +281,9 @@ public class GeometryConverter {
 			if (fmeGeom instanceof IFMEMultiArea) {
 				IomObject surface = Fme2iox.FME2multisurface(session, (IFMEMultiArea) fmeGeom);
 				target.addattrobj(targetAttr, surface);
+            } else if (fmeGeom instanceof IFMEArea) {
+                IomObject surface = Fme2iox.FME2multisurface(session, (IFMEArea) fmeGeom);
+                target.addattrobj(targetAttr, surface);
 			} else if (fmeGeom instanceof IFMENull) {
 				// skip it
 			} else {
@@ -321,7 +327,10 @@ public class GeometryConverter {
 		IFMEGeometry fmeGeom = null;
 		try {
 			fmeGeom = getGeometry(src, srcAttr);
-			if (fmeGeom instanceof IFMEPoint) {
+            if (fmeGeom instanceof IFMEMultiPoint){
+                IomObject multicoord = Fme2iox.FME2multicoord((IFMEMultiPoint) fmeGeom);
+                target.addattrobj(targetAttr, multicoord);
+            }else if (fmeGeom instanceof IFMEPoint) {
 				IomObject coord = Fme2iox.FME2coord((IFMEPoint) fmeGeom);
 				IomObject multicoord = new ch.interlis.iom_j.Iom_jObject("MULTICOORD",null);
 				multicoord.addattrobj("coord", coord);

@@ -1238,12 +1238,12 @@ public class Ili2Writer implements IFMEWriter {
 				EhiLogger.traceState("basket topic <"+topic+">, id <"+basketId+">");
 				ch.interlis.iox_j.StartBasketEvent basket=new ch.interlis.iox_j.StartBasketEvent(topic,basketId);
 				String startState=null;
-				if(obj.attributeExists(Main.XTF_STARTSTATE)){
-					startState=ch.ehi.basics.tools.StringUtility.purge(obj.getStringAttribute(Main.XTF_STARTSTATE));
+				if(obj.attributeExists(Main.XTF_BASKETS_STARTSTATE)){
+					startState=ch.ehi.basics.tools.StringUtility.purge(obj.getStringAttribute(Main.XTF_BASKETS_STARTSTATE));
 				}
 				String endState=null;
-				if(obj.attributeExists(Main.XTF_ENDSTATE)){
-					endState=ch.ehi.basics.tools.StringUtility.purge(obj.getStringAttribute(Main.XTF_ENDSTATE));
+				if(obj.attributeExists(Main.XTF_BASKETS_ENDSTATE)){
+					endState=ch.ehi.basics.tools.StringUtility.purge(obj.getStringAttribute(Main.XTF_BASKETS_ENDSTATE));
 				}
 				basket.setKind(IomConstants.IOM_FULL);
 				if(endState!=null){
@@ -1255,10 +1255,22 @@ public class Ili2Writer implements IFMEWriter {
 						basket.setKind(IomConstants.IOM_UPDATE);
 					}
 				}
-				if(obj.attributeExists(Main.XTF_CONSISTENCY)){
-					int consistency=FmeUtility.mapFme2IoxConsistency(obj.getStringAttribute(Main.XTF_CONSISTENCY));
+				if(obj.attributeExists(Main.XTF_BASKETS_CONSISTENCY)){
+					int consistency=FmeUtility.mapFme2IoxConsistency(obj.getStringAttribute(Main.XTF_BASKETS_CONSISTENCY));
 					basket.setConsistency(consistency);
 				}
+                if(obj.attributeExists(Main.XTF_BASKETS_DOMAINS+"{0}."+Main.XTF_BASKETS_DOMAINS_GENERIC)){
+                    int idx=0;
+                    java.util.Map<String,String> domains=new HashMap<String,String>();
+                    while(obj.attributeExists(Main.XTF_BASKETS_DOMAINS+"{"+idx+"}."+Main.XTF_BASKETS_DOMAINS_GENERIC)) {
+                        String genericDomain=obj.getStringAttribute(Main.XTF_BASKETS_DOMAINS+"{"+idx+"}."+Main.XTF_BASKETS_DOMAINS_GENERIC);
+                        String concreteDomain=obj.getStringAttribute(Main.XTF_BASKETS_DOMAINS+"{"+idx+"}."+Main.XTF_BASKETS_DOMAINS_CONCRETE);
+                        if(genericDomain.length()>0) {
+                            basket.addDomain(genericDomain, concreteDomain);
+                        }
+                        idx++;
+                    }
+                }
 				basketv.put(basketId,basket);
 			}
 		}
@@ -1374,8 +1386,8 @@ public class Ili2Writer implements IFMEWriter {
 			}
 		}
 		if(formatMode==MODE_XTF){
-			if(obj.attributeExists(Main.XTF_CONSISTENCY)){
-				int consistency=FmeUtility.mapFme2IoxConsistency(getStringAttribute(obj, Main.XTF_CONSISTENCY));
+			if(obj.attributeExists(Main.XTF_BASKETS_CONSISTENCY)){
+				int consistency=FmeUtility.mapFme2IoxConsistency(getStringAttribute(obj, Main.XTF_BASKETS_CONSISTENCY));
 				iomObj.setobjectconsistency(consistency);
 			}
 			if(obj.attributeExists(Main.XTF_OPERATION)){
@@ -1530,6 +1542,9 @@ public class Ili2Writer implements IFMEWriter {
 					if (fmeGeom instanceof IFMEMultiCurve) {
 						IomObject polyline = Fme2iox.FME2multipolyline(session, (IFMEMultiCurve) fmeGeom);
 						iomObj.addattrobj(attrName, polyline);
+					}else if (fmeGeom instanceof IFMECurve) {
+                        IomObject polyline = Fme2iox.FME2multipolyline(session, (IFMECurve) fmeGeom);
+                        iomObj.addattrobj(attrName, polyline);
 					} else if (fmeGeom instanceof IFMENull) {
 						// skip it
 					} else {
@@ -1636,6 +1651,9 @@ public class Ili2Writer implements IFMEWriter {
 					if (fmeGeom instanceof IFMEMultiArea) {
 						IomObject surface = Fme2iox.FME2multisurface(session, (IFMEMultiArea) fmeGeom);
 						iomObj.addattrobj(attrName, surface);
+					}else if (fmeGeom instanceof IFMEArea) {
+                            IomObject surface = Fme2iox.FME2multisurface(session, (IFMEArea) fmeGeom);
+                            iomObj.addattrobj(attrName, surface);
 					} else if (fmeGeom instanceof IFMENull) {
 						// skip it
 					} else {
