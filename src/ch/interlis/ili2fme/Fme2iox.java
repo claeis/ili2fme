@@ -96,6 +96,12 @@ public class Fme2iox {
 		}
 		return ret;
 	}
+    public static IomObject FME2multipolyline(IFMESession session, IFMECurve fmeGeom)
+    throws DataException{
+        IomObject ret=new ch.interlis.iom_j.Iom_jObject("MULTIPOLYLINE",null);
+        ret.addattrobj("polyline", FME2polyline(session, fmeGeom));
+        return ret;
+    }
 
 	private static void addSegment(IFMESession session,IomObject sequence, IFMESegment seg, boolean is3D) 
 		throws DataException 
@@ -280,4 +286,10 @@ public class Fme2iox {
 
 		return ret;
 	}
+    static public  IomObject FME2multisurface(IFMESession session, IFMEArea value)
+    throws DataException
+    {
+        IomObject ret = FME2surface(session, value);
+        return ret;
+    }
 }

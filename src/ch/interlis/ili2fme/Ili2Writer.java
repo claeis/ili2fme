@@ -1542,6 +1542,9 @@ public class Ili2Writer implements IFMEWriter {
 					if (fmeGeom instanceof IFMEMultiCurve) {
 						IomObject polyline = Fme2iox.FME2multipolyline(session, (IFMEMultiCurve) fmeGeom);
 						iomObj.addattrobj(attrName, polyline);
+					}else if (fmeGeom instanceof IFMECurve) {
+                        IomObject polyline = Fme2iox.FME2multipolyline(session, (IFMECurve) fmeGeom);
+                        iomObj.addattrobj(attrName, polyline);
 					} else if (fmeGeom instanceof IFMENull) {
 						// skip it
 					} else {
@@ -1648,6 +1651,9 @@ public class Ili2Writer implements IFMEWriter {
 					if (fmeGeom instanceof IFMEMultiArea) {
 						IomObject surface = Fme2iox.FME2multisurface(session, (IFMEMultiArea) fmeGeom);
 						iomObj.addattrobj(attrName, surface);
+					}else if (fmeGeom instanceof IFMEArea) {
+                            IomObject surface = Fme2iox.FME2multisurface(session, (IFMEArea) fmeGeom);
+                            iomObj.addattrobj(attrName, surface);
 					} else if (fmeGeom instanceof IFMENull) {
 						// skip it
 					} else {
