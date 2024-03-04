@@ -1,7 +1,11 @@
-ili2fme 7.3.0 (2024-01-xx)
+ili2fme 7.3.0 (2024-03-04)
 -------------------------------
 - ILI2.4: read/write generic domain assignments (#26)
 - ILI2.4: fix export of FMELine as MULTIPOLYLINE (#36)
+- ITF Writer mit Kommas statt Punkte (#37)
+- ITF Reader: AREA polygon building fails (#38)
+- ili2c-5.5.1
+- iox-ili-1.23.0
 
 ili2fme 7.2.1 (2023-12-11)
 -------------------------------
