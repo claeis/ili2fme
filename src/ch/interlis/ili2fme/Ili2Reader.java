@@ -1954,7 +1954,7 @@ public class Ili2Reader implements IFMEReader {
 			}else if(type instanceof BlackboxType){
 				returnType = "xtf_buffer";
 			}
-			if(attr.getDomain().getCardinality().getMaximum() > 1){
+			if(attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1){
 				fmeAttributeName += "{}";
 			}
 			ret.setSequencedAttribute(fmeAttributeName, returnType);

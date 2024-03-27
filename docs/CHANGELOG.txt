@@ -1,3 +1,7 @@
+ili2fme 7.3.1 (2024-03-27)
+-------------------------------
+- reader:  fixed NPE, if attribute with implicit type (#35)
+
 ili2fme 7.3.0 (2024-03-04)
 -------------------------------
 - ILI2.4: read/write generic domain assignments (#26)
