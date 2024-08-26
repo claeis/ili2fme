@@ -1,4 +1,4 @@
-ili2fme 7.3.2 (2024-08-16)
+ili2fme 7.3.2 (2024-08-26)
 -------------------------------
 - ITF Writer mit Kommas statt Punkte (#37)
 - ili2c-5.5.4
