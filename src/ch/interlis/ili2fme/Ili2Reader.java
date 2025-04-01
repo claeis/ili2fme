@@ -1571,7 +1571,7 @@ public class Ili2Reader implements IFMEReader {
 				}
 				if (value != null) {
 					String fmeIndex = attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1 ? "{" + i + "}" : "";
-					ret.setStringAttribute(prefix + attrName + fmeIndex, value);
+					ret.setStringAttribute(prefix + attrName + fmeIndex + "." + attrName	, value);
 				}
 			}
 		}

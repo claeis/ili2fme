@@ -1773,8 +1773,8 @@ public class Ili2Writer implements IFMEWriter {
 		}else{
 			if(attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1)
 			{
-				for (int i = 0; obj.attributeExists(attrPrefix+attrName+"{"+i+"}"); i++) {
-					String value=getStringAttribute(obj,attrPrefix+attrName+"{"+i+"}");
+				for (int i = 0; obj.attributeExists(attrPrefix+attrName+"{"+i+"}."+attrName); i++) {
+					String value=getStringAttribute(obj,attrPrefix+attrName+"{"+i+"}."+attrName);
 					if(trimValues){
 						value=StringUtility.purge(value);
 					}
