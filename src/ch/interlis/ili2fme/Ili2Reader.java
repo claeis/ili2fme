@@ -1955,7 +1955,7 @@ public class Ili2Reader implements IFMEReader {
 				returnType = "xtf_buffer";
 			}
 			if(attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1){
-				fmeAttributeName += "{}";
+				fmeAttributeName = String.format("%s{}.%s", fmeAttributeName, attr.getName());
 			}
 			ret.setSequencedAttribute(fmeAttributeName, returnType);
 		}
