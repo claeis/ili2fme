@@ -1570,8 +1570,8 @@ public class Ili2Reader implements IFMEReader {
 					value = StringUtility.purge(value);
 				}
 				if (value != null) {
-					String fmeIndex = attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1 ? "{" + i + "}" : "";
-					ret.setStringAttribute(prefix + attrName + fmeIndex + "." + attrName	, value);
+					String fmeIndex = attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1 ? String.format("{%d}.%s", i, attrName) : "";
+					ret.setStringAttribute(prefix + attrName + fmeIndex, value);
 				}
 			}
 		}
