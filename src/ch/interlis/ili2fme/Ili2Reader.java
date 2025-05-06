@@ -1570,7 +1570,7 @@ public class Ili2Reader implements IFMEReader {
 					value = StringUtility.purge(value);
 				}
 				if (value != null) {
-					String fmeIndex = attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1 ? "{" + i + "}" : "";
+					String fmeIndex = attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1 ? String.format("{%d}.%s", i, attrName) : "";
 					ret.setStringAttribute(prefix + attrName + fmeIndex, value);
 				}
 			}
@@ -1955,7 +1955,7 @@ public class Ili2Reader implements IFMEReader {
 				returnType = "xtf_buffer";
 			}
 			if(attr.getDomainOrDerivedDomain().getCardinality().getMaximum() > 1){
-				fmeAttributeName += "{}";
+				fmeAttributeName = String.format("%s{}.%s", fmeAttributeName, attr.getName());
 			}
 			ret.setSequencedAttribute(fmeAttributeName, returnType);
 		}
