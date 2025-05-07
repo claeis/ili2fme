@@ -1,3 +1,9 @@
+ili2fme 7.4.0 (2025-05-07)
+-------------------------------
+- ILI2.4: Abbildung von LIST/BAG mit primitiven Typen geaendert(#43)
+- iox-ili-1.24.0
+- ili2c-5.6.4
+
 ili2fme 7.3.4 (2025-01-14)
 -------------------------------
 - iox-ili-1.23.4
