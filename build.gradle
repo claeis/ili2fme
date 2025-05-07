@@ -6,7 +6,7 @@ plugins {
 }
 
 
-version '7.3.5'+System.getProperty('release','-SNAPSHOT')
+version '7.4.0'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
 
 
@@ -89,13 +89,13 @@ configurations {
 
 
 dependencies {
-    implementation group: 'ch.interlis', name: 'iox-ili', version: '1.23.4'
-    implementation group: 'ch.interlis', name: 'ili2c-tool', version: "5.6.3"
-    implementation group: 'ch.interlis', name: 'ili2c-core', version: "5.6.3"
+    implementation group: 'ch.interlis', name: 'iox-ili', version: '1.24.0'
+    implementation group: 'ch.interlis', name: 'ili2c-tool', version: "5.6.4"
+    implementation group: 'ch.interlis', name: 'ili2c-core', version: "5.6.4"
    compileOnly "com.vividsolutions:jts-core:1.14.0"
    compileOnly files("lib/pluginbuilder.jar")
    jtsJar "com.vividsolutions:jts-core:1.14.0"
-   ili2cTool("ch.interlis:ili2c-tool:5.6.3"){
+   ili2cTool("ch.interlis:ili2c-tool:5.6.4"){
 		artifact {
 			  //useful when some artifact properties unconventional
 			  name = 'ili2c-tool' //artifact name different than module name
