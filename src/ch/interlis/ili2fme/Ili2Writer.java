@@ -580,6 +580,17 @@ public class Ili2Writer implements IFMEWriter {
 					startBasketEvent.setBid(newTid());
 				}
 				EhiLogger.logState(startBasketEvent.getType()+" "+startBasketEvent.getBid()+"...");
+				Topic topic=(Topic)iliTd.getElement(startBasketEvent.getType());
+				if(topic==null) {
+                    throw new DataException("unknown TOPIC '"+startBasketEvent.getType()+"'");
+				}else {
+				    Model model=(Model)topic.getContainer();
+				    if (Model.ILI2_4.equals(model.getIliVersion())) {
+	                    if (model.getTranslationOf() != null) {
+	                        throw new DataException("INTERLIS 2.4 features/attributes must be untranslated");
+	                    }
+				    }
+				}
 				if(validator!=null) {
 				    validator.validate(startBasketEvent);
 				}

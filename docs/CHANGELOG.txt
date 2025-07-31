@@ -1,3 +1,7 @@
+ili2fme 7.4.1 (2025-07-xx)
+-------------------------------
+- ILI2.4: Fehlermeldung/Abbruch beim Schreiben von uebersetzten Daten
+
 ili2fme 7.4.0 (2025-05-07)
 -------------------------------
 - ILI2.4: Abbildung von LIST/BAG mit primitiven Typen geaendert(#43)
