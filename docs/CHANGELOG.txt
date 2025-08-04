@@ -1,6 +1,8 @@
-ili2fme 7.4.1 (2025-07-xx)
+ili2fme 7.4.1 (2025-08-04)
 -------------------------------
 - ILI2.4: Fehlermeldung/Abbruch beim Schreiben von uebersetzten Daten
+- iox-ili-1.24.1
+- ili2c-5.6.6
 
 ili2fme 7.4.0 (2025-05-07)
 -------------------------------
