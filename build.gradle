@@ -6,7 +6,7 @@ plugins {
 }
 
 
-version '7.4.2'+System.getProperty('release','-SNAPSHOT')
+version '8.0.0'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
 
 
@@ -30,9 +30,6 @@ if(propFile.exists()){
 	properties.load(propFile.newDataInputStream())
 }
 def git = System.getProperty('git',properties.get('git','git'))
-def windir = System.getProperty('windir',properties.get('windir',""))
-def wix_candle = System.getProperty('wix_candle',properties.get('wix_candle','candle.exe'))
-def wix_light = System.getProperty('wix_light',properties.get('wix_light','light.exe'))
 def repos_pwd = System.getProperty('repos_pwd',properties.get('repos_pwd','repos_pwd'))
 def repos_usr = System.getProperty('repos_usr',properties.get('repos_usr','repos_usr'))
 def repos_url = System.getProperty('repos_url',properties.get('repos_url','repos_url'))
@@ -196,35 +193,6 @@ task bindist(type: Zip,dependsOn: getJtsJar){
 	}
 }
 
-task('msi',dependsOn: getJtsJar) {
-	group = BasePlugin.BUILD_GROUP
-    description = 'Assembles the MSI distribution of this project'
-    
-	def msiFile = new File("dist","${project.name}-${project.version}.msi")
-    outputs.files "$msiFile"
-    
-    doLast {
-    	def strippedVersion="${project.version}".replace("-SNAPSHOT","")
-    	def basedir=projectDir
-    	def candleCmd=["${wix_candle}", "-v", "-arch=x64", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "OUT/ILI2FME.WIXOBJ", "setup/ili2fme.wxs"]
-    	def lightCmd=["${wix_light}","-v", "-sval","-b", "setup", "-pdbout", "OUT/ILI2FME.WIXPDB", "-out", "$msiFile", "OUT/ILI2FME.WIXOBJ"]
-    	if(windir==""){
-    		candleCmd.add(0,"wine")
-    		lightCmd.add(0,"wine")
-    	}	
-    	copy {
-    		from jar
-    		into 'build/jar'
-    		rename '.+','ili2fme.jar'
-    	}
-		exec {
-			commandLine candleCmd
-		}
-		exec {
-			commandLine lightCmd
-		}
-    }
-}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -253,11 +221,6 @@ artifacts {
         type 'zip'
         classifier 'bindist'
         builtBy bindist
-    }
-	archives(files(msi.outputs).singleFile) {
-        type 'msi'
-        classifier 'bindist'
-        builtBy msi
     }
 }
 
@@ -294,7 +257,7 @@ uploadArchives {
     }
 }
 
-task uploadBin(dependsOn: [bindist,msi,asciidoctorPdf]) {
+task uploadBin(dependsOn: [bindist,asciidoctorPdf]) {
 	doLast {
 		new File("$buildDir/docs/ili2fme.pdf").renameTo("$buildDir/docs/ili2fme-${project.version}.pdf")
 
@@ -311,7 +274,6 @@ task uploadBin(dependsOn: [bindist,msi,asciidoctorPdf]) {
 				fileset(dir: dist ) {
 					include(name: name)
 					include(name: releaseFile.name)
-					include(name: "${project.name}-${project.version}.msi")
 				}
 				fileset(dir: "$buildDir/docs/" ) {
 					include(name: "ili2fme-${project.version}.pdf")

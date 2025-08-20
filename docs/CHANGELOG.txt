@@ -1,3 +1,6 @@
+ili2fme 8.0.0 (2025-08-xx)
+-------------------------------
+
 ili2fme 7.4.1 (2025-08-04)
 -------------------------------
 - ILI2.4: Fehlermeldung/Abbruch beim Schreiben von uebersetzten Daten
