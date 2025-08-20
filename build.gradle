@@ -10,8 +10,8 @@ version '8.0.0'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
 
 
-sourceCompatibility = "1.6" 
-targetCompatibility = "1.6"
+sourceCompatibility = "1.8" 
+targetCompatibility = "1.8"
 compileJava.options.encoding = 'US-ASCII'
 
 // In this section you declare where to find the dependencies of your project
