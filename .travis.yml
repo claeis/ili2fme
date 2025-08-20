@@ -1,6 +1,8 @@
 language: java
 
 addons:
+  ssh_known_hosts:
+  - ftp.interlis.ch
   apt:
     update: true
 
@@ -21,11 +23,11 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; ./gradlew -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' uploadArchives
+    script: ./gradlew -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' uploadArchives
     on:
       branch: master
   - provider: script
     skip_cleanup: true
-    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; ./gradlew -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' '-Drelease=' -Ddownloads_pwd=${downloads_pwd} -Ddownloads_usr=jql_downloads uploadArchives uploadBin
+    script: ./gradlew -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' '-Drelease=' -Ddownloads_pwd=${downloads_pwd} -Ddownloads_usr=jql_downloads uploadArchives uploadBin
     on:
       branch: stable
