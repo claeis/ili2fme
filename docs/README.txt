@@ -22,7 +22,6 @@ Some libraries used by ili2fme are licensed under a library specific license (LI
 System Requirements
 For the current version of ili2fme, you will need a JRE (Java Runtime Environment) installed on your system, version 1.6.0 or later.
 The JRE (Java Runtime Environment) can be downloaded for free from the Website http://www.java.com/.
-ili2fme was tested with FME 2011 (build 6529 win32).
 
 
 Installing ili2fme
