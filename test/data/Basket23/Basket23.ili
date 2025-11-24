@@ -1,0 +1,13 @@
+INTERLIS 2.3;
+
+MODEL Basket23
+AT "mailto:ce@eisenhutinformatik.ch"
+VERSION "2025-11-24" =
+
+TOPIC TopicA =
+  CLASS ClassA =
+  END ClassA;
+END TopicA;
+
+END Basket23.
+

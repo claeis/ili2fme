@@ -1,0 +1,815 @@
+#! <?xml version="1.0" encoding="UTF-8" ?>
+#! <WORKSPACE
+#    Command line to run this workspace:
+#        "C:\Program Files\FME-2025.0.1\fme.exe" C:\usr\ce\projects\KOGIS\ili2fme\trunk\test\data\Basket23\emptybasket.fmw
+#          --DestDataset_ch.ehi.fme.Main "out.xtf"
+#          --FME_LAUNCH_VIEWER_APP "YES"
+#    
+#!   A0_PREVIEW_IMAGE="data:image/png;base64,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"
+#!   ARCGIS_COMPATIBILITY="ARCGIS_AUTO"
+#!   ATTR_TYPE_ENCODING="SDF"
+#!   BEGIN_PYTHON=""
+#!   BEGIN_TCL=""
+#!   CATEGORY=""
+#!   DESCRIPTION=""
+#!   DESTINATION="NONE"
+#!   DESTINATION_ROUTING_FILE=""
+#!   DOC_EXTENTS="3130.78 1070"
+#!   DOC_TOP_LEFT="86 -1134"
+#!   END_PYTHON=""
+#!   END_TCL=""
+#!   EXPLICIT_BOOKMARK_ORDER="false"
+#!   FME_BUILD_NUM="25220"
+#!   FME_BULK_MODE_THRESHOLD=""
+#!   FME_DOCUMENT_GUID="7380c819-be72-49f6-93a3-88a0d5a13405"
+#!   FME_DOCUMENT_PRIORGUID=""
+#!   FME_GEOMETRY_HANDLING="Enhanced"
+#!   FME_IMPLICIT_CSMAP_REPROJECTION_MODE="Datum"
+#!   FME_NAMES_ENCODING="windows-1252"
+#!   FME_REPROJECTION_ENGINE="FME"
+#!   FME_SERVER_SERVICES=""
+#!   FME_STROKE_MAX_DEVIATION="0"
+#!   HISTORY=""
+#!   IGNORE_READER_FAILURE="No"
+#!   LAST_SAVE_BUILD="FME(R) 2025.0.1.0 (20250327 - Build 25220 - WIN64)"
+#!   LAST_SAVE_DATE="2025-11-24T16:31:53"
+#!   LOG_FILE=""
+#!   LOG_MAX_RECORDED_FEATURES="200"
+#!   MARKDOWN_DESCRIPTION=""
+#!   MARKDOWN_USAGE=""
+#!   MAX_LOG_FEATURES="200"
+#!   MULTI_WRITER_DATASET_ORDER="BY_ID"
+#!   PASSWORD=""
+#!   PYTHON_COMPATIBILITY="313"
+#!   REDIRECT_TERMINATORS="NONE"
+#!   SAVE_ON_PROMPT_AND_RUN="Yes"
+#!   SHOW_ANNOTATIONS="true"
+#!   SHOW_INFO_NODES="true"
+#!   SOURCE="NONE"
+#!   SOURCE_ROUTING_FILE=""
+#!   TERMINATE_REJECTED="NO"
+#!   TITLE=""
+#!   USAGE=""
+#!   USE_MARKDOWN=""
+#!   VIEW_POSITION="1253.14 -471.88"
+#!   WARN_INVALID_XFORM_PARAM="Yes"
+#!   WORKSPACE_VERSION="1"
+#!   ZOOM_SCALE="100"
+#! >
+#! <DATASETS>
+#! <DATASET
+#!   IS_SOURCE="false"
+#!   ROLE="WRITER"
+#!   FORMAT="ch.ehi.fme.Main"
+#!   DATASET="$(DestDataset_ch.ehi.fme.Main)"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   MULTI_GEOM_ALLOWED="true"
+#!   ATTR_MAX_LENGTH="255"
+#!   ATTR_CASE="ANY"
+#!   FEATURE_TYPE_CASE="ANY"
+#!   FEATURE_TYPE_LENGTH="0"
+#!   FEATURE_TYPE_INVALID_CHARS=""
+#!   ALLOWED_FEAT_TYPES=""
+#!   WRITE_DEFS="true"
+#!   DEFLINE_TEMPLATE=""
+#!   DEFLINE_ATTRS="true"
+#!   EXPOSABLE_ATTRS="fme_basename xtf_char(50) fme_color xtf_char(50) fme_dataset xtf_char(50) fme_feature_type xtf_char(50) fme_fill_color xtf_char(50) fme_geometry fme_char(50) fme_primary_axis xtf_real64 fme_rotation xtf_real64 fme_secondary_axis xtf_real64 fme_start_angle xtf_real64 fme_sweep_angle xtf_real64 fme_text_size xtf_real64 fme_text_string xtf_char(50) fme_type xtf_char(50) xtf_basket xtf_char(200) xtf_class xtf_char(255) xtf_consistency xtf_char(12) xtf_geomattr xtf_char(255) xtf_operation xtf_char(6)"
+#!   DEFLINE_PARMS=""
+#!   ATTR_INDEX_TYPES=""
+#!   ATTR_NAME_INVALID_CHARS=""
+#!   SUPPORTS_FEATURE_TYPE_FANOUT="true"
+#!   ENABLED="true"
+#!   DYNAMIC_FEATURE_TYPES_LIST_ON_MERGE="true"
+#!   DATASET_TYPE="FILE"
+#!   FTTR_TYPE=""
+#!   GENERATE_FME_BUILD_NUM="12238"
+#!   COORDSYS=""
+#!   FANOUT_EXPRESSION=""
+#!   FANOUT_GROUP="NO"
+#! />
+#! </DATASETS>
+#! <DATA_TYPES>
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_char(width)"
+#!   FME_TYPE="fme_varchar(width)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_char(width)"
+#!   FME_TYPE="fme_char(width)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_buffer"
+#!   FME_TYPE="fme_buffer"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_decimal(width,decimal)"
+#!   FME_TYPE="fme_decimal(width,decimal)"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_real32"
+#!   FME_TYPE="fme_real32"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_real64"
+#!   FME_TYPE="fme_real64"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_int32"
+#!   FME_TYPE="fme_int32"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_int16"
+#!   FME_TYPE="fme_int16"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_boolean"
+#!   FME_TYPE="fme_boolean"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_datetime"
+#!   FME_TYPE="fme_datetime"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_date"
+#!   FME_TYPE="fme_date"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <DATA_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_time"
+#!   FME_TYPE="fme_time"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! </DATA_TYPES>
+#! <GEOM_TYPES>
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_none"
+#!   FME_TYPE="fme_no_geom"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_coord"
+#!   FME_TYPE="fme_point"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_coord"
+#!   FME_TYPE="fme_text"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_line"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_area"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_area"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_arc"
+#!   FME_TYPE="fme_arc"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_ellipse"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_rectangle"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_area"
+#!   FME_TYPE="fme_rounded_rectangle"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_raster"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_surface"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_polyline"
+#!   FME_TYPE="fme_solid"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_surface"
+#!   FME_TYPE="fme_point_cloud"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! <GEOM_TYPE
+#!   IS_SOURCE="false"
+#!   FORMAT_TYPE="xtf_none"
+#!   FME_TYPE="fme_collection"
+#!   FORMAT="ch.ehi.fme.Main"
+#! />
+#! </GEOM_TYPES>
+#! <FEATURE_TYPES>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="false"
+#!   NODE_NAME="Basket23.TopicA.ClassA"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="true"
+#!   IDENTIFIER="2"
+#!   POSITION="2592 -291"
+#!   BOUNDING_RECT="2592 -291 624.78125 65"
+#!   ORDER="500000000000001"
+#!   COLLAPSED="false"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   FEAT_GEOMTYPE="&lt;all&gt;"
+#!   SCHEMA_ATTRIBUTE_SOURCE="1"
+#! >
+#!     <FEAT_GEOMETRY NAME="" TYPE="&lt;all&gt;" SPATIAL_TYPE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_basket" ATTR_TYPE="xtf_char(200)"  EXPOSABLE_ATTR="true" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! <FEATURE_TYPE
+#!   IS_SOURCE="false"
+#!   NODE_NAME="XTF_BASKETS"
+#!   FEATURE_TYPE_NAME=""
+#!   FEATURE_TYPE_NAME_QUALIFIER=""
+#!   IS_EDITABLE="true"
+#!   IDENTIFIER="1"
+#!   POSITION="2630 -558"
+#!   BOUNDING_RECT="2630 -558 430 65"
+#!   ORDER="11"
+#!   COLLAPSED="false"
+#!   KEYWORD="ch.ehi.fme.Main_1"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   FEAT_GEOMTYPE="&lt;all&gt;"
+#!   SCHEMA_ATTRIBUTE_SOURCE="1"
+#! >
+#!     <FEAT_GEOMETRY NAME="" TYPE="&lt;all&gt;" SPATIAL_TYPE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_topic" ATTR_TYPE="xtf_char(34)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_id" ATTR_TYPE="xtf_char(200)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_startstate" ATTR_TYPE="xtf_char(250)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_endstate" ATTR_TYPE="xtf_char(250)" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_seq" ATTR_TYPE="xtf_int16" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#!     <FEAT_ATTRIBUTE ATTR_NAME="xtf_consistency" ATTR_TYPE="xtf_char(12)"  EXPOSABLE_ATTR="true" ATTR_HAS_PORT="true" ATTR_VALUE=""/>
+#! </FEATURE_TYPE>
+#! </FEATURE_TYPES>
+#! <FMESERVER>
+#! <WRITER_DATASETS>
+#! <DATASET
+#!   NAME="ch.ehi.fme.Main_1"
+#!   OVERRIDE="-ch.ehi.fme.Main_1_DATASET"
+#!   DATASET="ch.ehi.fme.Main_1/out.xtf"
+#! />
+#! </WRITER_DATASETS>
+#! </FMESERVER>
+#! <GLOBAL_PARAMETERS>
+#! <GLOBAL_PARAMETER
+#!   GUI_LINE="GUI FILENAME DestDataset_ch.ehi.fme.Main INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_GML_FILES(*.gml)|*.gml|All_Files|*.* Destination INTERLIS File:"
+#!   DEFAULT_VALUE="out.xtf"
+#!   IS_STAND_ALONE="false"
+#! />
+#! </GLOBAL_PARAMETERS>
+#! <USER_PARAMETERS
+#!   FORM="eyJwYXJhbWV0ZXJzIjpbeyJuYW1lIjoiRGVzdERhdGFzZXRfY2guZWhpLmZtZS5NYWluIiwicHJvbXB0IjoiRGVzdGluYXRpb24gSU5URVJMSVMgRmlsZToiLCJ2YWx1ZVR5cGUiOiJzdHJpbmciLCJkZWZhdWx0VmFsdWUiOiJvdXQueHRmIiwiZGVwcmVjYXRlZEZsYWdzIjpbIm5vbmUiXSwidHlwZSI6ImZpbGUiLCJzZWxlY3RNdWx0aXBsZSI6ZmFsc2UsIml0ZW1zVG9TZWxlY3QiOiJmaWxlcyIsImFjY2Vzc01vZGUiOiJ3cml0ZSIsInZhbGlkYXRlRXhpc3RlbmNlIjpmYWxzZSwiZmlsdGVycyI6W3siZGVzY3JpcHRpb24iOiJJTlRFUkxJUyAyIEZpbGVzIiwiZmlsdGVyIjpbIioueHRmIl19LHsiZGVzY3JpcHRpb24iOiJJTlRFUkxJUyAxIEZJTEVTIiwiZmlsdGVyIjpbIiouaXRmIl19LHsiZGVzY3JpcHRpb24iOiJJTlRFUkxJUyBHTUwgRklMRVMiLCJmaWx0ZXIiOlsiKi5nbWwiXX0seyJkZXNjcmlwdGlvbiI6IkFsbCBGaWxlcyIsImZpbHRlciI6WyIqIl19XX1dfQ=="
+#! >
+#! <PARAMETER_INFO>
+#!     <INFO NAME="DestDataset_ch.ehi.fme.Main" 
+#!   DEFAULT_VALUE="out.xtf"
+#!   SCOPE="DEPENDENT"
+#!   GENERATED_GUI_LINE="false"
+#!   GUI_LINE="GUI FILENAME DestDataset_ch.ehi.fme.Main INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_GML_FILES(*.gml)|*.gml|All_Files|*.* Destination INTERLIS File:"
+#! />
+#! </PARAMETER_INFO>
+#! </USER_PARAMETERS>
+#! <COMMENTS>
+#! <COMMENT
+#!   IDENTIFIER="15"
+#!   COMMENT_VALUE="&lt;html&gt;&lt;body&gt;ein Objekt in Basket b1&lt;/body&gt;&lt;/html&gt;"
+#!   POSITION="86 -64"
+#!   TOP_LEFT="86 -64"
+#!   BOTTOM_RIGHT="541.91226224762249 -64"
+#!   BOUNDING_RECT="86 -64 455.91226224762249 0"
+#!   ORDER="14"
+#!   FOLLOW_ANCHOR="true"
+#!   INFO_NODE="false"
+#!   CUSTOM_USER_COLOR="false"
+#!   UUID="{9ddf5b4e-4b40-4097-805b-3bf556e68d0c}"
+#!   COLOUR="1,0.95686274509803926,0.80000000000000004,0.90196078431372551"
+#!   SIZE_POLICY="8"
+#!   ANCHORED_NODE="8"
+#! />
+#! <COMMENT
+#!   IDENTIFIER="16"
+#!   COMMENT_VALUE="&lt;html&gt;&lt;body&gt;Basket b1&lt;/body&gt;&lt;/html&gt;"
+#!   POSITION="129 -592"
+#!   TOP_LEFT="129 -592"
+#!   BOTTOM_RIGHT="363.76747267472672 -592"
+#!   BOUNDING_RECT="129 -592 234.76747267472675 0"
+#!   ORDER="15"
+#!   FOLLOW_ANCHOR="true"
+#!   INFO_NODE="false"
+#!   CUSTOM_USER_COLOR="false"
+#!   UUID="{f27e680a-8c45-442c-a0c7-b665cb8a4078}"
+#!   COLOUR="1,0.95686274509803926,0.80000000000000004,0.90196078431372551"
+#!   SIZE_POLICY="8"
+#!   ANCHORED_NODE="4"
+#! />
+#! <COMMENT
+#!   IDENTIFIER="17"
+#!   COMMENT_VALUE="&lt;html&gt;&lt;body&gt;Basket b2 (bleibt leer)&lt;/body&gt;&lt;/html&gt;"
+#!   POSITION="91 -989"
+#!   TOP_LEFT="91 -989"
+#!   BOTTOM_RIGHT="524.59758597585983 -989"
+#!   BOUNDING_RECT="91 -989 433.59758597585977 0"
+#!   ORDER="16"
+#!   FOLLOW_ANCHOR="true"
+#!   INFO_NODE="false"
+#!   CUSTOM_USER_COLOR="false"
+#!   UUID="{f5e93f60-49df-4104-a991-da885ee1a93a}"
+#!   COLOUR="1,0.95686274509803926,0.80000000000000004,0.90196078431372551"
+#!   SIZE_POLICY="8"
+#!   ANCHORED_NODE="3"
+#! />
+#! <COMMENT
+#!   IDENTIFIER="18"
+#!   COMMENT_VALUE="&lt;html&gt;&lt;body&gt;xtf_basket ist der &amp;quot;Fremdschluessel&amp;quot; auf das entsprechende XTF_BASKETS Objekt&lt;/body&gt;&lt;/html&gt;"
+#!   POSITION="949 -94"
+#!   TOP_LEFT="949 -94"
+#!   BOTTOM_RIGHT="2347.8904420294202 -94"
+#!   BOUNDING_RECT="949 -94 1398.8904420294202 0"
+#!   ORDER="17"
+#!   FOLLOW_ANCHOR="true"
+#!   INFO_NODE="false"
+#!   CUSTOM_USER_COLOR="false"
+#!   UUID="{27603005-c24a-4bd9-9869-c52d1a250c96}"
+#!   COLOUR="1,0.95686274509803926,0.80000000000000004,0.90196078431372551"
+#!   SIZE_POLICY="8"
+#!   ANCHORED_NODE="5"
+#! />
+#! </COMMENTS>
+#! <CONSTANTS>
+#! </CONSTANTS>
+#! <BOOKMARKS>
+#! </BOOKMARKS>
+#! <TRANSFORMERS>
+#! <TRANSFORMER
+#!   IDENTIFIER="3"
+#!   TYPE="Creator"
+#!   VERSION="5"
+#!   POSITION="91 -1069"
+#!   BOUNDING_RECT="91 -1069 430 65"
+#!   ORDER="7"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   LAST_PARM_EDIT="25220"
+#!   SHOW_BLANK_INPUT_FT="false"
+#! >
+#!     <OUTPUT_FEAT NAME="CREATED"/>
+#!     <FEAT_COLLAPSED COLLAPSED="0"/>
+#!     <XFORM_ATTR ATTR_NAME="_creation_instance" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_PARM PARM_NAME="ATEND" PARM_VALUE="no"/>
+#!     <XFORM_PARM PARM_NAME="COORDS" PARM_VALUE="&lt;Unused&gt;"/>
+#!     <XFORM_PARM PARM_NAME="COORDSYS" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="CRE_ATTR" PARM_VALUE="_creation_instance"/>
+#!     <XFORM_PARM PARM_NAME="GEOM" PARM_VALUE="&lt;lt&gt;?xml&lt;space&gt;version=&lt;quote&gt;1.0&lt;quote&gt;&lt;space&gt;encoding=&lt;quote&gt;US_ASCII&lt;quote&gt;&lt;space&gt;standalone=&lt;quote&gt;no&lt;quote&gt;&lt;space&gt;?&lt;gt&gt;&lt;lt&gt;geometry&lt;gt&gt;&lt;lt&gt;null&lt;solidus&gt;&lt;gt&gt;&lt;lt&gt;&lt;solidus&gt;geometry&lt;gt&gt;"/>
+#!     <XFORM_PARM PARM_NAME="GEOMTYPE" PARM_VALUE="Geometry Object"/>
+#!     <XFORM_PARM PARM_NAME="NUM" PARM_VALUE="1"/>
+#!     <XFORM_PARM PARM_NAME="OAN_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="PARAMETERS_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="TRANSFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_NAME" PARM_VALUE="Creator_3"/>
+#! </TRANSFORMER>
+#! <TRANSFORMER
+#!   IDENTIFIER="4"
+#!   TYPE="Creator"
+#!   VERSION="5"
+#!   POSITION="129 -672"
+#!   BOUNDING_RECT="129 -672 430 65"
+#!   ORDER="8"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   LAST_PARM_EDIT="25220"
+#!   SHOW_BLANK_INPUT_FT="false"
+#! >
+#!     <OUTPUT_FEAT NAME="CREATED"/>
+#!     <FEAT_COLLAPSED COLLAPSED="0"/>
+#!     <XFORM_ATTR ATTR_NAME="_creation_instance" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_PARM PARM_NAME="ATEND" PARM_VALUE="no"/>
+#!     <XFORM_PARM PARM_NAME="COORDS" PARM_VALUE="&lt;Unused&gt;"/>
+#!     <XFORM_PARM PARM_NAME="COORDSYS" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="CRE_ATTR" PARM_VALUE="_creation_instance"/>
+#!     <XFORM_PARM PARM_NAME="GEOM" PARM_VALUE="&lt;lt&gt;?xml&lt;space&gt;version=&lt;quote&gt;1.0&lt;quote&gt;&lt;space&gt;encoding=&lt;quote&gt;US_ASCII&lt;quote&gt;&lt;space&gt;standalone=&lt;quote&gt;no&lt;quote&gt;&lt;space&gt;?&lt;gt&gt;&lt;lt&gt;geometry&lt;gt&gt;&lt;lt&gt;null&lt;solidus&gt;&lt;gt&gt;&lt;lt&gt;&lt;solidus&gt;geometry&lt;gt&gt;"/>
+#!     <XFORM_PARM PARM_NAME="GEOMTYPE" PARM_VALUE="Geometry Object"/>
+#!     <XFORM_PARM PARM_NAME="NUM" PARM_VALUE="1"/>
+#!     <XFORM_PARM PARM_NAME="OAN_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="PARAMETERS_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="TRANSFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_NAME" PARM_VALUE="Creator_2"/>
+#! </TRANSFORMER>
+#! <TRANSFORMER
+#!   IDENTIFIER="5"
+#!   TYPE="AttributeCreator"
+#!   VERSION="2"
+#!   POSITION="949 -174"
+#!   BOUNDING_RECT="949 -174 430 65"
+#!   ORDER="9"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   LAST_PARM_EDIT="12238"
+#!   SHOW_BLANK_INPUT_FT="false"
+#! >
+#!     <OUTPUT_FEAT NAME="OUTPUT"/>
+#!     <FEAT_COLLAPSED COLLAPSED="0"/>
+#!     <XFORM_ATTR ATTR_NAME="_creation_instance" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_id" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_basket" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_PARM PARM_NAME="ATTR_LIST" PARM_VALUE="xtf_id,1,xtf_basket,b1"/>
+#!     <XFORM_PARM PARM_NAME="ATTR_LIST_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="TRANSFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_NAME" PARM_VALUE="AttributeCreator"/>
+#! </TRANSFORMER>
+#! <TRANSFORMER
+#!   IDENTIFIER="6"
+#!   TYPE="AttributeCreator"
+#!   VERSION="2"
+#!   POSITION="931 -548"
+#!   BOUNDING_RECT="931 -548 430 65"
+#!   ORDER="10"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   LAST_PARM_EDIT="25220"
+#!   SHOW_BLANK_INPUT_FT="false"
+#! >
+#!     <OUTPUT_FEAT NAME="OUTPUT"/>
+#!     <XFORM_ATTR ATTR_NAME="_creation_instance" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_topic" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_id" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_seq" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_PARM PARM_NAME="ATTR_LIST" PARM_VALUE="xtf_topic,Basket23.TopicA,xtf_id,b1,xtf_seq,1"/>
+#!     <XFORM_PARM PARM_NAME="ATTR_LIST_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="TRANSFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_NAME" PARM_VALUE="AttributeCreator_2"/>
+#! </TRANSFORMER>
+#! <TRANSFORMER
+#!   IDENTIFIER="7"
+#!   TYPE="AttributeCreator"
+#!   VERSION="2"
+#!   POSITION="1131 -998"
+#!   BOUNDING_RECT="1131 -998 430 65"
+#!   ORDER="12"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   LAST_PARM_EDIT="25220"
+#!   SHOW_BLANK_INPUT_FT="false"
+#! >
+#!     <OUTPUT_FEAT NAME="OUTPUT"/>
+#!     <XFORM_ATTR ATTR_NAME="_creation_instance" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_topic" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_id" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_ATTR ATTR_NAME="xtf_seq" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_PARM PARM_NAME="ATTR_LIST" PARM_VALUE="xtf_topic,Basket23.TopicA,xtf_id,b2,xtf_seq,2"/>
+#!     <XFORM_PARM PARM_NAME="ATTR_LIST_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="TRANSFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_NAME" PARM_VALUE="AttributeCreator_3"/>
+#! </TRANSFORMER>
+#! <TRANSFORMER
+#!   IDENTIFIER="8"
+#!   TYPE="Creator"
+#!   VERSION="5"
+#!   POSITION="86 -144"
+#!   BOUNDING_RECT="86 -144 430 65"
+#!   ORDER="13"
+#!   PARMS_EDITED="true"
+#!   ENABLED="true"
+#!   LAST_PARM_EDIT="25220"
+#!   SHOW_BLANK_INPUT_FT="false"
+#! >
+#!     <OUTPUT_FEAT NAME="CREATED"/>
+#!     <FEAT_COLLAPSED COLLAPSED="0"/>
+#!     <XFORM_ATTR ATTR_NAME="_creation_instance" IS_USER_CREATED="false" FEAT_INDEX="0" />
+#!     <XFORM_PARM PARM_NAME="ATEND" PARM_VALUE="no"/>
+#!     <XFORM_PARM PARM_NAME="COORDS" PARM_VALUE="&lt;Unused&gt;"/>
+#!     <XFORM_PARM PARM_NAME="COORDSYS" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="CRE_ATTR" PARM_VALUE="_creation_instance"/>
+#!     <XFORM_PARM PARM_NAME="GEOM" PARM_VALUE="&lt;lt&gt;?xml&lt;space&gt;version=&lt;quote&gt;1.0&lt;quote&gt;&lt;space&gt;encoding=&lt;quote&gt;US_ASCII&lt;quote&gt;&lt;space&gt;standalone=&lt;quote&gt;no&lt;quote&gt;&lt;space&gt;?&lt;gt&gt;&lt;lt&gt;geometry&lt;gt&gt;&lt;lt&gt;null&lt;solidus&gt;&lt;gt&gt;&lt;lt&gt;&lt;solidus&gt;geometry&lt;gt&gt;"/>
+#!     <XFORM_PARM PARM_NAME="GEOMTYPE" PARM_VALUE="Geometry Object"/>
+#!     <XFORM_PARM PARM_NAME="NUM" PARM_VALUE="1"/>
+#!     <XFORM_PARM PARM_NAME="OAN_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="PARAMETERS_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="TRANSFORMER_GROUP" PARM_VALUE=""/>
+#!     <XFORM_PARM PARM_NAME="XFORMER_NAME" PARM_VALUE="Creator"/>
+#! </TRANSFORMER>
+#! </TRANSFORMERS>
+#! <FEAT_LINKS>
+#! <FEAT_LINK
+#!   IDENTIFIER="13"
+#!   SOURCE_NODE="3"
+#!   TARGET_NODE="7"
+#!   SOURCE_PORT_DESC="fo 0 CREATED"
+#!   TARGET_PORT_DESC="fi 0 "
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0.050980392156862744,0.050980392156862744,0.047058823529411764,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! <FEAT_LINK
+#!   IDENTIFIER="11"
+#!   SOURCE_NODE="4"
+#!   TARGET_NODE="6"
+#!   SOURCE_PORT_DESC="fo 0 CREATED"
+#!   TARGET_PORT_DESC="fi 0 "
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0.050980392156862744,0.050980392156862744,0.047058823529411764,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! <FEAT_LINK
+#!   IDENTIFIER="9"
+#!   SOURCE_NODE="8"
+#!   TARGET_NODE="5"
+#!   SOURCE_PORT_DESC="fo 0 CREATED"
+#!   TARGET_PORT_DESC="fi 0 "
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0.050980392156862744,0.050980392156862744,0.047058823529411764,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! <FEAT_LINK
+#!   IDENTIFIER="10"
+#!   SOURCE_NODE="5"
+#!   TARGET_NODE="2"
+#!   SOURCE_PORT_DESC="fo 0 OUTPUT"
+#!   TARGET_PORT_DESC="-1"
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0.050980392156862744,0.050980392156862744,0.047058823529411764,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! <FEAT_LINK
+#!   IDENTIFIER="12"
+#!   SOURCE_NODE="6"
+#!   TARGET_NODE="1"
+#!   SOURCE_PORT_DESC="fo 0 OUTPUT"
+#!   TARGET_PORT_DESC="-1"
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0.050980392156862744,0.050980392156862744,0.047058823529411764,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! <FEAT_LINK
+#!   IDENTIFIER="14"
+#!   SOURCE_NODE="7"
+#!   TARGET_NODE="1"
+#!   SOURCE_PORT_DESC="fo 0 OUTPUT"
+#!   TARGET_PORT_DESC="-1"
+#!   ENABLED="true"
+#!   EXECUTION_IDX="0"
+#!   HIDDEN="false"
+#!   COLOUR="0.050980392156862744,0.050980392156862744,0.047058823529411764,1"
+#!   PEN_WIDTH="4"
+#!   PEN_STYLE="1"
+#!   LINK_STYLE_NAME="&lt;Default&gt;"
+#!   EXTRA_POINTS=""
+#! />
+#! </FEAT_LINKS>
+#! <BREAKPOINTS>
+#! </BREAKPOINTS>
+#! <ATTR_LINKS>
+#! </ATTR_LINKS>
+#! <SUBDOCUMENTS>
+#! </SUBDOCUMENTS>
+#! <LOOKUP_TABLES>
+#! </LOOKUP_TABLES>
+#! </WORKSPACE>
+
+FME_PYTHON_VERSION 313
+ARCGIS_COMPATIBILITY ARCGIS_AUTO
+GUI IGNORE DestDataset_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_CHECK_ATTRTYPE_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_CHECK_ATTRMULTIPLICITY_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_1,ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_1
+# ============================================================================
+DEFAULT_MACRO DestDataset_ch.ehi.fme.Main out.xtf
+
+# ============================================================================
+INCLUDE [ if {{$(DestDataset_ch.ehi.fme.Main$encode)} == {}} { puts_real {Parameter 'DestDataset_ch.ehi.fme.Main' must be given a value.}; exit 1; }; ]
+#! START_HEADER
+#! START_WB_HEADER
+READER_TYPE MULTI_READER
+WRITER_TYPE MULTI_WRITER
+WRITER_KEYWORD PRIMARY_DEST
+PRIMARY_DEST_DATASET_ORDER BY_ID
+PRIMARY_DEST_FIRST_WRITER_ID 0
+PRIMARY_DEST_TYPE{0} ch.ehi.fme.Main
+PRIMARY_DEST_KEYWORD{0} ch.ehi.fme.Main_1
+#! END_WB_HEADER
+#! START_WB_HEADER
+MACRO WB_KEYWORD "ch.ehi.fme.Main_1"
+#! END_WB_HEADER
+#! START_DEST_HEADER ch.ehi.fme.Main ch.ehi.fme.Main_1
+# ============================================================================
+# The following GUI line prompts for a file to be used as the
+# the destination for the INTERLIS 2 data.
+#! END_DEST_HEADER
+#! START_WB_HEADER
+DEFAULT_MACRO DestDataset
+INCLUDE [ if {"$(DestDataset)" != ""} {                          \
+ puts {DEFAULT_MACRO DestDataset_ch.ehi.fme.Main_1 $(DestDataset)}         \
+ } ]
+#! END_WB_HEADER
+#! START_DEST_HEADER ch.ehi.fme.Main ch.ehi.fme.Main_1
+DEFAULT_MACRO DestDataset_ch.ehi.fme.Main_1 $(DestDataset_ch.ehi.fme.Main)
+GUI FILENAME DestDataset_ch.ehi.fme.Main_1 INTERLIS_2_Files(*.xtf)|*.xtf|INTERLIS_1_FILES(*.itf)|*.itf|INTERLIS_GML_FILES(*.gml)|*.gml|All_Files|*.* Destination INTERLIS File:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_1 %DATA
+ch.ehi.fme.Main_1_MODELS "$(ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_1)"
+GUI TEXT ch.ehi.fme.Main_OUT_MODELS_ch.ehi.fme.Main_1 Models:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_1 %XTF_DIR;http://models.interlis.ch/;C:\Program Files\FME2012sp2-12238/plugins/interlis2/ilimodels;C:\Program Files\FME2012sp2-12238/plugins/interlis2/ili22models
+ch.ehi.fme.Main_1_MODEL_DIR "$(ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_1)"
+GUI TEXT ch.ehi.fme.Main_OUT_MODEL_DIR_ch.ehi.fme.Main_1 Models directory:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_CHECK_UNIQUEOID "$(ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_OUT_CHECK_UNIQUEOID_ch.ehi.fme.Main_1 Yes%No Check TID/OID Uniqueness:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_CHECK_ATTRTYPE_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_CHECK_ATTRTYPE "$(ch.ehi.fme.Main_OUT_CHECK_ATTRTYPE_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_OUT_CHECK_ATTRTYPE_ch.ehi.fme.Main_1 Yes%No Check Attribute Type:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_CHECK_ATTRMULTIPLICITY_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_CHECK_ATTRMULTIPLICITY "$(ch.ehi.fme.Main_OUT_CHECK_ATTRMULTIPLICITY_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_OUT_CHECK_ATTRMULTIPLICITY_ch.ehi.fme.Main_1 Yes%No Check Attribute Multiplicity:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_1 SuperClass
+ch.ehi.fme.Main_1_INHERITANCE_MAPPING "$(ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_OUT_INHERITANCE_MAPPING_ch.ehi.fme.Main_1 SuperClass%SubClass Inheritance Mapping Strategy:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_1 OGCHEXBIN
+ch.ehi.fme.Main_1_GEOMETRY_ENCODING "$(ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_OUT_GEOMETRY_ENCODING_ch.ehi.fme.Main_1 FMEXML%FMEBIN%FMEHEXBIN%OGCHEXBIN Geometry Encoding:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_1 No
+ch.ehi.fme.Main_1_USE_LINETABLES "$(ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_OUT_USE_LINETABLES_ch.ehi.fme.Main_1 Yes%No Use Linetables:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_1 
+ch.ehi.fme.Main_1_HTTP_PROXYHOST "$(ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_1)"
+GUI OPTIONAL TEXT ch.ehi.fme.Main_OUT_HTTP_PROXYHOST_ch.ehi.fme.Main_1 http Proxy Host:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_1 
+ch.ehi.fme.Main_1_HTTP_PROXYPORT "$(ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_1)"
+GUI OPTIONAL TEXT ch.ehi.fme.Main_OUT_HTTP_PROXYPORT_ch.ehi.fme.Main_1 http Proxy Port:
+DEFAULT_MACRO ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_1 Yes
+ch.ehi.fme.Main_1_TRACEMSGS "$(ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_1)"
+GUI CHOICE ch.ehi.fme.Main_OUT_TRACEMSGS_ch.ehi.fme.Main_1 Yes%No Enable Trace Messages:
+ch.ehi.fme.Main_1_DATASET "$(DestDataset_ch.ehi.fme.Main_1)"
+ch.ehi.fme.Main_1_GENERATE_FME_BUILD_NUM 12238
+#! END_DEST_HEADER
+#! START_WB_HEADER
+#! END_WB_HEADER
+#! END_HEADER
+
+LOG_FILENAME "$(FME_MF_DIR)$(WORKSPACE_NAME).log"
+LOG_APPEND NO
+LOG_MAX_FEATURES 200
+LOG_MAX_RECORDED_FEATURES 200
+FME_REPROJECTION_ENGINE FME
+FME_IMPLICIT_CSMAP_REPROJECTION_MODE Datum
+FME_GEOMETRY_HANDLING Enhanced
+FME_STROKE_MAX_DEVIATION 0
+FME_NAMES_ENCODING windows-1252
+FME_BULK_MODE_THRESHOLD 
+LAST_SAVE_BUILD "FME 2025.0.1.0 (20250327 - Build 25220 - WIN64)"
+DEFAULT_MACRO DATASET_KEYWORD_ch.ehi.fme.Main_1 ch.ehi.fme.Main_1
+# -------------------------------------------------------------------------
+
+MULTI_READER_CONTINUE_ON_READER_FAILURE No
+
+# -------------------------------------------------------------------------
+
+MACRO FME_VIEWER_APP fmedatainspector
+DEFAULT_MACRO WB_CURRENT_CONTEXT
+# -------------------------------------------------------------------------
+Tcl2 proc Creator_3_CoordSysRemover {} {   global FME_CoordSys;   set FME_CoordSys {}; }
+MACRO Creator_3_XML     NOT_ACTIVATED
+MACRO Creator_3_CLASSIC NOT_ACTIVATED
+MACRO Creator_3_2D3D    2D_GEOMETRY
+MACRO Creator_3_COORDS  <Unused>
+INCLUDE [ if { {Geometry Object} == {Geometry Object} } {            puts {MACRO Creator_3_XML *} } ]
+INCLUDE [ if { {Geometry Object} == {2D Coordinate List} } {            puts {MACRO Creator_3_2D3D 2D_GEOMETRY};            puts {MACRO Creator_3_CLASSIC *} } ]
+INCLUDE [ if { {Geometry Object} == {3D Coordinate List} } {            puts {MACRO Creator_3_2D3D 3D_GEOMETRY};            puts {MACRO Creator_3_CLASSIC *} } ]
+INCLUDE [ if { {Geometry Object} == {2D Min/Max Box} } {            set comment {                We need to turn the COORDS which are                    minX minY maxX maxY                into a full polygon list of coordinates            };            set splitCoords [split [string trim {<Unused>}]];            if { [llength $splitCoords] > 4} {               set trimmedCoords {};               foreach item $splitCoords { if { $item != {} } {lappend trimmedCoords $item} };               set splitCoords $trimmedCoords;            };            if { [llength $splitCoords] != 4 } {                error {Creator_3: Coordinate list is expected to be a space delimited list of four numbers as 'minx miny maxx maxy' - `<Unused>' is invalid};            };            set minX [lindex $splitCoords 0];            set minY [lindex $splitCoords 1];            set maxX [lindex $splitCoords 2];            set maxY [lindex $splitCoords 3];            puts "MACRO Creator_3_COORDS $minX $minY $minX $maxY $maxX $maxY $maxX $minY $minX $minY";            puts {MACRO Creator_3_2D3D 2D_GEOMETRY};            puts {MACRO Creator_3_CLASSIC *} } ]
+FACTORY_DEF {$(Creator_3_XML)} CreationFactory    FACTORY_NAME { Creator_3_XML_Creator }    CREATE_AT_END { no }    OUTPUT { FEATURE_TYPE _____CREATED______        @Geometry(FROM_ENCODED_STRING,<lt>?xml<space>version=<quote>1.0<quote><space>encoding=<quote>US_ASCII<quote><space>standalone=<quote>no<quote><space>?<gt><lt>geometry<gt><lt>null<solidus><gt><lt><solidus>geometry<gt>) }
+FACTORY_DEF {$(Creator_3_CLASSIC)} CreationFactory    FACTORY_NAME { Creator_3_CLASSIC_Creator }    $(Creator_3_2D3D) { $(Creator_3_COORDS) }    CREATE_AT_END { no }    OUTPUT { FEATURE_TYPE _____CREATED______ }
+FACTORY_DEF {*} TeeFactory    FACTORY_NAME { Creator_3_Cloner }    INPUT FEATURE_TYPE _____CREATED______        @Tcl2(Creator_3_CoordSysRemover)        @CoordSys()    NUMBER_OF_COPIES { 1 }    COPY_NUMBER_ATTRIBUTE { "_creation_instance" }    OUTPUT { FEATURE_TYPE Creator_3_CREATED        fme_feature_type Creator_3         }
+FACTORY_DEF * BranchingFactory   FACTORY_NAME "Creator_3_CREATED Brancher -1 13"   INPUT FEATURE_TYPE Creator_3_CREATED   TARGET_FACTORY "$(WB_CURRENT_CONTEXT)_CREATOR_BRANCH_TARGET"   MAXIMUM_COUNT None   OUTPUT PASSED FEATURE_TYPE *
+# -------------------------------------------------------------------------
+Tcl2 proc Creator_2_CoordSysRemover {} {   global FME_CoordSys;   set FME_CoordSys {}; }
+MACRO Creator_2_XML     NOT_ACTIVATED
+MACRO Creator_2_CLASSIC NOT_ACTIVATED
+MACRO Creator_2_2D3D    2D_GEOMETRY
+MACRO Creator_2_COORDS  <Unused>
+INCLUDE [ if { {Geometry Object} == {Geometry Object} } {            puts {MACRO Creator_2_XML *} } ]
+INCLUDE [ if { {Geometry Object} == {2D Coordinate List} } {            puts {MACRO Creator_2_2D3D 2D_GEOMETRY};            puts {MACRO Creator_2_CLASSIC *} } ]
+INCLUDE [ if { {Geometry Object} == {3D Coordinate List} } {            puts {MACRO Creator_2_2D3D 3D_GEOMETRY};            puts {MACRO Creator_2_CLASSIC *} } ]
+INCLUDE [ if { {Geometry Object} == {2D Min/Max Box} } {            set comment {                We need to turn the COORDS which are                    minX minY maxX maxY                into a full polygon list of coordinates            };            set splitCoords [split [string trim {<Unused>}]];            if { [llength $splitCoords] > 4} {               set trimmedCoords {};               foreach item $splitCoords { if { $item != {} } {lappend trimmedCoords $item} };               set splitCoords $trimmedCoords;            };            if { [llength $splitCoords] != 4 } {                error {Creator_2: Coordinate list is expected to be a space delimited list of four numbers as 'minx miny maxx maxy' - `<Unused>' is invalid};            };            set minX [lindex $splitCoords 0];            set minY [lindex $splitCoords 1];            set maxX [lindex $splitCoords 2];            set maxY [lindex $splitCoords 3];            puts "MACRO Creator_2_COORDS $minX $minY $minX $maxY $maxX $maxY $maxX $minY $minX $minY";            puts {MACRO Creator_2_2D3D 2D_GEOMETRY};            puts {MACRO Creator_2_CLASSIC *} } ]
+FACTORY_DEF {$(Creator_2_XML)} CreationFactory    FACTORY_NAME { Creator_2_XML_Creator }    CREATE_AT_END { no }    OUTPUT { FEATURE_TYPE _____CREATED______        @Geometry(FROM_ENCODED_STRING,<lt>?xml<space>version=<quote>1.0<quote><space>encoding=<quote>US_ASCII<quote><space>standalone=<quote>no<quote><space>?<gt><lt>geometry<gt><lt>null<solidus><gt><lt><solidus>geometry<gt>) }
+FACTORY_DEF {$(Creator_2_CLASSIC)} CreationFactory    FACTORY_NAME { Creator_2_CLASSIC_Creator }    $(Creator_2_2D3D) { $(Creator_2_COORDS) }    CREATE_AT_END { no }    OUTPUT { FEATURE_TYPE _____CREATED______ }
+FACTORY_DEF {*} TeeFactory    FACTORY_NAME { Creator_2_Cloner }    INPUT FEATURE_TYPE _____CREATED______        @Tcl2(Creator_2_CoordSysRemover)        @CoordSys()    NUMBER_OF_COPIES { 1 }    COPY_NUMBER_ATTRIBUTE { "_creation_instance" }    OUTPUT { FEATURE_TYPE Creator_2_CREATED        fme_feature_type Creator_2         }
+FACTORY_DEF * BranchingFactory   FACTORY_NAME "Creator_2_CREATED Brancher -1 11"   INPUT FEATURE_TYPE Creator_2_CREATED   TARGET_FACTORY "$(WB_CURRENT_CONTEXT)_CREATOR_BRANCH_TARGET"   MAXIMUM_COUNT None   OUTPUT PASSED FEATURE_TYPE *
+# -------------------------------------------------------------------------
+Tcl2 proc Creator_CoordSysRemover {} {   global FME_CoordSys;   set FME_CoordSys {}; }
+MACRO Creator_XML     NOT_ACTIVATED
+MACRO Creator_CLASSIC NOT_ACTIVATED
+MACRO Creator_2D3D    2D_GEOMETRY
+MACRO Creator_COORDS  <Unused>
+INCLUDE [ if { {Geometry Object} == {Geometry Object} } {            puts {MACRO Creator_XML *} } ]
+INCLUDE [ if { {Geometry Object} == {2D Coordinate List} } {            puts {MACRO Creator_2D3D 2D_GEOMETRY};            puts {MACRO Creator_CLASSIC *} } ]
+INCLUDE [ if { {Geometry Object} == {3D Coordinate List} } {            puts {MACRO Creator_2D3D 3D_GEOMETRY};            puts {MACRO Creator_CLASSIC *} } ]
+INCLUDE [ if { {Geometry Object} == {2D Min/Max Box} } {            set comment {                We need to turn the COORDS which are                    minX minY maxX maxY                into a full polygon list of coordinates            };            set splitCoords [split [string trim {<Unused>}]];            if { [llength $splitCoords] > 4} {               set trimmedCoords {};               foreach item $splitCoords { if { $item != {} } {lappend trimmedCoords $item} };               set splitCoords $trimmedCoords;            };            if { [llength $splitCoords] != 4 } {                error {Creator: Coordinate list is expected to be a space delimited list of four numbers as 'minx miny maxx maxy' - `<Unused>' is invalid};            };            set minX [lindex $splitCoords 0];            set minY [lindex $splitCoords 1];            set maxX [lindex $splitCoords 2];            set maxY [lindex $splitCoords 3];            puts "MACRO Creator_COORDS $minX $minY $minX $maxY $maxX $maxY $maxX $minY $minX $minY";            puts {MACRO Creator_2D3D 2D_GEOMETRY};            puts {MACRO Creator_CLASSIC *} } ]
+FACTORY_DEF {$(Creator_XML)} CreationFactory    FACTORY_NAME { Creator_XML_Creator }    CREATE_AT_END { no }    OUTPUT { FEATURE_TYPE _____CREATED______        @Geometry(FROM_ENCODED_STRING,<lt>?xml<space>version=<quote>1.0<quote><space>encoding=<quote>US_ASCII<quote><space>standalone=<quote>no<quote><space>?<gt><lt>geometry<gt><lt>null<solidus><gt><lt><solidus>geometry<gt>) }
+FACTORY_DEF {$(Creator_CLASSIC)} CreationFactory    FACTORY_NAME { Creator_CLASSIC_Creator }    $(Creator_2D3D) { $(Creator_COORDS) }    CREATE_AT_END { no }    OUTPUT { FEATURE_TYPE _____CREATED______ }
+FACTORY_DEF {*} TeeFactory    FACTORY_NAME { Creator_Cloner }    INPUT FEATURE_TYPE _____CREATED______        @Tcl2(Creator_CoordSysRemover)        @CoordSys()    NUMBER_OF_COPIES { 1 }    COPY_NUMBER_ATTRIBUTE { "_creation_instance" }    OUTPUT { FEATURE_TYPE Creator_CREATED        fme_feature_type Creator         }
+FACTORY_DEF * BranchingFactory   FACTORY_NAME "Creator_CREATED Brancher -1 9"   INPUT FEATURE_TYPE Creator_CREATED   TARGET_FACTORY "$(WB_CURRENT_CONTEXT)_CREATOR_BRANCH_TARGET"   MAXIMUM_COUNT None   OUTPUT PASSED FEATURE_TYPE *
+# -------------------------------------------------------------------------
+FACTORY_DEF * TeeFactory   FACTORY_NAME "$(WB_CURRENT_CONTEXT)_CREATOR_BRANCH_TARGET"   INPUT FEATURE_TYPE *  OUTPUT FEATURE_TYPE *
+# -------------------------------------------------------------------------
+Tcl2 proc AttributeCreator_18468d01_aed1_4986_b68c_da9d15505ce63_attrSetter { attrList } {     set attrList [string trim $attrList {()}];     set attrs [split $attrList {,} ];     foreach {attrName attrVal} $attrs {         if { [string match {*<at>*} $attrName] == 1 } {             set attrName [FME_Execute EvaluateExpression {STRING} $attrName {AttributeCreator}];         } else {             set attrName [FME_DecodeText $attrName];         };         if { [string match {*<at>*} $attrVal] == 1 } {             set attrVal [FME_Execute EvaluateExpression {STRING_ENCODED} $attrVal {AttributeCreator}];         };         FME_SetAttribute $attrName [FME_DecodeText $attrVal];     }; };
+FACTORY_DEF * TeeFactory    FACTORY_NAME AttributeCreator    INPUT  FEATURE_TYPE Creator_CREATED    OUTPUT FEATURE_TYPE AttributeCreator_OUTPUT         "@Tcl2( AttributeCreator_18468d01_aed1_4986_b68c_da9d15505ce63_attrSetter {(xtf_id,1,xtf_basket,b1)} )"
+# -------------------------------------------------------------------------
+Tcl2 proc AttributeCreator_2_07fa82a4_d638_40b1_840e_23c9215c13913_attrSetter { attrList } {     set attrList [string trim $attrList {()}];     set attrs [split $attrList {,} ];     foreach {attrName attrVal} $attrs {         if { [string match {*<at>*} $attrName] == 1 } {             set attrName [FME_Execute EvaluateExpression {STRING} $attrName {AttributeCreator_2}];         } else {             set attrName [FME_DecodeText $attrName];         };         if { [string match {*<at>*} $attrVal] == 1 } {             set attrVal [FME_Execute EvaluateExpression {STRING_ENCODED} $attrVal {AttributeCreator_2}];         };         FME_SetAttribute $attrName [FME_DecodeText $attrVal];     }; };
+FACTORY_DEF * TeeFactory    FACTORY_NAME AttributeCreator_2    INPUT  FEATURE_TYPE Creator_2_CREATED    OUTPUT FEATURE_TYPE AttributeCreator_2_OUTPUT         "@Tcl2( AttributeCreator_2_07fa82a4_d638_40b1_840e_23c9215c13913_attrSetter {(xtf_topic,Basket23.TopicA,xtf_id,b1,xtf_seq,1)} )"
+# -------------------------------------------------------------------------
+Tcl2 proc AttributeCreator_3_6179eece_cb45_4de5_9bb2_112dffb46bdc3_attrSetter { attrList } {     set attrList [string trim $attrList {()}];     set attrs [split $attrList {,} ];     foreach {attrName attrVal} $attrs {         if { [string match {*<at>*} $attrName] == 1 } {             set attrName [FME_Execute EvaluateExpression {STRING} $attrName {AttributeCreator_3}];         } else {             set attrName [FME_DecodeText $attrName];         };         if { [string match {*<at>*} $attrVal] == 1 } {             set attrVal [FME_Execute EvaluateExpression {STRING_ENCODED} $attrVal {AttributeCreator_3}];         };         FME_SetAttribute $attrName [FME_DecodeText $attrVal];     }; };
+FACTORY_DEF * TeeFactory    FACTORY_NAME AttributeCreator_3    INPUT  FEATURE_TYPE Creator_3_CREATED    OUTPUT FEATURE_TYPE AttributeCreator_3_OUTPUT         "@Tcl2( AttributeCreator_3_6179eece_cb45_4de5_9bb2_112dffb46bdc3_attrSetter {(xtf_topic,Basket23.TopicA,xtf_id,b2,xtf_seq,2)} )"
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * RoutingFactory FACTORY_NAME "Destination Feature Type Routing Correlator"   COMMAND_PARM_EVALUATION SINGLE_PASS   INPUT FEATURE_TYPE *    ROUTE FME_GENERIC AttributeCreator_OUTPUT TO ch.ehi.fme.Main __GO_TO_FINAL_OUTPUT_ROUTER__ multi_writer_id,0,<at>SupplyAttributes<openparen>ENCODED<comma>__wb_out_feat_type__<comma>Basket23.TopicA.ClassA<closeparen> GEOMETRY    ROUTE FME_GENERIC AttributeCreator_2_OUTPUT TO ch.ehi.fme.Main __GO_TO_FINAL_OUTPUT_ROUTER__ multi_writer_id,0,<at>SupplyAttributes<openparen>ENCODED<comma>__wb_out_feat_type__<comma>XTF_BASKETS<closeparen> GEOMETRY    ROUTE FME_GENERIC AttributeCreator_3_OUTPUT TO ch.ehi.fme.Main __GO_TO_FINAL_OUTPUT_ROUTER__ multi_writer_id,0,<at>SupplyAttributes<openparen>ENCODED<comma>__wb_out_feat_type__<comma>XTF_BASKETS<closeparen> GEOMETRY   FEATURE_TYPE_ATTRIBUTE __wb_out_feat_type__   OUTPUT ROUTED FEATURE_TYPE *    OUTPUT NOT_ROUTED FEATURE_TYPE __nuke_me__ @Tcl2("FME_StatMessage 818059 [FME_GetAttribute fme_template_feature_type] 818060 818061 fme_warn")
+# -------------------------------------------------------------------------
+
+FACTORY_DEF * TeeFactory   FACTORY_NAME "Final Output Nuker"   INPUT FEATURE_TYPE __nuke_me__
+
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF XTF_BASKETS   xtf_topic                    xtf_char(34)   xtf_id                       xtf_char(200)   xtf_startstate               xtf_char(250)   xtf_endstate                 xtf_char(250)   xtf_seq                      xtf_int16
+# -------------------------------------------------------------------------
+ch.ehi.fme.Main_1_DEF Basket23.TopicA.ClassA   xtf_id                       xtf_char(200)

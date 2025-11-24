@@ -93,6 +93,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	static public final String XTF_BASKETS_DOMAINS="xtf_domains";
     static public final String XTF_BASKETS_DOMAINS_GENERIC="generic";
     static public final String XTF_BASKETS_DOMAINS_CONCRETE="concrete";
+    static public final String XTF_BASKETS_SEQ="xtf_seq";
 	static public final String XTF_CLASS="xtf_class";
 	static public final String XTF_GEOMATTR="xtf_geomattr";
 	static public final String XTF_GEOMTYPE="xtf_geomtype";
@@ -114,6 +115,7 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	// xtf types
 	static public final String ID_TYPE="xtf_char(200)";
 	static public final String ILINAME_TYPE="xtf_char(255)";
+    static public final String XTF_BASKETS_SEQ_TYPE="xtf_int16";
 	static public final String XTF_BASKETS_STATE_TYPE="xtf_char(250)";
 	static public final String XTF_BASKETS_CONSISTENCY_TYPE="xtf_char(12)";
 	static public final String XTF_BASKETS_DOMAINS_TYPE="xtf_char(250)";
@@ -123,6 +125,10 @@ public class Main implements IFMEReaderCreator, IFMEWriterCreator {
 	//static public final String ILIQNAME_TYPE="xtf_char(255)"; //757 3*255+2 "Model.Topic.Class"
 	// XML tag
 	static public final String DELETE_TAG="DELETE";
+	// XTF_BASKETS.xtf_seq values
+    public static final int BASKET_SEQ_UNDEFINED = 0;
+    public static final int BASKET_SEQ_START = 1;
+	
 	// name of jar file
 	static public final String ILI2FME_JAR="ili2fme.jar";
     public static final String SETTING_REFERENCE_DATA = "ch.ehi.ili2fme.refernceData";

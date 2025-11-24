@@ -102,6 +102,7 @@ public class Ili2Reader implements IFMEReader {
 	private IoxReader ioxReader=null;
 	private java.io.InputStream inputFile=null;
 	private String currentBid=null;
+    private int basketSeq=Main.BASKET_SEQ_START;
 	private int iliQNameSize=0;
 	private int formatMode=0;
 	private static final int MODE_XTF=1;
@@ -640,6 +641,8 @@ public class Ili2Reader implements IFMEReader {
 		if(checkUniqueOid){
 			checkoids=new HashMap();
 		}
+		
+		basketSeq=Main.BASKET_SEQ_START;
 		// ASSERT: ready to scan schema or read data
 	}
 
@@ -1017,6 +1020,7 @@ public class Ili2Reader implements IFMEReader {
 		ret.setFeatureType(Main.XTF_BASKETS);
 		ret.setStringAttribute(Main.XTF_TOPIC,be.getType());
 		ret.setStringAttribute(Main.XTF_ID,be.getBid());
+        ret.setIntAttribute(Main.XTF_BASKETS_SEQ,basketSeq++);
 		String startState=be.getStartstate();
 		if(startState!=null){
 			ret.setStringAttribute(Main.XTF_BASKETS_STARTSTATE,startState);
@@ -1637,6 +1641,7 @@ public class Ili2Reader implements IFMEReader {
 				ret.setSequencedAttribute("fme_geometry{0}", "xtf_none");
 				ret.setSequencedAttribute(Main.XTF_TOPIC,getIliQNameType());
 				ret.setSequencedAttribute(Main.XTF_ID,Main.ID_TYPE);
+                ret.setSequencedAttribute(Main.XTF_BASKETS_SEQ,Main.XTF_BASKETS_SEQ_TYPE);
 				ret.setSequencedAttribute(Main.XTF_BASKETS_STARTSTATE,Main.XTF_BASKETS_STATE_TYPE);
 				ret.setSequencedAttribute(Main.XTF_BASKETS_ENDSTATE,Main.XTF_BASKETS_STATE_TYPE);
 				ret.setSequencedAttribute(Main.XTF_BASKETS_CONSISTENCY,Main.XTF_BASKETS_CONSISTENCY_TYPE);
