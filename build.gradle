@@ -1,6 +1,6 @@
 plugins {
-	id "java"
-	id "maven"
+    id 'java-library'
+    id 'maven-publish'
 	id 'org.asciidoctor.jvm.convert' version '3.3.2'
 	id 'org.asciidoctor.jvm.pdf' version '3.3.2'
 }
@@ -10,17 +10,23 @@ version '8.0.0'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
 
 
-sourceCompatibility = "1.8" 
-targetCompatibility = "1.8"
-compileJava.options.encoding = 'US-ASCII'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+    options.encoding = 'US-ASCII'
+}
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+	mavenLocal()
+    mavenCentral()
     maven {
-        url "http://jars.interlis.ch"
+        url "https://jars.interlis.ch"
     }
 }
 
@@ -56,7 +62,7 @@ sourceSets {
         java {
             srcDirs = ['src']
         }
-        compileClasspath += project.configurations.compileOnly
+        //compileClasspath += project.configurations.compileOnly
     }
 }
 
@@ -78,7 +84,6 @@ task generateMyResources {
 
 
 configurations {
-    deployerJars
     ftpAntTask
     ili2cTool { transitive = false }
     jtsJar { transitive = false }
@@ -86,24 +91,21 @@ configurations {
 
 
 dependencies {
-    implementation group: 'ch.interlis', name: 'iox-ili', version: '1.24.1'
-    implementation group: 'ch.interlis', name: 'ili2c-tool', version: "5.6.6"
-    implementation group: 'ch.interlis', name: 'ili2c-core', version: "5.6.6"
-   compileOnly "com.vividsolutions:jts-core:1.14.0"
-   compileOnly files("lib/pluginbuilder.jar")
-   jtsJar "com.vividsolutions:jts-core:1.14.0"
+    implementation files("lib/pluginbuilder.jar")
+    implementation "com.vividsolutions:jts-core:1.14.0"
+	implementation "ch.interlis:ili2c-tool:5.6.6"
+	implementation "ch.interlis:ili2c-core:5.6.6"
+    implementation "ch.interlis:iox-ili:1.24.1"
+    jtsJar "com.vividsolutions:jts-core:1.14.0"
    ili2cTool("ch.interlis:ili2c-tool:5.6.6"){
 		artifact {
 			  //useful when some artifact properties unconventional
 			  name = 'ili2c-tool' //artifact name different than module name
 			  extension = 'zip'
-			  type = 'zip'
 			  classifier = 'bindist'
 		}
    }
-    deployerJars "org.apache.maven.wagon:wagon-ftp:3.3.3"
-    deployerJars "org.apache.maven.wagon:wagon-ssh:3.3.3"
-    ftpAntTask "org.apache.ant:ant-commons-net:1.10.7"
+    ftpAntTask "org.apache.ant:ant-commons-net:1.10.15" // muss zu gradle builtin ant version passen!
 }
 
 jar {
@@ -155,14 +157,13 @@ task getJtsJar(type: Copy){
 	into "$extractedJtsJar"
 }
 
-compileJava.dependsOn getIli2cToolJar
 
-task bindist(type: Zip,dependsOn: getJtsJar){
+task bindist(type: Zip){
 	group = BasePlugin.BUILD_GROUP
     description = 'Assembles the binary distribution of this project'
 	
-	baseName = project.name
-	destinationDir = file('dist')
+	archiveBaseName = project.name
+	destinationDirectory = file('dist')
 	
 	def fme="FME Suite"
 	
@@ -195,7 +196,7 @@ task bindist(type: Zip,dependsOn: getJtsJar){
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
     from ('.'){
     	include 'docs/*.adoc'
@@ -210,18 +211,8 @@ javadoc{
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-	archives(bindist.archivePath) {
-        type 'zip'
-        classifier 'bindist'
-        builtBy bindist
-    }
 }
 
 def githubRepoUrl = 'https://github.com/claeis/ili2fme'
@@ -229,30 +220,49 @@ def githubRepoUrl = 'https://github.com/claeis/ili2fme'
 def pomConfig = {
     licenses {
         license {
-            name "LGPL 2.1"
-            url "https://github.com/claeis/ili2fme/blob/master/docs/LICENSE.lgpl"
+            name = "LGPL 2.1"
+            url = "https://github.com/claeis/ili2fme/blob/master/docs/LICENSE.lgpl"
         }
     }
     developers {
         developer {
-            id "claeis"
-            name "Claude Eisenhut"
-            email "ce@eisenhutinformatik.ch"
+            id = "claeis"
+            name = "Claude Eisenhut"
+            email = "ce@eisenhutinformatik.ch"
         }
     }
 
     scm {
-        url githubRepoUrl
+        url = githubRepoUrl
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-        	configuration = configurations.deployerJars
-			repository(url: repos_url){
-            	authentication(userName: repos_usr, password: repos_pwd)
+publishing {
+	publications {
+        maven(MavenPublication) {
+            artifact jar
+            pom pomConfig
+        }
+        maven(MavenPublication) {
+            artifact sourcesJar
+        }
+        maven(MavenPublication) {
+            artifact javadocJar
+        }
+        maven(MavenPublication) {
+            artifact(bindist){
+            	extension 'zip'
+            	classifier 'bindist'
             }
+        }
+    }
+    repositories {
+        maven {
+            url = repos_url
+            credentials {
+            	username = repos_usr
+            	password = repos_pwd
+            }            
         }
     }
 }
