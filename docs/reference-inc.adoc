@@ -558,6 +558,9 @@ the `BID` XML-attribute.
 |xtf_topic |Qualified name of the INTERLIS 2 topic name. In the figure
 above would `ModelA.TopicA` be a possible value.
 
+|xtf_seq | index (starting with 1) of basket in transfer 
+file (only INTERLIS 2).
+
 |xtf_startstate |Only used for incremental INTERLIS 2 transfer. If set,
 it indicates an `UPDATE` transfer. It indicates an `INITIAL` transfer, if it
 is not set. If it is not an incremental transfer, the value is ignored.
