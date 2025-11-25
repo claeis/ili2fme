@@ -1,13 +1,11 @@
 language: java
+jdk: openjdk11
 
 addons:
   ssh_known_hosts:
   - ftp.interlis.ch
   apt:
     update: true
-
-jdk:
-   - openjdk8
 
 branches:
   only:
