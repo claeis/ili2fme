@@ -119,6 +119,7 @@ public class Ili2Writer implements IFMEWriter {
 	private GeometryConverter geomConv=null;
     private String metaConfig=null;
     private ch.interlis.iox_j.validator.Validator validator=null;
+    private ch.interlis.iox_j.filter.TranslateToOrigin translateToOrigin=null;
 	private boolean validate=false;
     private String validationConfig=null;
 	private boolean validateMultiplicity=false;
@@ -565,6 +566,9 @@ public class Ili2Writer implements IFMEWriter {
 					writeItfBuffers();
 				}
 				ch.interlis.iox_j.EndTransferEvent endTransferEvent=new ch.interlis.iox_j.EndTransferEvent();
+				if(translateToOrigin!=null) {
+				    
+				}
                 if(validator!=null) {
                     validator.validate(endTransferEvent);
                     validator.doSecondPass();
@@ -610,16 +614,26 @@ public class Ili2Writer implements IFMEWriter {
 				    Model model=(Model)topic.getContainer();
 				    if (Model.ILI2_4.equals(model.getIliVersion())) {
 	                    if (model.getTranslationOf() != null) {
-	                        throw new DataException("INTERLIS 2.4 features/attributes must be untranslated");
+	                        translateToOrigin=new ch.interlis.iox_j.filter.TranslateToOrigin(iliTd,new Settings());
+	                        translateToOrigin.filter(startTransferEvent);
 	                    }
 				    }
 				}
+                if(translateToOrigin!=null) {
+                    Topic topicDest=(Topic)topic.getTranslationOfOrSame();
+                    if(topicDest!=topic) {
+                        startBasketEvent.setType(topicDest.getScopedName());
+                    }
+                }
 				if(validator!=null) {
 				    validator.validate(startBasketEvent);
 				}
 				ioxWriter.write(startBasketEvent);
 				writeBasket(basketId,false,null);
                 ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
+                if(translateToOrigin!=null) {
+                    endBasketEvent=(ch.interlis.iox_j.EndBasketEvent) translateToOrigin.filter(endBasketEvent);
+                }
                 if(validator!=null) {
                     validator.validate(endBasketEvent);
                 }
@@ -641,6 +655,9 @@ public class Ili2Writer implements IFMEWriter {
 						throw new DataException("iomObj==null with feature "+feature.toString());
 					}
                     if(startBasketEvent!=null) {
+                        if(translateToOrigin!=null) {
+                            startBasketEvent=(ch.interlis.iox_j.StartBasketEvent) translateToOrigin.filter(startBasketEvent);
+                        }
                         if(validator!=null) {
                             validator.validate(startBasketEvent);
                         }
@@ -649,6 +666,9 @@ public class Ili2Writer implements IFMEWriter {
                     }
 					
 					ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
+	                if(translateToOrigin!=null) {
+	                    objEvent=(ch.interlis.iox_j.ObjectEvent) translateToOrigin.filter(objEvent);
+	                }
 					if(validator!=null) {
 					    validator.validate(objEvent);
 					}
