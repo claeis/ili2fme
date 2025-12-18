@@ -1,7 +1,8 @@
-ili2fme 8.0.0 (2025-08-xx)
+ili2fme 8.0.0 (2025-12-18)
 -------------------------------
 - added XTF_BASKETS.xtf_seq to control order of baskets (#8)
 - ILI2.4: Translate data to original model when exporting (#46)
+- added additional COORDINATE_SYSTEM properties to metafile required by FME2026 (#49)
 - remove MSI  (#41)
 - JRE 1.8
 
