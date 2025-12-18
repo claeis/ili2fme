@@ -120,7 +120,7 @@ jar {
 
 asciidoctor {
     sourceDir  file('docs')
-    outputDir  file('build/docs')
+    outputDir  file('build/asciidoctor')
 	resources {
 	  from('docs') {
 		include 'media/*.png'
@@ -136,7 +136,7 @@ asciidoctorPdf {
 	//options '-o': 'test.pdf'
 	//attributes '-o' : 'test.pdf'
 	
-  	outputDir  file('build/docs')
+  	outputDir  file('build/asciidoctor')
   	baseDirFollowsSourceDir()
 	/*attributes {
 	  imagesdir= 'docs'
@@ -158,7 +158,7 @@ task getJtsJar(type: Copy){
 }
 
 
-task bindist(type: Zip){
+task bindist(type: Zip,dependsOn: [asciidoctorPdf]){
 	group = BasePlugin.BUILD_GROUP
     description = 'Assembles the binary distribution of this project'
 	
@@ -190,7 +190,11 @@ task bindist(type: Zip){
         into "${fme}/plugins/interlis2/"
 	}
 	from ("$projectDir"){
-	    include "docs/LICENSE.*","docs/README.txt","docs/CHANGELOG.txt","docs/interlis2.pdf"
+	    include "docs/LICENSE.*","docs/README.md","docs/CHANGELOG.txt"
+	}
+	from ("$buildDir/asciidoctor"){
+	    include "ili2fme.pdf"
+        into "docs/"
 	}
 }
 
@@ -269,7 +273,7 @@ publishing {
 
 task uploadBin(dependsOn: [bindist,asciidoctorPdf]) {
 	doLast {
-		new File("$buildDir/docs/ili2fme.pdf").renameTo("$buildDir/docs/ili2fme-${project.version}.pdf")
+		new File("$buildDir/asciidoctor/ili2fme.pdf").renameTo("$buildDir/asciidoctor/ili2fme-${project.version}.pdf")
 
 		ant.taskdef(name: 'ftp',
 					classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP',
@@ -285,7 +289,7 @@ task uploadBin(dependsOn: [bindist,asciidoctorPdf]) {
 					include(name: name)
 					include(name: releaseFile.name)
 				}
-				fileset(dir: "$buildDir/docs/" ) {
+				fileset(dir: "$buildDir/asciidoctor/" ) {
 					include(name: "ili2fme-${project.version}.pdf")
 				}
 		}
