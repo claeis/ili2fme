@@ -19,6 +19,7 @@ package ch.interlis.ili2fme;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -73,6 +74,21 @@ import ch.interlis.iox_j.jts.Iox2jtsException;
  * @version $Revision: 1.0 $ $Date: 17.05.2005 $
  */
 public class Ili2Writer implements IFMEWriter {
+    private static class BasketSeq {
+        public BasketSeq(String basketId, int basketSeq) {
+            super();
+            this.basketId = basketId;
+            this.basketSeq = basketSeq;
+        }
+        private String basketId;
+        private int basketSeq;
+        public String getBasketId() {
+            return basketId;
+        }
+        public int getBasketSeq() {
+            return basketSeq;
+        }
+    }
 	private IFMEMappingFile mappingFile=null;
 	private IFMESession session=null;
 	private String writerKeyword=null;
@@ -82,6 +98,7 @@ public class Ili2Writer implements IFMEWriter {
 	private java.io.OutputStream outputFile=null; // output stream to ioxWriter
 	private ch.interlis.ili2c.metamodel.TransferDescription iliTd=null;
 	private HashMap<String,StartBasketEvent> basketv=null; // set<String basketId,StartBasketEvent>
+    private ArrayList<BasketSeq> basketOrder=null;
 	private HashMap<String,IFMEFeatureVectorOnDisk> featurebufferv=new HashMap<String,IFMEFeatureVectorOnDisk>(); // set<String basketId,IFMEFeatureVectorOnDisk>
 	private HashMap<String,ViewableWrapper> fmeFeatureTypev=null; // map<String fmeFeatureTypeName, ViewableWrapper wrapper>
 	private HashMap<String,Element> tag2class=null; // map<String iliQName,Viewable|AttributeDef modelele>
@@ -90,7 +107,7 @@ public class Ili2Writer implements IFMEWriter {
 	private static final int MODE_ITF=2;
 	private static final int MODE_GML=3;
 	private static final int MODE_XRF=4;
-	private int  inheritanceMapping=InheritanceMapping.SUPERCLASS;
+    private int  inheritanceMapping=InheritanceMapping.SUPERCLASS;
 	private boolean useLineTableFeatures=true;
 	private boolean scanXtfBaskets=true;
 	private boolean autoXtfBaskets=true;
@@ -102,6 +119,7 @@ public class Ili2Writer implements IFMEWriter {
 	private GeometryConverter geomConv=null;
     private String metaConfig=null;
     private ch.interlis.iox_j.validator.Validator validator=null;
+    private ch.interlis.iox_j.filter.TranslateToOrigin translateToOrigin=null;
 	private boolean validate=false;
     private String validationConfig=null;
 	private boolean validateMultiplicity=false;
@@ -548,6 +566,9 @@ public class Ili2Writer implements IFMEWriter {
 					writeItfBuffers();
 				}
 				ch.interlis.iox_j.EndTransferEvent endTransferEvent=new ch.interlis.iox_j.EndTransferEvent();
+				if(translateToOrigin!=null) {
+				    
+				}
                 if(validator!=null) {
                     validator.validate(endTransferEvent);
                     validator.doSecondPass();
@@ -571,9 +592,15 @@ public class Ili2Writer implements IFMEWriter {
 	}
 	private void writeXtfBuffers() throws IoxException,Exception {
 		if(basketv!=null){
-			Iterator basketi=basketv.keySet().iterator();
+		    basketOrder.sort(new Comparator<BasketSeq>() {
+                @Override
+                public int compare(BasketSeq o1, BasketSeq o2) {
+                    return Integer.compare(o1.getBasketSeq(),o2.getBasketSeq());
+                }
+		    });
+			Iterator<BasketSeq> basketi=basketOrder.iterator();
 			while(basketi.hasNext()){
-				String basketId=(String)basketi.next();
+				String basketId=basketi.next().getBasketId();
 				ch.interlis.iox_j.StartBasketEvent startBasketEvent=(ch.interlis.iox_j.StartBasketEvent)basketv.get(basketId);
 				if(autoXtfBaskets){
 					// auto generate BID
@@ -587,16 +614,26 @@ public class Ili2Writer implements IFMEWriter {
 				    Model model=(Model)topic.getContainer();
 				    if (Model.ILI2_4.equals(model.getIliVersion())) {
 	                    if (model.getTranslationOf() != null) {
-	                        throw new DataException("INTERLIS 2.4 features/attributes must be untranslated");
+	                        translateToOrigin=new ch.interlis.iox_j.filter.TranslateToOrigin(iliTd,new Settings());
+	                        translateToOrigin.filter(startTransferEvent);
 	                    }
 				    }
 				}
+                if(translateToOrigin!=null) {
+                    Topic topicDest=(Topic)topic.getTranslationOfOrSame();
+                    if(topicDest!=topic) {
+                        startBasketEvent.setType(topicDest.getScopedName());
+                    }
+                }
 				if(validator!=null) {
 				    validator.validate(startBasketEvent);
 				}
 				ioxWriter.write(startBasketEvent);
 				writeBasket(basketId,false,null);
                 ch.interlis.iox_j.EndBasketEvent endBasketEvent=new ch.interlis.iox_j.EndBasketEvent();
+                if(translateToOrigin!=null) {
+                    endBasketEvent=(ch.interlis.iox_j.EndBasketEvent) translateToOrigin.filter(endBasketEvent);
+                }
                 if(validator!=null) {
                     validator.validate(endBasketEvent);
                 }
@@ -618,6 +655,9 @@ public class Ili2Writer implements IFMEWriter {
 						throw new DataException("iomObj==null with feature "+feature.toString());
 					}
                     if(startBasketEvent!=null) {
+                        if(translateToOrigin!=null) {
+                            startBasketEvent=(ch.interlis.iox_j.StartBasketEvent) translateToOrigin.filter(startBasketEvent);
+                        }
                         if(validator!=null) {
                             validator.validate(startBasketEvent);
                         }
@@ -626,6 +666,9 @@ public class Ili2Writer implements IFMEWriter {
                     }
 					
 					ch.interlis.iox_j.ObjectEvent objEvent=new ch.interlis.iox_j.ObjectEvent(iomObj);
+	                if(translateToOrigin!=null) {
+	                    objEvent=(ch.interlis.iox_j.ObjectEvent) translateToOrigin.filter(objEvent);
+	                }
 					if(validator!=null) {
 					    validator.validate(objEvent);
 					}
@@ -1187,13 +1230,13 @@ public class Ili2Writer implements IFMEWriter {
 				// use qualified topic name as buffer name
 				bufferKey=tag.substring(0,tag.lastIndexOf('.'));
 				if(basketv==null){
-					basketv=new HashMap();
+					initBaskets();
 				}
 				String topic=bufferKey;
 				String basketId=bufferKey;
 				if(!basketv.containsKey(basketId)){
 					ch.interlis.iox_j.StartBasketEvent basket=new ch.interlis.iox_j.StartBasketEvent(topic,basketId);
-					basketv.put(basketId,basket);
+					addBasket(basketId, basket,Main.BASKET_SEQ_UNDEFINED);
 				}
 			}else{
 				if(!obj.attributeExists(Main.XTF_BASKET)){
@@ -1217,6 +1260,14 @@ public class Ili2Writer implements IFMEWriter {
 		COM.safe.fmeobjects.IFMEFeatureVectorOnDisk featurev=getFeatureBuffer(bufferKey);
 		featurev.append(obj);
 	}
+    private void initBaskets() {
+        basketv=new HashMap<String,StartBasketEvent>();
+        basketOrder=new ArrayList<BasketSeq>();
+    }
+    protected void addBasket(String basketId, ch.interlis.iox_j.StartBasketEvent basket,int basketSeq) {
+        basketv.put(basketId,basket);
+        basketOrder.add(new BasketSeq(basketId,basketSeq));
+    }
 	private void trackModel(String tag) {
 		String iliModel=tag.substring(0,tag.indexOf('.'));
 		if(!modelsFromFME.contains(iliModel)){
@@ -1238,7 +1289,7 @@ public class Ili2Writer implements IFMEWriter {
 				}
 			}
 			if(basketv==null){
-				basketv=new HashMap();
+				initBaskets();
 			}
 			String topic=obj.getStringAttribute(Main.XTF_TOPIC);
 			trackModel(topic);
@@ -1248,6 +1299,10 @@ public class Ili2Writer implements IFMEWriter {
 			}else{
 				EhiLogger.traceState("basket topic <"+topic+">, id <"+basketId+">");
 				ch.interlis.iox_j.StartBasketEvent basket=new ch.interlis.iox_j.StartBasketEvent(topic,basketId);
+				int basketSeq=Main.BASKET_SEQ_UNDEFINED;
+                if(obj.attributeExists(Main.XTF_BASKETS_SEQ)){
+                    basketSeq=obj.getIntAttribute(Main.XTF_BASKETS_SEQ);
+                }
 				String startState=null;
 				if(obj.attributeExists(Main.XTF_BASKETS_STARTSTATE)){
 					startState=ch.ehi.basics.tools.StringUtility.purge(obj.getStringAttribute(Main.XTF_BASKETS_STARTSTATE));
@@ -1282,7 +1337,7 @@ public class Ili2Writer implements IFMEWriter {
                         idx++;
                     }
                 }
-				basketv.put(basketId,basket);
+				addBasket(basketId, basket,basketSeq);
 			}
 		}
 	}

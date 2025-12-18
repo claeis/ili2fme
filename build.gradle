@@ -1,26 +1,32 @@
 plugins {
-	id "java"
-	id "maven"
+    id 'java-library'
+    id 'maven-publish'
 	id 'org.asciidoctor.jvm.convert' version '3.3.2'
 	id 'org.asciidoctor.jvm.pdf' version '3.3.2'
 }
 
 
-version '7.4.1'+System.getProperty('release','-SNAPSHOT')
+version '8.0.0'+System.getProperty('release','-SNAPSHOT')
 group 'ch.interlis'
 
 
-sourceCompatibility = "1.6" 
-targetCompatibility = "1.6"
-compileJava.options.encoding = 'US-ASCII'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+    options.encoding = 'US-ASCII'
+}
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+	mavenLocal()
+    mavenCentral()
     maven {
-        url "http://jars.interlis.ch"
+        url "https://jars.interlis.ch"
     }
 }
 
@@ -30,9 +36,6 @@ if(propFile.exists()){
 	properties.load(propFile.newDataInputStream())
 }
 def git = System.getProperty('git',properties.get('git','git'))
-def windir = System.getProperty('windir',properties.get('windir',""))
-def wix_candle = System.getProperty('wix_candle',properties.get('wix_candle','candle.exe'))
-def wix_light = System.getProperty('wix_light',properties.get('wix_light','light.exe'))
 def repos_pwd = System.getProperty('repos_pwd',properties.get('repos_pwd','repos_pwd'))
 def repos_usr = System.getProperty('repos_usr',properties.get('repos_usr','repos_usr'))
 def repos_url = System.getProperty('repos_url',properties.get('repos_url','repos_url'))
@@ -59,7 +62,7 @@ sourceSets {
         java {
             srcDirs = ['src']
         }
-        compileClasspath += project.configurations.compileOnly
+        //compileClasspath += project.configurations.compileOnly
     }
 }
 
@@ -81,7 +84,6 @@ task generateMyResources {
 
 
 configurations {
-    deployerJars
     ftpAntTask
     ili2cTool { transitive = false }
     jtsJar { transitive = false }
@@ -89,24 +91,21 @@ configurations {
 
 
 dependencies {
-    implementation group: 'ch.interlis', name: 'iox-ili', version: '1.24.1'
-    implementation group: 'ch.interlis', name: 'ili2c-tool', version: "5.6.6"
-    implementation group: 'ch.interlis', name: 'ili2c-core', version: "5.6.6"
-   compileOnly "com.vividsolutions:jts-core:1.14.0"
-   compileOnly files("lib/pluginbuilder.jar")
-   jtsJar "com.vividsolutions:jts-core:1.14.0"
+    implementation files("lib/pluginbuilder.jar")
+    implementation "com.vividsolutions:jts-core:1.14.0"
+	implementation "ch.interlis:ili2c-tool:5.6.6"
+	implementation "ch.interlis:ili2c-core:5.6.6"
+    implementation "ch.interlis:iox-ili:1.24.1"
+    jtsJar "com.vividsolutions:jts-core:1.14.0"
    ili2cTool("ch.interlis:ili2c-tool:5.6.6"){
 		artifact {
 			  //useful when some artifact properties unconventional
 			  name = 'ili2c-tool' //artifact name different than module name
 			  extension = 'zip'
-			  type = 'zip'
 			  classifier = 'bindist'
 		}
    }
-    deployerJars "org.apache.maven.wagon:wagon-ftp:3.3.3"
-    deployerJars "org.apache.maven.wagon:wagon-ssh:3.3.3"
-    ftpAntTask "org.apache.ant:ant-commons-net:1.10.7"
+    ftpAntTask "org.apache.ant:ant-commons-net:1.10.15" // muss zu gradle builtin ant version passen!
 }
 
 jar {
@@ -158,14 +157,13 @@ task getJtsJar(type: Copy){
 	into "$extractedJtsJar"
 }
 
-compileJava.dependsOn getIli2cToolJar
 
-task bindist(type: Zip,dependsOn: getJtsJar){
+task bindist(type: Zip){
 	group = BasePlugin.BUILD_GROUP
     description = 'Assembles the binary distribution of this project'
 	
-	baseName = project.name
-	destinationDir = file('dist')
+	archiveBaseName = project.name
+	destinationDirectory = file('dist')
 	
 	def fme="FME Suite"
 	
@@ -196,38 +194,9 @@ task bindist(type: Zip,dependsOn: getJtsJar){
 	}
 }
 
-task('msi',dependsOn: getJtsJar) {
-	group = BasePlugin.BUILD_GROUP
-    description = 'Assembles the MSI distribution of this project'
-    
-	def msiFile = new File("dist","${project.name}-${project.version}.msi")
-    outputs.files "$msiFile"
-    
-    doLast {
-    	def strippedVersion="${project.version}".replace("-SNAPSHOT","")
-    	def basedir=projectDir
-    	def candleCmd=["${wix_candle}", "-v", "-arch=x64", "-dversion=$strippedVersion", "-dbasedir=${basedir}", "-out", "OUT/ILI2FME.WIXOBJ", "setup/ili2fme.wxs"]
-    	def lightCmd=["${wix_light}","-v", "-sval","-b", "setup", "-pdbout", "OUT/ILI2FME.WIXPDB", "-out", "$msiFile", "OUT/ILI2FME.WIXOBJ"]
-    	if(windir==""){
-    		candleCmd.add(0,"wine")
-    		lightCmd.add(0,"wine")
-    	}	
-    	copy {
-    		from jar
-    		into 'build/jar'
-    		rename '.+','ili2fme.jar'
-    	}
-		exec {
-			commandLine candleCmd
-		}
-		exec {
-			commandLine lightCmd
-		}
-    }
-}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
     from ('.'){
     	include 'docs/*.adoc'
@@ -242,23 +211,8 @@ javadoc{
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-	archives(bindist.archivePath) {
-        type 'zip'
-        classifier 'bindist'
-        builtBy bindist
-    }
-	archives(files(msi.outputs).singleFile) {
-        type 'msi'
-        classifier 'bindist'
-        builtBy msi
-    }
 }
 
 def githubRepoUrl = 'https://github.com/claeis/ili2fme'
@@ -266,35 +220,54 @@ def githubRepoUrl = 'https://github.com/claeis/ili2fme'
 def pomConfig = {
     licenses {
         license {
-            name "LGPL 2.1"
-            url "https://github.com/claeis/ili2fme/blob/master/docs/LICENSE.lgpl"
+            name = "LGPL 2.1"
+            url = "https://github.com/claeis/ili2fme/blob/master/docs/LICENSE.lgpl"
         }
     }
     developers {
         developer {
-            id "claeis"
-            name "Claude Eisenhut"
-            email "ce@eisenhutinformatik.ch"
+            id = "claeis"
+            name = "Claude Eisenhut"
+            email = "ce@eisenhutinformatik.ch"
         }
     }
 
     scm {
-        url githubRepoUrl
+        url = githubRepoUrl
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-        	configuration = configurations.deployerJars
-			repository(url: repos_url){
-            	authentication(userName: repos_usr, password: repos_pwd)
+publishing {
+	publications {
+        maven(MavenPublication) {
+            artifact jar
+            pom pomConfig
+        }
+        maven(MavenPublication) {
+            artifact sourcesJar
+        }
+        maven(MavenPublication) {
+            artifact javadocJar
+        }
+        maven(MavenPublication) {
+            artifact(bindist){
+            	extension 'zip'
+            	classifier 'bindist'
             }
+        }
+    }
+    repositories {
+        maven {
+            url = repos_url
+            credentials {
+            	username = repos_usr
+            	password = repos_pwd
+            }            
         }
     }
 }
 
-task uploadBin(dependsOn: [bindist,msi,asciidoctorPdf]) {
+task uploadBin(dependsOn: [bindist,asciidoctorPdf]) {
 	doLast {
 		new File("$buildDir/docs/ili2fme.pdf").renameTo("$buildDir/docs/ili2fme-${project.version}.pdf")
 
@@ -311,7 +284,6 @@ task uploadBin(dependsOn: [bindist,msi,asciidoctorPdf]) {
 				fileset(dir: dist ) {
 					include(name: name)
 					include(name: releaseFile.name)
-					include(name: "${project.name}-${project.version}.msi")
 				}
 				fileset(dir: "$buildDir/docs/" ) {
 					include(name: "ili2fme-${project.version}.pdf")

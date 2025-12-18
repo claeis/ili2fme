@@ -1,20 +1,11 @@
-dist: bionic
-
-before_install:
-  - sudo dpkg --add-architecture i386
-  
 language: java
+jdk: openjdk11
 
 addons:
+  ssh_known_hosts:
+  - ftp.interlis.ch
   apt:
     update: true
-    packages:
-      - wine32
-      - wine-stable
-      - winetricks
-
-jdk:
-   - openjdk8
 
 branches:
   only:
@@ -24,19 +15,17 @@ branches:
 install: true
 
 script: 
-  - winetricks --unattended dotnet40 dotnet_verifier
-  - (mkdir -p build/wix ; cd build/wix ; curl -SL "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip" -o wix311-binaries.zip ; unzip wix311-binaries.zip; rm -f wix311-binaries.zip)
-  - if [ $TRAVIS_BRANCH == "stable" ]; then ./gradlew -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe '-Drelease=' build sourcesJar asciidoctorPdf ; fi
-  - if [ $TRAVIS_BRANCH != "stable" ]; then ./gradlew -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe build sourcesJar asciidoctorPdf ; fi
+  - if [ $TRAVIS_BRANCH == "stable" ]; then ./gradlew '-Drelease=' build sourcesJar asciidoctorPdf ; fi
+  - if [ $TRAVIS_BRANCH != "stable" ]; then ./gradlew build sourcesJar asciidoctorPdf ; fi
   
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; ./gradlew -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' uploadArchives
+    script: ./gradlew -Drepos_pwd=${repos_pwd} -Drepos_usr=${repos_usr} -Drepos_url=${repos_url} publish
     on:
       branch: master
   - provider: script
     skip_cleanup: true
-    script: ssh-keyscan -H ftp.interlis.ch >> ~/.ssh/known_hosts; ./gradlew -Dwix_candle=build/wix/candle.exe -Dwix_light=build/wix/light.exe -Drepos_pwd=${repos_pwd} -Drepos_usr=jql_jars-INTE '-Drepos_url=ftp://ftp.interlis.ch' '-Drelease=' -Ddownloads_pwd=${downloads_pwd} -Ddownloads_usr=jql_downloads uploadArchives uploadBin
+    script: ./gradlew -Drepos_pwd=${repos_pwd} -Drepos_usr=${repos_usr} -Drepos_url=${repos_url} '-Drelease=' -Ddownloads_pwd=${downloads_pwd} -Ddownloads_usr=jql_downloads publish uploadBin
     on:
       branch: stable
