@@ -1,3 +1,8 @@
+ili2fme 8.0.1 (2025-12-29)
+-------------------------------
+- ili2c-5.6.8
+- iox-ili-1.24.4
+
 ili2fme 8.0.0 (2025-12-18)
 -------------------------------
 - added XTF_BASKETS.xtf_seq to control order of baskets (#8)
