@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+	<HEADERSECTION SENDER="ili2pg-2.2.0-20150910" VERSION="2.3">
+		<MODELS>
+			<MODEL NAME="Assoc1toN_Attr" VERSION="2015-09-23" URI="mailto:ce@eisenhutinformatik.ch"></MODEL>
+		</MODELS>
+	</HEADERSECTION>
+	<DATASECTION>
+		<Assoc1toN_Attr.TopicA BID="Assoc1toN_Attr.TopicA">
+			<Assoc1toN_Attr.TopicA.ClassA TID="10">
+			</Assoc1toN_Attr.TopicA.ClassA>
+			<Assoc1toN_Attr.TopicA.ClassB TID="20">
+				<a REF="10">
+					<Assoc1toN_Attr.TopicA.a2b>
+						<attr1>Wert20</attr1>
+					</Assoc1toN_Attr.TopicA.a2b>
+				</a>
+			</Assoc1toN_Attr.TopicA.ClassB>
+			<Assoc1toN_Attr.TopicA.ClassB TID="30">
+				<a REF="10">
+					<Assoc1toN_Attr.TopicA.a2b>
+						<attr1>Wert30</attr1>
+					</Assoc1toN_Attr.TopicA.a2b>
+				</a>
+			</Assoc1toN_Attr.TopicA.ClassB>
+		</Assoc1toN_Attr.TopicA>
+	</DATASECTION>
+</TRANSFER>

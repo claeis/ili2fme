@@ -1,0 +1,23 @@
+INTERLIS 2.3;
+
+MODEL Assoc1toN_Attr (en) AT "mailto:ce@localhost" VERSION "2025-10-08" =
+
+  TOPIC TopicA =
+
+    CLASS ClassA  =
+      Name : TEXT*99;
+    END ClassA;
+
+    CLASS ClassB =
+      Name : TEXT*99;
+    END ClassB;
+
+    ASSOCIATION a2b =
+      a -- {0..1} ClassA;
+      b -- {0..*} ClassB;
+      attr1 : TEXT*99;
+    END a2b;
+
+  END TopicA;
+ 
+END Assoc1toN_Attr.

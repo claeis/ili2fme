@@ -491,6 +491,8 @@ public class Ili2Writer implements IFMEWriter {
 		} catch (Exception ex) {
 			EhiLogger.logError(ex);
 			throw ex;
+		}finally {
+	        cleanup();
 		}
 	}
 	private void myclose() throws Exception {
@@ -1925,6 +1927,7 @@ public class Ili2Writer implements IFMEWriter {
 	private void cleanup(){
 		if(geomConv!=null){
 			geomConv.dispose();
+			geomConv=null;
 		}
 		// free buffers
 		if(featurebufferv!=null){

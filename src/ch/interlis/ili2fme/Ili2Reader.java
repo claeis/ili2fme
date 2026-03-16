@@ -668,6 +668,8 @@ public class Ili2Reader implements IFMEReader {
 		}catch(Exception ex){
 			EhiLogger.logError(ex);
 			throw ex;
+		}finally{
+		    cleanup();
 		}
 	}
 	private void myclose() throws Exception {
@@ -2379,6 +2381,7 @@ public class Ili2Reader implements IFMEReader {
 		//EhiLogger.debug("cleanup");
 		if(geomConv!=null){
 			geomConv.dispose();
+			geomConv=null;
 		}
 		if(geomAttrIterator!=null){
 			geomAttrIterator.dispose();
