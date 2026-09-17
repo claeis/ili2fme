@@ -1,3 +1,10 @@
+ili2fme 8.0.3 (2026-09-17)
+-------------------------------
+- Fehler in ili2fme 7.4.1 bei bestimmter Reader-Konfiguration (#53)
+- ILI2.4: local part cannot be "null" when creating a QName (#52)
+- ili2c-5.6.9
+- iox-ili-1.24.5
+
 ili2fme 8.0.2 (2026-03-16)
 -------------------------------
 - Writer: add cleanup() in case of exception (#51)
